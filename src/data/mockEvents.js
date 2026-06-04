@@ -22,6 +22,7 @@ export const mockBrands = [
     applicationStatus: 'disponible',
     matchScore: 4.9,
     activeHosts: 24,
+    sponsorScale: 'main',
   },
   {
     id: 'brand-002',
@@ -37,6 +38,7 @@ export const mockBrands = [
     applicationStatus: 'enviada',
     matchScore: 4.8,
     activeHosts: 31,
+    sponsorScale: 'main',
   },
   {
     id: 'brand-003',
@@ -52,6 +54,7 @@ export const mockBrands = [
     applicationStatus: 'match_aceptado',
     matchScore: 4.7,
     activeHosts: 18,
+    sponsorScale: 'main',
   },
   {
     id: 'brand-004',
@@ -67,6 +70,7 @@ export const mockBrands = [
     applicationStatus: 'disponible',
     matchScore: 4.9,
     activeHosts: 15,
+    sponsorScale: 'main',
   },
   {
     id: 'brand-005',
@@ -82,6 +86,7 @@ export const mockBrands = [
     applicationStatus: 'disponible',
     matchScore: 4.6,
     activeHosts: 9,
+    sponsorScale: 'micro',
   },
   {
     id: 'brand-006',
@@ -172,6 +177,7 @@ export const mockBrands = [
     applicationStatus: 'disponible',
     matchScore: 4.7,
     activeHosts: 16,
+    sponsorScale: 'main',
   },
   {
     id: 'brand-012',
@@ -242,7 +248,43 @@ export const availableBrands = mockBrands.map((brand) => ({
   typicalContribution: brand.budgetType,
 }))
 
+function yesterdayISO() {
+  const d = new Date()
+  d.setDate(d.getDate() - 1)
+  return d.toISOString().slice(0, 10)
+}
+
 export const myEvents = [
+  {
+    id: 'evt-past-close',
+    title: 'Pop-up Street Food — Edición Primavera',
+    date: yesterdayISO(),
+    time: '18:00 – 23:00',
+    location: 'San Telmo, Buenos Aires',
+    audience: '85 presenciales / 2.1k reach',
+    niche: 'Gastronomía',
+    coverGradient: 'from-lime-100 via-amber-50 to-white',
+    organizer: { name: 'Mesa Emergente', role: 'Organizador', isSuperHost: true },
+    venueName: 'Plaza Dorrego',
+    venueAddress: 'Balcarce y Estados Unidos · San Telmo, CABA',
+    coverLabel: 'STREET FOOD',
+    description:
+      'Pop-up gastronómico con 8 puestos emergentes, música en vivo y activaciones de marcas de bebidas y alimentos para público foodie en CABA.',
+    matchIndustries: ['Bebidas', 'Gastronomía'],
+    offers: [
+      'Stands de sampling y branding en el pop-up',
+      'Menciones en cartelería y redes del evento',
+    ],
+    seeks: ['Canje de producto o presupuesto en efectivo'],
+    invitedBrands: [
+      {
+        brandId: 'brand-001',
+        status: 'caso_abierto',
+        invitedAt: '2026-05-20',
+        dealAcceptedOffPlatform: true,
+      },
+    ],
+  },
   {
     id: 'evt-001',
     title: 'Neon LAN Party — Torneo Valorant',
@@ -270,8 +312,17 @@ export const myEvents = [
     description:
       'Torneo cerrado de Valorant 5v5 con transmisión en vivo, casting invitado y zona expo para sponsors tech y bebidas. Público 18–28 años, alta afinidad con gaming competitivo y cultura LAN argentina.',
     matchIndustries: ['Bebidas', 'Tecnología'],
+    offers: [
+      'Stands de activación y zona expo para sponsors',
+      'Banners digitales, naming en stream y redes',
+      'Sampling y experiencias para la audiencia LAN',
+    ],
+    seeks: [
+      'Presupuesto en efectivo desde $150k',
+      'Canje de producto energético o tecnología gaming',
+    ],
     invitedBrands: [
-      { brandId: 'brand-002', status: 'invitada', invitedAt: '2026-06-01' },
+      { brandId: 'brand-002', status: 'invitacion_enviada', invitedAt: '2026-06-01' },
       { brandId: 'brand-004', status: 'match_aceptado', invitedAt: '2026-05-28' },
       { brandId: 'brand-012', status: 'declinado', invitedAt: '2026-05-20' },
     ],
@@ -299,6 +350,15 @@ export const myEvents = [
     description:
       'Lanzamiento íntimo en terraza con DJ set, open bar selecto y cobertura para prensa lifestyle. Cupos limitados; buscamos marcas premium de bebidas y entretenimiento.',
     matchIndustries: ['Bebidas', 'Entretenimiento'],
+    offers: [
+      'Branding premium en terraza y open bar',
+      'Contenido lifestyle para redes del evento',
+      'Acceso VIP para invitados de la marca',
+    ],
+    seeks: [
+      'Patrocinio en efectivo o canje de bebidas premium',
+      'Marca de entretenimiento o lifestyle',
+    ],
     invitedBrands: [
       { brandId: 'brand-002', status: 'invitada', invitedAt: '2026-06-02' },
       { brandId: 'brand-011', status: 'match_aceptado', invitedAt: '2026-05-15' },
@@ -326,6 +386,15 @@ export const myEvents = [
     description:
       'Desfile de diseñadores emergentes con front row para prensa, afterparty y contenido para redes. Público moda street-luxury; ideal para indumentaria, bebidas premium y marcas de lifestyle.',
     matchIndustries: ['Indumentaria', 'Bebidas', 'Entretenimiento'],
+    offers: [
+      'Front row y branding en pasarela',
+      'Contenido de moda para prensa e influencers',
+      'Afterparty con presencia de marca',
+    ],
+    seeks: [
+      'Indumentaria o calzado para front row',
+      'Presupuesto en efectivo para producción',
+    ],
     invitedBrands: [
       { brandId: 'brand-003', status: 'match_aceptado', invitedAt: '2026-05-10' },
       { brandId: 'brand-010', status: 'invitada', invitedAt: '2026-06-01' },
@@ -353,6 +422,15 @@ export const myEvents = [
     description:
       'Cena de seis pasos con tres chefs invitados, maridaje y contenido foodie para Instagram. Buscamos sponsors de bebidas y gastronomía para barra, menú co-branded y sampling.',
     matchIndustries: ['Bebidas', 'Gastronomía'],
+    offers: [
+      'Maridaje co-branded y menú firmado',
+      'Contenido foodie para Instagram del evento',
+      'Menciones en carta y packaging del evento',
+    ],
+    seeks: [
+      'Bebidas para maridaje y barra',
+      'Canje de insumos gastronómicos premium',
+    ],
     invitedBrands: [
       { brandId: 'brand-006', status: 'invitada', invitedAt: '2026-05-30' },
       { brandId: 'brand-001', status: 'invitada', invitedAt: '2026-05-29' },

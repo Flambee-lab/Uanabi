@@ -35,6 +35,20 @@ body {
   }
 }
 
+@keyframes pulse-once {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.92;
+  }
+}
+
+.animate-pulse-once {
+  animation: pulse-once 1.2s ease-in-out 1;
+}
+
 @keyframes backdrop-enter {
   from {
     opacity: 0;

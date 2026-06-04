@@ -1,199 +1,209 @@
-import { useMemo, useState } from 'react'
-import { SlidersHorizontal } from 'lucide-react'
-import AdmissionRulesModal from '../components/matches/AdmissionRulesModal'
-import InboundProposalCard from '../components/matches/InboundProposalCard'
-import OutboundApplicationCard from '../components/matches/OutboundApplicationCard'
-import { DEFAULT_ADMISSION_RULES, myApplications, receivedProposals } from '../data/mockEvents'
-import { countHiddenByRules, filterByAdmissionRules } from '../utils/gatekeeperFilters'
+import { useState } from 'react'
+import { Calendar, MapPin, Pencil } from 'lucide-react'
+import EventEditModal from '../components/event-luma/EventEditModal'
+import EventInvitedSponsors from '../components/event-luma/EventInvitedSponsors'
+import SuggestedSponsorCard from '../components/event-luma/SuggestedSponsorCard'
 
-function TabButton({ active, onClick, label, count }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`group flex items-center gap-3 pb-1 transition-colors ${
-        active ? 'text-[#111827]' : 'text-[#9ca3af] hover:text-[#6b7280]'
-      }`}
-    >
-      <span
-        className={`font-display text-lg font-extrabold tracking-tight ${
-          active ? 'text-[#111827]' : 'text-[#9ca3af] group-hover:text-[#6b7280]'
-        }`}
-      >
-        {label}
-      </span>
-      <span
-        className={`flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-xs font-bold tabular-nums transition-colors ${
-          active ? 'bg-[#111827] text-white' : 'bg-[#f3f4f6] text-[#9ca3af]'
-        }`}
-      >
-        {count}
-      </span>
-    </button>
-  )
+const SPONSOR_TABS = [
+  { id: 'invited', label: 'Sponsors Invitados' },
+  { id: 'recommended', label: 'Sponsors Recomendados' },
+]
+
+function formatEventDate(date, time) {
+  if (!date) return ''
+  const parsed = new Date(`${date}T12:00:00`)
+  const formatted = Number.isNaN(parsed.getTime())
+    ? date
+    : parsed.toLocaleDateString('es-AR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+  return time ? `${formatted} · ${time}` : formatted
 }
 
-function hasActiveRules(rules) {
-  return (
-    (rules.allowedRubros?.length ?? 0) > 0 || rules.onlyCashBudget || rules.onlyLogistics
-  )
-}
-
-export default function MatchesAndRequests({ onOpenChat, applications: externalApplications }) {
-  const [activeTab, setActiveTab] = useState('inbound')
-  const [proposals, setProposals] = useState(receivedProposals)
-  const [localApplications] = useState(myApplications)
-  const applications = externalApplications ?? localApplications
-  const [admissionRules, setAdmissionRules] = useState(DEFAULT_ADMISSION_RULES)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-
-  const filteredProposals = useMemo(
-    () => filterByAdmissionRules(proposals, admissionRules),
-    [proposals, admissionRules],
-  )
-
-  const hiddenCount = countHiddenByRules(proposals, admissionRules, filteredProposals)
-  const rulesActive = hasActiveRules(admissionRules)
-
-  const handleAccept = (proposalId) => {
-    setProposals((prev) =>
-      prev.map((p) => (p.id === proposalId ? { ...p, status: 'aceptado' } : p)),
+function EventCover({ event }) {
+  if (event.coverImage) {
+    return (
+      <img
+        src={event.coverImage}
+        alt=""
+        className="h-48 w-full rounded-2xl border border-neutral-100 object-cover"
+      />
     )
   }
 
-  const handleReject = (proposalId) => {
-    setProposals((prev) => prev.filter((p) => p.id !== proposalId))
-  }
-
   return (
-    <div className="min-h-full bg-[#fafafa] px-8 py-10 sm:px-12 sm:py-12">
-      <header className="mb-12 max-w-3xl">
-        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9ca3af]">
-          Tu bandeja de matches
-        </p>
-        <h2 className="font-display text-3xl font-extrabold tracking-tight text-[#111827] sm:text-4xl">
-          Propuestas y Matches
-        </h2>
-        <p className="mt-3 text-base leading-relaxed text-[#6b7280]">
-          Curá quién puede contactarte y decidí en segundos si avanzás al chat.
-        </p>
-      </header>
+    <div
+        className={`relative h-48 w-full overflow-hidden rounded-2xl border border-neutral-100 bg-gradient-to-br ${event.coverGradient ?? 'from-neutral-200 via-stone-100 to-white'}`}
+    >
+      {event.coverLabel && (
+        <span className="absolute bottom-4 left-5 font-display text-[11px] font-black uppercase tracking-[0.35em] text-neutral-900/25">
+          {event.coverLabel}
+        </span>
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+    </div>
+  )
+}
 
-      <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-end gap-8 sm:gap-10">
-          <TabButton
-            active={activeTab === 'inbound'}
-            onClick={() => setActiveTab('inbound')}
-            label="Propuestas Recibidas"
-            count={proposals.length}
-          />
-          <TabButton
-            active={activeTab === 'outbound'}
-            onClick={() => setActiveTab('outbound')}
-            label="Mis Postulaciones"
-            count={applications.length}
-          />
-        </div>
-
-        {activeTab === 'inbound' && (
+function SponsorTabs({ active, onChange }) {
+  return (
+    <div className="border-b border-neutral-100">
+      <div className="flex gap-8">
+        {SPONSOR_TABS.map((tab) => (
           <button
+            key={tab.id}
             type="button"
-            onClick={() => setIsModalOpen(true)}
-            className={`inline-flex items-center gap-2.5 rounded-2xl border px-5 py-2.5 text-sm font-semibold transition-all active:scale-[0.98] ${
-              rulesActive
-                ? 'border-[#111827] bg-[#111827] text-white hover:bg-[#1f2937]'
-                : 'border-[#eef0f2] bg-white text-[#374151] hover:border-[#d1d5db] hover:bg-[#fafafa]'
+            onClick={() => onChange(tab.id)}
+            className={`relative pb-3 text-sm font-bold transition-colors ${
+              active === tab.id
+                ? 'text-neutral-900'
+                : 'text-neutral-400 hover:text-neutral-600'
             }`}
           >
-            <SlidersHorizontal className="h-4 w-4" strokeWidth={1.75} />
-            Reglas de Admisión
-            {rulesActive && (
-              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold">
-                ON
-              </span>
+            {tab.label}
+            {active === tab.id && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-neutral-900" />
             )}
           </button>
-        )}
+        ))}
       </div>
+    </div>
+  )
+}
 
-      {activeTab === 'inbound' && rulesActive && hiddenCount > 0 && (
-        <p className="mb-6 text-sm text-[#9ca3af]">
-          {hiddenCount} propuesta{hiddenCount !== 1 ? 's' : ''} oculta{hiddenCount !== 1 ? 's' : ''}{' '}
-          por tus reglas de admisión.
-        </p>
-      )}
+export default function MatchesAndRequests({
+  event,
+  invitedBrands = [],
+  suggestedBrands = [],
+  onInvite,
+  onOpenChat,
+  onEventUpdate,
+  pendingCasesForEvent = [],
+  onCloseCaseForBrand,
+}) {
+  const [activeTab, setActiveTab] = useState('invited')
+  const [isEditOpen, setIsEditOpen] = useState(false)
 
-      {activeTab === 'inbound' && (
-        <>
-          {filteredProposals.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#eef0f2] bg-white py-28 text-center">
-              <p className="font-display text-base font-bold text-[#374151]">
-                {proposals.length === 0
-                  ? 'Tu bandeja está vacía'
-                  : 'Ninguna propuesta pasa tu gatekeeper'}
-              </p>
-              <p className="mt-2 max-w-sm text-sm leading-relaxed text-[#9ca3af]">
-                {proposals.length === 0
-                  ? 'Cuando una marca se interese en tu evento, aparecerá acá como invitación.'
-                  : 'Ajustá tus Reglas de Admisión para ampliar o reducir el alcance.'}
-              </p>
-              {proposals.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(true)}
-                  className="mt-6 text-sm font-semibold text-[#111827] underline-offset-4 hover:underline"
-                >
-                  Editar reglas
-                </button>
+  if (!event) {
+    return (
+      <div className="flex h-full items-center justify-center p-8 text-center">
+        <p className="text-sm text-neutral-400">Seleccioná un evento para gestionar sponsors</p>
+      </div>
+    )
+  }
+
+  const locationLine = event.venueAddress ?? event.location
+  const dateLine = formatEventDate(event.date, event.time)
+
+  return (
+    <div className="min-h-full bg-white">
+      <div className="mx-auto max-w-5xl p-8">
+        <header className="mb-8">
+          <EventCover event={event} />
+
+          <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 space-y-3">
+              <h1 className="font-display text-2xl font-black tracking-tight text-neutral-900 sm:text-[1.65rem]">
+                {event.title}
+              </h1>
+              <div className="flex flex-col gap-2 text-sm text-neutral-500">
+                {dateLine && (
+                  <p className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 shrink-0 text-neutral-400" strokeWidth={1.75} />
+                    <span className="capitalize">{dateLine}</span>
+                  </p>
+                )}
+                {locationLine && (
+                  <p className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 shrink-0 text-orange-500" strokeWidth={1.75} />
+                    {locationLine}
+                  </p>
+                )}
+              </div>
+              {event.niche && (
+                <span className="inline-block rounded-full border border-neutral-100 bg-neutral-50 px-3 py-1 text-[11px] font-semibold text-neutral-600">
+                  {event.niche}
+                </span>
               )}
             </div>
-          ) : (
-            <div className="space-y-5">
-              {filteredProposals.map((proposal) => (
-                <InboundProposalCard
-                  key={proposal.id}
-                  proposal={proposal}
-                  onAccept={handleAccept}
-                  onReject={handleReject}
-                  onOpenChat={onOpenChat}
-                />
-              ))}
-            </div>
-          )}
-        </>
-      )}
 
-      {activeTab === 'outbound' && (
-        <>
-          {applications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#eef0f2] bg-white py-28 text-center">
-              <p className="font-display text-base font-bold text-[#374151]">
-                Aún no postulaste
-              </p>
-              <p className="mt-2 text-sm text-[#9ca3af]">
-                Explorá marcas activas y postulá tu evento desde el feed principal.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {applications.map((application) => (
-                <OutboundApplicationCard
-                  key={application.id}
-                  application={application}
-                  onOpenChat={onOpenChat}
-                />
-              ))}
-            </div>
-          )}
-        </>
-      )}
+            <button
+              type="button"
+              onClick={() => setIsEditOpen(true)}
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-neutral-100 bg-white px-4 py-2.5 text-xs font-semibold text-neutral-700 transition hover:border-neutral-200 hover:bg-neutral-50"
+            >
+              <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
+              Editar evento
+            </button>
+          </div>
+        </header>
 
-      <AdmissionRulesModal
-        isOpen={isModalOpen}
-        rules={admissionRules}
-        onClose={() => setIsModalOpen(false)}
-        onSave={setAdmissionRules}
-        onClear={() => setAdmissionRules(DEFAULT_ADMISSION_RULES)}
+        <div className="rounded-2xl border border-neutral-100 bg-white">
+          <div className="border-b border-neutral-100 px-6 pt-6 sm:px-8">
+            <SponsorTabs active={activeTab} onChange={setActiveTab} />
+          </div>
+
+          <div className="p-6 sm:p-8">
+            {activeTab === 'invited' ? (
+              <section className="space-y-6">
+                <p className="text-xs text-neutral-500">
+                  Marcas contactadas para este evento — estados de invitación en tiempo real.
+                </p>
+                {pendingCasesForEvent.length > 0 && (
+                  <div className="rounded-2xl border border-orange-100 bg-orange-50/50 p-4">
+                    <p className="text-xs font-semibold text-orange-900">
+                      Evento finalizado: tenés {pendingCasesForEvent.length} patrocinio
+                      {pendingCasesForEvent.length !== 1 ? 's' : ''} por cerrar
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => onCloseCaseForBrand?.(pendingCasesForEvent[0].brandId)}
+                      className="mt-3 rounded-xl bg-neutral-900 px-4 py-2 text-[11px] font-bold text-white hover:bg-neutral-800"
+                    >
+                      Cerrar Caso
+                    </button>
+                  </div>
+                )}
+                <EventInvitedSponsors
+                  sponsors={invitedBrands}
+                  onInformContact={() => onOpenChat?.()}
+                />
+              </section>
+            ) : (
+              <section className="space-y-6">
+                <p className="text-xs text-neutral-500">
+                  Uanabis sugeridos para{' '}
+                  <span className="font-semibold text-neutral-700">{event.niche}</span> en CABA
+                </p>
+                {suggestedBrands.length === 0 ? (
+                  <p className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50/50 py-16 text-center text-sm text-neutral-400">
+                    No hay más sponsors recomendados para este nicho
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    {suggestedBrands.map((brand) => (
+                      <SuggestedSponsorCard
+                        key={brand.id}
+                        brand={brand}
+                        onInvite={onInvite}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <EventEditModal
+        event={event}
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        onSave={onEventUpdate}
       />
     </div>
   )

@@ -1,3 +1,5 @@
+import { isBrandInCaba } from './exploreFilters'
+
 /** Industrias sugeridas por nicho del evento cuando no hay matchIndustries explícito */
 export const NICHE_INDUSTRY_MAP = {
   Gaming: ['Bebidas', 'Tecnología'],
@@ -47,6 +49,8 @@ export function getSuggestedBrands(event, catalog, { searchQuery = '' } = {}) {
     )
   }
 
+  list = list.filter(isBrandInCaba)
+
   return list.sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0))
 }
 
@@ -80,12 +84,21 @@ export function countEventInvites(event) {
   const invites = event?.invitedBrands ?? []
   return {
     matches: invites.filter((i) => i.status === 'match_aceptado').length,
-    activeInvites: invites.filter((i) => i.status === 'invitada').length,
+    activeInvites: invites.filter(
+      (i) => i.status === 'invitacion_enviada' || i.status === 'invitada',
+    ).length,
   }
 }
 
 export const INVITATION_STATUS_LABELS = {
+  invitacion_enviada: 'Invitación enviada',
   invitada: 'Invitada',
-  match_aceptado: 'Match Aceptado',
+  match_aceptado: 'Match concretado',
   declinado: 'Declinado',
+  caso_abierto: 'Caso abierto',
+  en_verificacion_admin: 'En verificación',
+}
+
+export function getInvitationStatusLabel(status) {
+  return INVITATION_STATUS_LABELS[status] ?? status
 }

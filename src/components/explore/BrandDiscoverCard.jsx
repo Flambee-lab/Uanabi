@@ -49,7 +49,7 @@ function CardHero({ brand }) {
   )
 }
 
-export default function BrandDiscoverCard({ brand, onApply, onOpenChat }) {
+export default function BrandDiscoverCard({ brand, onApply, onPropose, onOpenChat }) {
   const primaryOffer = brand.offers.find((o) => o.includes('$')) ?? brand.offers[0]
   const isMatch = brand.applicationStatus === 'match_aceptado'
   const isSent = brand.applicationStatus === 'enviada'
@@ -102,13 +102,22 @@ export default function BrandDiscoverCard({ brand, onApply, onOpenChat }) {
               Postulación enviada
             </button>
           ) : (
-            <button
-              type="button"
-              onClick={() => onApply?.(brand.id)}
-              className="w-full rounded-xl bg-[#111827] py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#1f2937]"
-            >
-              Postular mi Evento
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => onPropose?.(brand.id)}
+                className="w-full rounded-xl bg-neutral-900 py-2.5 text-sm font-bold text-white transition-colors hover:bg-neutral-800"
+              >
+                Enviar propuesta
+              </button>
+              <button
+                type="button"
+                onClick={() => onApply?.(brand.id)}
+                className="w-full rounded-xl border border-neutral-200 py-2.5 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50"
+              >
+                Postular mi evento
+              </button>
+            </div>
           )}
         </div>
       </div>

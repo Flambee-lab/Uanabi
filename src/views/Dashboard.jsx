@@ -1,10 +1,17 @@
 import { useMemo, useState } from 'react'
 import AppNavbar from '../components/layout/AppNavbar'
 import ApplyToBrandModal from '../components/apply/ApplyToBrandModal'
+import ProposalModal from '../components/market/ProposalModal'
+import {
+  appendInvitationToEvent,
+  createInvitationRecord,
+} from '../utils/sponsorshipProposal'
 import Toast from '../components/ui/Toast'
 import { createApplicationFromSubmission } from '../data/hostEvents'
 import { mockNotifications as initialNotifications } from '../data/mockNotifications'
+import { DEFAULT_HOST_PROFILE } from '../data/hostProfile'
 import {
+  availableBrands,
   mockBrands,
   myApplications as initialApplications,
   myEvents as initialMyEvents,
@@ -12,6 +19,9 @@ import {
 import CreateEventView from './CreateEventView'
 import ExploreHome from './ExploreHome'
 import MyEventsAndProposals from './MyEventsAndProposals'
+import Profile from './Profile'
+import AccountSettings from './AccountSettings'
+import { DEFAULT_ACCOUNT_SETTINGS } from '../data/accountSettings'
 
 export default function Dashboard() {
   const [brands, setBrands] = useState(mockBrands)
@@ -19,12 +29,14 @@ export default function Dashboard() {
   const [applications, setApplications] = useState(initialApplications)
   const [notifications, setNotifications] = useState(initialNotifications)
   const [activeNav, setActiveNav] = useState('explore')
-  const [exploreGeoMode, setExploreGeoMode] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [isCreateEventOpen, setIsCreateEventOpen] = useState(false)
   const [focusEventId, setFocusEventId] = useState(null)
+  const [hostProfile, setHostProfile] = useState(DEFAULT_HOST_PROFILE)
   const [applyTarget, setApplyTarget] = useState(null)
+  const [proposalModal, setProposalModal] = useState(null)
   const [toast, setToast] = useState(null)
+  const [accountSettings, setAccountSettings] = useState(DEFAULT_ACCOUNT_SETTINGS)
 
   const hostEventsForModal = useMemo(
     () =>
@@ -94,6 +106,29 @@ export default function Dashboard() {
     setToast('La mensajería estará disponible pronto')
   }
 
+  const openProposalModal = (brandId, activeEvent = null) => {
+    const brand =
+      brands.find((b) => b.id === brandId) ?? availableBrands.find((b) => b.id === brandId)
+    if (!brand) return
+    setProposalModal({ brand, activeEvent })
+  }
+
+  const handleSubmitProposal = ({ event, proposal }) => {
+    if (!proposalModal?.brand || !event?.id) return
+
+    const invitation = createInvitationRecord(proposalModal.brand.id, proposal)
+
+    setMyEvents((prev) =>
+      prev.map((ev) =>
+        ev.id === event.id ? appendInvitationToEvent(ev, invitation) : ev,
+      ),
+    )
+
+    setToast(
+      `Propuesta enviada a ${proposalModal.brand.name}. La marca tiene 7 días hábiles para contactarte.`,
+    )
+  }
+
   const handleBrandsMatch = (brandId) => {
     setBrands((prev) =>
       prev.map((b) =>
@@ -106,7 +141,6 @@ export default function Dashboard() {
   const handleNavChange = (navId) => {
     setActiveNav(navId)
     setNotificationsOpen(false)
-    if (navId !== 'explore') setExploreGeoMode(false)
   }
 
   const handleOpenCreateEvent = () => {
@@ -134,7 +168,9 @@ export default function Dashboard() {
     if (notif.navTarget) handleNavChange(notif.navTarget)
   }
 
-  const mainScrolls = activeNav === 'explore' && !exploreGeoMode && !isCreateEventOpen
+  const mainScrolls =
+    (activeNav === 'explore' || activeNav === 'profile' || activeNav === 'settings') &&
+    !isCreateEventOpen
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-[#fafafa]">
@@ -142,13 +178,19 @@ export default function Dashboard() {
         <AppNavbar
           activeNav={activeNav}
           onNavChange={handleNavChange}
-          onCreateEvent={handleOpenCreateEvent}
           notifications={notifications}
           notificationsOpen={notificationsOpen}
           onNotificationsToggle={() => setNotificationsOpen((o) => !o)}
           onNotificationsClose={() => setNotificationsOpen(false)}
           onMarkAllRead={handleMarkAllRead}
           onNotificationClick={handleNotificationClick}
+          hostProfile={hostProfile}
+          onUserMenuAction={(action) => {
+            if (action === 'profile-settings') handleNavChange('settings')
+            else if (action === 'event-manager') handleNavChange('matches')
+            else if (action === 'privacy') setToast('Privacidad — próximamente')
+            else if (action === 'logout') setToast('Sesión cerrada (demo)')
+          }}
         />
       )}
 
@@ -161,8 +203,8 @@ export default function Dashboard() {
           <ExploreHome
             brands={brands}
             onApply={handleStartApply}
+            onPropose={(brandId) => openProposalModal(brandId, null)}
             onOpenChat={handleOpenChat}
-            onGeoModeChange={setExploreGeoMode}
           />
         )}
 
@@ -175,6 +217,41 @@ export default function Dashboard() {
             onFocusEventConsumed={() => setFocusEventId(null)}
             onOpenChat={handleOpenChat}
             onBrandsMatch={handleBrandsMatch}
+            onProposeToBrand={(brandId, activeEvent) =>
+              openProposalModal(brandId, activeEvent)
+            }
+          />
+        )}
+
+        {!isCreateEventOpen && activeNav === 'profile' && (
+          <Profile
+            profile={hostProfile}
+            onProfileChange={(next) => {
+              setHostProfile(next)
+              setToast('Perfil actualizado')
+            }}
+            events={myEvents}
+            onOpenChat={handleOpenChat}
+          />
+        )}
+
+        {!isCreateEventOpen && activeNav === 'settings' && (
+          <AccountSettings
+            settings={accountSettings}
+            onSave={(next) => {
+              setAccountSettings(next)
+              setHostProfile((prev) => ({
+                ...prev,
+                commercialContactEnabled: next.commercialContactEnabled,
+              }))
+              setToast('Configuración de cuenta guardada')
+            }}
+            onDeleteAccount={() => {
+              setToast('Cuenta eliminada (simulación Supabase)')
+              setHostProfile(DEFAULT_HOST_PROFILE)
+              setAccountSettings(DEFAULT_ACCOUNT_SETTINGS)
+              handleNavChange('explore')
+            }}
           />
         )}
       </main>
@@ -192,6 +269,15 @@ export default function Dashboard() {
         hostEvents={hostEventsForModal}
         onClose={() => setApplyTarget(null)}
         onSubmit={handleSubmitApplication}
+      />
+
+      <ProposalModal
+        isOpen={Boolean(proposalModal)}
+        brand={proposalModal?.brand}
+        hostEvents={myEvents}
+        activeEvent={proposalModal?.activeEvent ?? null}
+        onClose={() => setProposalModal(null)}
+        onSubmit={handleSubmitProposal}
       />
 
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}

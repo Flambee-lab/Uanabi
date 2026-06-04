@@ -43,7 +43,7 @@ export default function SuggestedSponsorCard({ brand, onInvite }) {
         className="mt-5 flex w-full items-center justify-center gap-1.5 rounded-xl bg-neutral-900 py-2.5 text-xs font-bold text-white transition hover:bg-neutral-800"
       >
         <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
-        Invitar
+        Enviar propuesta
       </button>
     </article>
   )

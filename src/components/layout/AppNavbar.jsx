@@ -1,21 +1,30 @@
-import { Compass, Inbox, Plus } from 'lucide-react'
+import { Compass, Inbox, User } from 'lucide-react'
+import NavbarUserMenu from './NavbarUserMenu'
 import NotificationsCenter from './NotificationsCenter'
 
 const NAV_ITEMS = [
   { id: 'explore', label: 'Inicio', icon: Compass },
   { id: 'matches', label: 'Mis Eventos', icon: Inbox },
+  { id: 'profile', label: 'Perfil', icon: User },
 ]
+
+const MOBILE_LABELS = {
+  explore: 'Inicio',
+  matches: 'Eventos',
+  profile: 'Perfil',
+}
 
 export default function AppNavbar({
   activeNav,
   onNavChange,
-  onCreateEvent,
   notifications,
   notificationsOpen,
   onNotificationsToggle,
   onNotificationsClose,
   onMarkAllRead,
   onNotificationClick,
+  hostProfile,
+  onUserMenuAction,
 }) {
   return (
     <header className="flex h-14 shrink-0 items-center gap-4 border-b border-[#eef0f2] bg-white px-4 sm:px-6">
@@ -47,7 +56,7 @@ export default function AppNavbar({
                 strokeWidth={1.75}
               />
               <span className="hidden sm:inline">{label}</span>
-              <span className="sm:hidden">{id === 'explore' ? 'Inicio' : 'Eventos'}</span>
+              <span className="sm:hidden">{MOBILE_LABELS[id] ?? label}</span>
             </button>
           )
         })}
@@ -63,30 +72,7 @@ export default function AppNavbar({
           onNotificationClick={onNotificationClick}
         />
 
-        <button
-          type="button"
-          onClick={onCreateEvent}
-          className="hidden items-center gap-1.5 rounded-xl bg-neutral-900 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-neutral-800 sm:inline-flex"
-        >
-          <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
-          Crear evento
-        </button>
-
-        <button
-          type="button"
-          onClick={onCreateEvent}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 text-white sm:hidden"
-          aria-label="Crear evento"
-        >
-          <Plus className="h-4 w-4" strokeWidth={2.5} />
-        </button>
-
-        <div
-          className="hidden h-9 w-9 items-center justify-center rounded-xl bg-[#111827] text-xs font-bold text-white sm:flex"
-          title="Host Demo"
-        >
-          H
-        </div>
+        <NavbarUserMenu profile={hostProfile} onMenuAction={onUserMenuAction} />
       </div>
     </header>
   )
