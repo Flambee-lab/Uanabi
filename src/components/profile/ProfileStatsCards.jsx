@@ -19,12 +19,12 @@ export default function ProfileStatsCards({ stats }) {
       {cards.map((card) => (
         <div
           key={card.label}
-          className="rounded-[24px] border border-neutral-100 bg-white p-6 shadow-sm"
+          className="rounded-[24px] border border-border-subtle bg-white p-6 shadow-sm"
         >
-          <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">
+          <p className="type-label ">
             {card.label}
           </p>
-          <p className="mt-3 font-display text-3xl font-black tracking-tight text-neutral-900">
+          <p className="mt-3 font-display text-3xl font-black tracking-tight text-foreground">
             {card.value}
           </p>
         </div>

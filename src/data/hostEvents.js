@@ -31,6 +31,29 @@ export const EMPTY_EVENT_FORM = {
   seeks: '',
 }
 
+/** Evento mínimo del formulario rápido → fila en Mis Eventos */
+export function buildHostEventFromQuickForm(event) {
+  return {
+    id: event.id,
+    title: event.title,
+    date: new Date().toISOString().slice(0, 10),
+    location: event.location,
+    audience: event.audience,
+    socialLink: event.socialLink,
+    offers: event.offers ?? [],
+    seeks: event.seeks ?? [],
+    niche: 'Entretenimiento',
+    matchIndustries: ['Bebidas', 'Entretenimiento'],
+    description:
+      'Describí tu evento: qué experiencia ofrecés, quién es tu audiencia y qué tipo de sponsors buscás.',
+    coverGradient: 'from-neutral-200 via-stone-100 to-white',
+    time: '19:00',
+    organizer: { name: 'Host Demo', role: 'Organizador' },
+    invitedBrands: [],
+    publicationStatus: 'publicado',
+  }
+}
+
 export function createEventFromForm(form) {
   return {
     id: `evt-${Date.now()}`,

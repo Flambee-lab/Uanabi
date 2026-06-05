@@ -21,8 +21,8 @@ export default function IdentityTagPills({ selected = [], onChange }) {
             onClick={() => toggle(tag)}
             className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-semibold transition ${
               active
-                ? 'border-neutral-900 bg-neutral-900 text-white'
-                : 'border-neutral-200 bg-white text-neutral-800 hover:border-neutral-400'
+                ? 'border-primary bg-primary text-white'
+                : 'border-border bg-white text-foreground hover:border-muted-foreground/40'
             }`}
           >
             {active ? (

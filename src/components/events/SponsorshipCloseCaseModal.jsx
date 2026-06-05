@@ -61,19 +61,19 @@ export default function SponsorshipCloseCaseModal({
       role="dialog"
       aria-modal="true"
     >
-      <div className="animate-[modal-enter_0.25s_ease-out] w-full max-w-lg rounded-2xl border border-neutral-100 bg-white">
-        <div className="flex items-start justify-between border-b border-neutral-100 px-8 py-6">
+      <div className="animate-[modal-enter_0.25s_ease-out] w-full max-w-lg rounded-2xl border border-border-subtle bg-white">
+        <div className="flex items-start justify-between border-b border-border-subtle px-8 py-6">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+            <p className="type-label ">
               Paso {success ? '✓' : step} de 3
             </p>
-            <h2 className="mt-1 font-display text-xl font-black tracking-tight text-neutral-900">
+            <h2 className="mt-1 font-display text-xl font-black tracking-tight text-foreground">
               {success
                 ? 'Pruebas enviadas'
                 : 'Finalizar Patrocinio y Validar Marcas'}
             </h2>
             {!success && (
-              <p className="mt-1 text-xs text-neutral-500">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {caseInfo.brandName} · {caseInfo.eventTitle}
               </p>
             )}
@@ -81,7 +81,7 @@ export default function SponsorshipCloseCaseModal({
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-50"
+            className="rounded-lg p-1 text-muted-foreground hover:bg-secondary"
             aria-label="Cerrar"
           >
             <X className="h-5 w-5" strokeWidth={2} />
@@ -91,21 +91,21 @@ export default function SponsorshipCloseCaseModal({
         <div className="px-8 py-8">
           {success ? (
             <div className="space-y-4 text-center">
-              <p className="text-sm leading-relaxed text-neutral-600">
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 Recibimos tus pruebas. Onbrand verificará el caso en las próximas 24 horas para
                 impactar las marcas en tu perfil público.
               </p>
               <button
                 type="button"
                 onClick={handleClose}
-                className="rounded-xl bg-neutral-900 px-8 py-3 text-sm font-bold text-white hover:bg-neutral-800"
+                className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white hover:bg-primary/90"
               >
                 Entendido
               </button>
             </div>
           ) : step === 1 ? (
             <div className="space-y-6">
-              <p className="text-sm font-medium text-neutral-800">
+              <p className="text-sm font-medium text-foreground">
                 ¿La marca entregó los productos o el presupuesto acordado?
               </p>
               <div className="grid grid-cols-2 gap-4">
@@ -116,8 +116,8 @@ export default function SponsorshipCloseCaseModal({
                     onClick={() => setDelivered(label === 'Sí')}
                     className={`rounded-2xl border py-4 text-sm font-bold transition ${
                       delivered === (label === 'Sí')
-                        ? 'border-neutral-900 bg-neutral-900 text-white'
-                        : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'
+                        ? 'border-primary bg-primary text-white'
+                        : 'border-border bg-white text-foreground/80 hover:border-muted-foreground/40'
                     }`}
                   >
                     {label}
@@ -127,10 +127,10 @@ export default function SponsorshipCloseCaseModal({
             </div>
           ) : step === 2 ? (
             <div className="space-y-4">
-              <p className="text-sm font-medium text-neutral-800">
+              <p className="text-sm font-medium text-foreground">
                 Subí evidencia visual del patrocinio
               </p>
-              <label className="block cursor-pointer rounded-2xl border-2 border-dashed border-neutral-200 p-8 text-center transition hover:border-neutral-400">
+              <label className="block cursor-pointer rounded-2xl border-2 border-dashed border-border p-8 text-center transition hover:border-muted-foreground/40">
                 <input
                   type="file"
                   accept="image/*"
@@ -142,11 +142,11 @@ export default function SponsorshipCloseCaseModal({
                     e.target.value = ''
                   }}
                 />
-                <ImagePlus className="mx-auto h-6 w-6 text-neutral-400" strokeWidth={1.75} />
-                <p className="mt-3 text-xs font-bold text-neutral-700">
+                <ImagePlus className="mx-auto h-6 w-6 text-muted-foreground" strokeWidth={1.75} />
+                <p className="mt-3 text-xs font-bold text-foreground/80">
                   + Subir fotos del evento (Banners, stands o producto entregado)
                 </p>
-                <p className="mt-1 text-[10px] text-neutral-400">
+                <p className="mt-1 type-small text-muted-foreground">
                   Hasta {MAX_PHOTOS} fotos · {photos.length}/{MAX_PHOTOS}
                 </p>
               </label>
@@ -155,7 +155,7 @@ export default function SponsorshipCloseCaseModal({
                   {photos.map((p) => (
                     <div
                       key={p.id}
-                      className="h-16 w-16 overflow-hidden rounded-lg border border-neutral-100"
+                      className="h-16 w-16 overflow-hidden rounded-lg border border-border-subtle"
                     >
                       <img src={p.previewUrl} alt="" className="h-full w-full object-cover" />
                     </div>
@@ -165,7 +165,7 @@ export default function SponsorshipCloseCaseModal({
             </div>
           ) : (
             <div className="space-y-6">
-              <p className="text-sm font-medium text-neutral-800">
+              <p className="text-sm font-medium text-foreground">
                 Calificá tu experiencia con la marca
               </p>
               <div className="flex gap-2">
@@ -174,7 +174,7 @@ export default function SponsorshipCloseCaseModal({
                     key={n}
                     type="button"
                     onClick={() => setRating(n)}
-                    className="rounded-lg p-1 transition hover:bg-neutral-50"
+                    className="rounded-lg p-1 transition hover:bg-secondary"
                     aria-label={`${n} estrellas`}
                   >
                     <Star
@@ -189,7 +189,7 @@ export default function SponsorshipCloseCaseModal({
                 ))}
               </div>
               <textarea
-                className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs text-neutral-900 focus:border-neutral-900 focus:bg-white focus:outline-none"
+                className="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-xs text-foreground focus:border-primary focus:bg-white focus:outline-none"
                 rows={3}
                 placeholder="Reseña interna sobre la marca (opcional)"
                 value={review}
@@ -200,11 +200,11 @@ export default function SponsorshipCloseCaseModal({
         </div>
 
         {!success && (
-          <div className="flex items-center justify-between border-t border-neutral-100 px-8 py-6">
+          <div className="flex items-center justify-between border-t border-border-subtle px-8 py-6">
             <button
               type="button"
               onClick={() => (step > 1 ? setStep((s) => s - 1) : handleClose())}
-              className="text-sm font-semibold text-neutral-400 hover:text-neutral-700"
+              className="text-sm font-semibold text-muted-foreground hover:text-foreground/80"
             >
               {step > 1 ? 'Volver' : 'Cancelar'}
             </button>
@@ -213,7 +213,7 @@ export default function SponsorshipCloseCaseModal({
                 type="button"
                 disabled={step === 1 && delivered === null}
                 onClick={() => setStep((s) => s + 1)}
-                className="rounded-xl bg-neutral-900 px-6 py-3 text-sm font-bold text-white disabled:opacity-40 hover:bg-neutral-800"
+                className="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white disabled:opacity-40 hover:bg-primary/90"
               >
                 Continuar
               </button>
@@ -221,7 +221,7 @@ export default function SponsorshipCloseCaseModal({
               <button
                 type="button"
                 onClick={handleFinalSubmit}
-                className="rounded-xl bg-neutral-900 px-6 py-3 text-sm font-bold text-white hover:bg-neutral-800"
+                className="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white hover:bg-primary/90"
               >
                 Enviar pruebas a revisión
               </button>

@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useBrandLogoSrc } from '@/hooks/useBrandLogoSrc'
 
-export default function BrandLogo({ name, logo, size = 'md' }) {
-  const [failed, setFailed] = useState(false)
+export default function BrandLogo({ name, logo, logoFallback, size = 'md' }) {
+  const { src, exhausted, onError, key } = useBrandLogoSrc({ name, logo, logoFallback })
 
   const sizes = {
     sm: { wrapper: 'h-10 w-10 rounded-xl', text: 'text-xs', img: 'h-6 w-6' },
@@ -11,10 +11,10 @@ export default function BrandLogo({ name, logo, size = 'md' }) {
 
   const s = sizes[size] ?? sizes.md
 
-  if (failed) {
+  if (exhausted) {
     return (
       <div
-        className={`flex ${s.wrapper} shrink-0 items-center justify-center border border-[#eef0f2] bg-[#fafafa] ${s.text} font-extrabold text-[#111827]`}
+        className={`brand-logo-surface ${s.wrapper} shrink-0 border border-border-subtle ${s.text} font-extrabold text-foreground`}
       >
         {name.charAt(0)}
       </div>
@@ -23,13 +23,14 @@ export default function BrandLogo({ name, logo, size = 'md' }) {
 
   return (
     <div
-      className={`flex ${s.wrapper} shrink-0 items-center justify-center overflow-hidden border border-[#eef0f2] bg-[#fafafa] p-3`}
+      className={`brand-logo-surface ${s.wrapper} shrink-0 border border-border-subtle p-3`}
     >
       <img
-        src={logo}
+        key={key}
+        src={src}
         alt={name}
         className={`${s.img} max-h-full max-w-full object-contain`}
-        onError={() => setFailed(true)}
+        onError={onError}
       />
     </div>
   )

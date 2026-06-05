@@ -11,10 +11,10 @@ export default function EventSponsorsManage({
   return (
     <div className="space-y-8">
       <section>
-        <h2 className="font-display text-base font-bold tracking-tight text-neutral-900">
+        <h2 className="font-display text-base font-bold tracking-tight text-foreground">
           Sponsors Invitados
         </h2>
-        <p className="mt-1 text-xs text-neutral-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           Inbound y outbound — estado de cada invitación
         </p>
         <div className="mt-6">
@@ -23,16 +23,16 @@ export default function EventSponsorsManage({
       </section>
 
       <section>
-        <h2 className="font-display text-base font-bold tracking-tight text-neutral-900">
+        <h2 className="font-display text-base font-bold tracking-tight text-foreground">
           Sponsors Recomendados para este Evento
         </h2>
-        <p className="mt-1 text-xs text-neutral-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           Uanabis en CABA que coinciden con{' '}
-          <span className="font-semibold text-neutral-700">{event.niche}</span>
+          <span className="font-semibold text-foreground/80">{event.niche}</span>
         </p>
 
         {suggestedSponsors.length === 0 ? (
-          <p className="mt-6 rounded-2xl border border-dashed border-neutral-200 py-14 text-center text-sm text-neutral-400">
+          <p className="mt-6 rounded-2xl border border-dashed border-border py-14 text-center text-sm text-muted-foreground">
             No hay más sponsors recomendados en CABA para este nicho
           </p>
         ) : (

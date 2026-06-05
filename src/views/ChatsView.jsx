@@ -13,19 +13,21 @@ function ThreadAvatar({ name, logo }) {
 
   if (failed) {
     return (
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f3f4f6] text-sm font-bold text-[#111827]">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-bold text-foreground">
         {name.charAt(0)}
       </div>
     )
   }
 
   return (
-    <img
-      src={logo}
-      alt=""
-      className="h-11 w-11 shrink-0 rounded-full border border-[#eef0f2] bg-white object-contain p-1.5"
-      onError={() => setFailed(true)}
-    />
+    <div className="brand-logo-surface h-11 w-11 shrink-0 rounded-full border border-border-subtle p-1.5">
+      <img
+        src={logo}
+        alt=""
+        className="h-full w-full object-contain"
+        onError={() => setFailed(true)}
+      />
+    </div>
   )
 }
 
@@ -34,15 +36,15 @@ function EmptyDetailPane({ hasThreads, onComposeHint }) {
     <div className="flex flex-1 flex-col items-center justify-center px-10 py-16 text-center">
       <div className="relative mb-8">
         <div className="absolute -inset-4 rounded-full bg-violet-100/60 blur-2xl" />
-        <div className="relative flex h-28 w-28 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-50 to-white border border-[#eef0f2]">
+        <div className="relative flex h-28 w-28 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-50 to-white border border-border-subtle">
           <Mail className="h-14 w-14 text-violet-300" strokeWidth={1.25} />
-          <PenLine className="absolute -right-1 bottom-2 h-8 w-8 text-[#111827]" strokeWidth={1.75} />
+          <PenLine className="absolute -right-1 bottom-2 h-8 w-8 text-foreground" strokeWidth={1.75} />
         </div>
       </div>
-      <h2 className="font-display text-xl font-extrabold tracking-tight text-[#111827]">
+      <h2 className="font-display text-xl font-extrabold tracking-tight text-foreground">
         Este espacio se siente un poco… vacío
       </h2>
-      <p className="mt-3 max-w-sm text-sm leading-relaxed text-[#6b7280]">
+      <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
         {hasThreads
           ? 'Seleccioná una conversación de la lista para negociar con la marca.'
           : 'Cuando confirmes un match, tu chat aparecerá acá. Podés iniciar contacto desde Propuestas y Matches.'}
@@ -51,7 +53,7 @@ function EmptyDetailPane({ hasThreads, onComposeHint }) {
         <button
           type="button"
           onClick={onComposeHint}
-          className="mt-6 text-sm font-bold text-[#111827] underline-offset-4 hover:underline"
+          className="mt-6 text-sm font-bold text-foreground underline-offset-4 hover:underline"
         >
           Ir a mis matches →
         </button>
@@ -87,25 +89,25 @@ function ChatThread({ conversation, onBack }) {
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="flex items-center gap-3 border-b border-[#eef0f2] px-6 py-4">
+      <header className="flex items-center gap-3 border-b border-border-subtle px-6 py-4">
         <button
           type="button"
           onClick={onBack}
-          className="mr-1 rounded-lg p-2 text-[#6b7280] hover:bg-[#f9fafb] lg:hidden"
+          className="mr-1 rounded-lg p-2 text-muted-foreground hover:bg-secondary lg:hidden"
           aria-label="Volver"
         >
           <ArrowLeft className="h-5 w-5" strokeWidth={1.75} />
         </button>
         <ThreadAvatar name={conversation.brandName} logo={conversation.brandLogo} />
         <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-base font-extrabold text-[#111827]">
+          <p className="truncate font-display text-base font-extrabold text-foreground">
             {conversation.brandName}
           </p>
-          <p className="truncate text-xs text-[#9ca3af]">{conversation.eventTitle}</p>
+          <p className="truncate text-xs text-muted-foreground">{conversation.eventTitle}</p>
         </div>
         <button
           type="button"
-          className="rounded-lg p-2 text-[#9ca3af] hover:bg-[#f9fafb] hover:text-[#111827]"
+          className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground"
           aria-label="Opciones"
         >
           <MoreHorizontal className="h-5 w-5" strokeWidth={1.75} />
@@ -123,13 +125,13 @@ function ChatThread({ conversation, onBack }) {
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-3 sm:max-w-[70%] ${
                   isHost
-                    ? 'bg-[#111827] text-white'
-                    : 'border border-[#eef0f2] bg-[#f9fafb] text-[#374151]'
+                    ? 'bg-primary text-white'
+                    : 'border border-border-subtle bg-secondary text-foreground/80'
                 }`}
               >
                 <p className="text-sm leading-relaxed">{msg.text}</p>
                 <p
-                  className={`mt-1.5 text-[10px] ${isHost ? 'text-white/50' : 'text-[#9ca3af]'}`}
+                  className={`mt-1.5 type-small ${isHost ? 'text-white/50' : 'text-muted-foreground'}`}
                 >
                   {formatChatTime(msg.at)}
                 </p>
@@ -141,20 +143,20 @@ function ChatThread({ conversation, onBack }) {
 
       <form
         onSubmit={handleSend}
-        className="border-t border-[#eef0f2] px-6 py-4"
+        className="border-t border-border-subtle px-6 py-4"
       >
-        <div className="flex items-center gap-2 rounded-2xl border border-[#eef0f2] bg-[#f9fafb] px-4 py-2 focus-within:border-[#d1d5db] focus-within:bg-white">
+        <div className="flex items-center gap-2 rounded-2xl border border-border-subtle bg-secondary px-4 py-2 focus-within:border-[#d1d5db] focus-within:bg-white">
           <input
             type="text"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Escribí un mensaje..."
-            className="flex-1 border-0 bg-transparent py-2 text-sm text-[#111827] outline-none placeholder:text-[#9ca3af]"
+            className="flex-1 border-0 bg-transparent py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
           <button
             type="submit"
             disabled={!draft.trim()}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#111827] text-white transition-opacity disabled:opacity-30"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white transition-opacity disabled:opacity-30"
             aria-label="Enviar"
           >
             <Send className="h-4 w-4" strokeWidth={2} />
@@ -188,21 +190,21 @@ export default function ChatsView({ brands, initialBrandId, onGoToMatches }) {
   const hasThreads = conversations.length > 0
 
   return (
-    <div className="min-h-full bg-[#f3f4f6] px-4 py-6 sm:px-8 sm:py-8">
-      <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-6xl overflow-hidden rounded-3xl border border-[#eef0f2] bg-white shadow-sm">
+    <div className="min-h-full bg-secondary px-4 py-6 sm:px-8 sm:py-8">
+      <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-6xl overflow-hidden rounded-3xl border border-border-subtle bg-white shadow-sm">
         {/* Lista — estilo Meetup */}
         <aside
-          className={`relative flex w-full flex-col border-[#eef0f2] md:w-[320px] md:shrink-0 md:border-r ${
+          className={`relative flex w-full flex-col border-border-subtle md:w-[320px] md:shrink-0 md:border-r ${
             selectedId ? 'hidden md:flex' : 'flex'
           }`}
         >
-          <div className="flex items-center justify-between border-b border-[#eef0f2] px-5 py-5">
-            <h1 className="font-display text-xl font-extrabold tracking-tight text-[#111827]">
+          <div className="flex items-center justify-between border-b border-border-subtle px-5 py-5">
+            <h1 className="font-display text-xl font-extrabold tracking-tight text-foreground">
               Mensajes
             </h1>
             <button
               type="button"
-              className="rounded-lg p-2 text-[#9ca3af] hover:bg-[#f9fafb] hover:text-[#111827]"
+              className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground"
               aria-label="Más opciones"
             >
               <MoreHorizontal className="h-5 w-5" strokeWidth={1.75} />
@@ -212,7 +214,7 @@ export default function ChatsView({ brands, initialBrandId, onGoToMatches }) {
           <div className="flex-1 overflow-y-auto">
             {!hasThreads ? (
               <div className="px-5 py-12 text-center">
-                <p className="text-sm text-[#9ca3af]">Sin conversaciones aún</p>
+                <p className="text-sm text-muted-foreground">Sin conversaciones aún</p>
               </div>
             ) : (
               <ul>
@@ -223,29 +225,29 @@ export default function ChatsView({ brands, initialBrandId, onGoToMatches }) {
                       <button
                         type="button"
                         onClick={() => setSelectedId(thread.id)}
-                        className={`flex w-full items-start gap-3 px-5 py-4 text-left transition-colors hover:bg-[#f9fafb] ${
-                          isActive ? 'bg-[#f9fafb]' : ''
+                        className={`flex w-full items-start gap-3 px-5 py-4 text-left transition-colors hover:bg-secondary ${
+                          isActive ? 'bg-secondary' : ''
                         }`}
                       >
                         <ThreadAvatar name={thread.brandName} logo={thread.brandLogo} />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-baseline justify-between gap-2">
-                            <span className="truncate font-semibold text-[#111827]">
+                            <span className="truncate font-semibold text-foreground">
                               {thread.brandName}
                             </span>
-                            <span className="shrink-0 text-[11px] text-[#9ca3af]">
+                            <span className="shrink-0 type-small text-muted-foreground">
                               {formatChatTime(thread.lastMessageAt)}
                             </span>
                           </div>
-                          <p className="mt-0.5 truncate text-xs text-[#9ca3af]">
+                          <p className="mt-0.5 truncate text-xs text-muted-foreground">
                             {thread.eventTitle}
                           </p>
-                          <p className="mt-1 truncate text-sm text-[#6b7280]">
+                          <p className="mt-1 truncate text-sm text-muted-foreground">
                             {thread.lastMessage}
                           </p>
                         </div>
                         {thread.unread > 0 && (
-                          <span className="mt-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#111827] px-1.5 text-[10px] font-bold text-white">
+                          <span className="mt-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 type-small font-bold text-white">
                             {thread.unread}
                           </span>
                         )}
@@ -261,7 +263,7 @@ export default function ChatsView({ brands, initialBrandId, onGoToMatches }) {
             <button
               type="button"
               onClick={onGoToMatches}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-[#111827] text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
               aria-label="Nuevo mensaje"
               title="Ir a matches"
             >

@@ -1,9 +1,11 @@
+import { brandLogoFavicon } from '../utils/brandLogoUrl'
+
 export const mockConversations = [
   {
     id: 'chat-001',
     brandId: 'brand-003',
     brandName: 'Nike',
-    brandLogo: 'https://logo.clearbit.com/nike.com',
+    brandLogo: brandLogoFavicon('nike.com'),
     eventTitle: 'Runway Underground — Desfile Moda Independiente',
     lastMessage: 'Perfecto, coordinamos el envío de indumentaria esta semana.',
     lastMessageAt: '2026-05-30T14:22:00',

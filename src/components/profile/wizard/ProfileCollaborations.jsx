@@ -32,15 +32,15 @@ export default function ProfileCollaborations({ items, onChange, error }) {
       {items.map((item, index) => (
         <div
           key={item.id}
-          className="space-y-5 rounded-2xl border border-neutral-100 bg-neutral-50/60 p-6"
+          className="space-y-5 rounded-2xl border border-border-subtle bg-secondary/60 p-6"
         >
           <div className="flex items-center justify-between">
-            <p className="text-xs font-bold text-neutral-700">Colaboración #{index + 1}</p>
+            <p className="text-xs font-bold text-foreground/80">Colaboración #{index + 1}</p>
             {items.length > 1 && (
               <button
                 type="button"
                 onClick={() => onChange(items.filter((i) => i.id !== item.id))}
-                className="text-neutral-400 transition hover:text-red-600"
+                className="text-muted-foreground transition hover:text-red-600"
                 aria-label="Eliminar colaboración"
               >
                 <Trash2 className="h-4 w-4" strokeWidth={1.75} />
@@ -62,7 +62,7 @@ export default function ProfileCollaborations({ items, onChange, error }) {
             hint="Portfolio, carpeta compartida o post que respalde la colaboración"
           >
             <div className="relative">
-              <Link2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <Link2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 className={`${profileInputClass} pl-10`}
                 value={item.referenceLink ?? ''}
@@ -90,7 +90,7 @@ export default function ProfileCollaborations({ items, onChange, error }) {
             <button
               type="button"
               onClick={() => fileRefs.current[item.id]?.click()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 bg-white py-3.5 text-xs font-bold text-neutral-700 transition hover:border-neutral-900 hover:text-neutral-900"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-white py-3.5 text-xs font-bold text-foreground/80 transition hover:border-primary hover:text-foreground"
             >
               <ImagePlus className="h-4 w-4" strokeWidth={2} />
               + Añadir fotos de evidencia
@@ -100,13 +100,13 @@ export default function ProfileCollaborations({ items, onChange, error }) {
                 {item.evidencePhotos.map((name) => (
                   <li
                     key={name}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-[10px] font-semibold text-neutral-600"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1 type-small font-semibold text-muted-foreground"
                   >
                     {name}
                     <button
                       type="button"
                       onClick={() => removeEvidence(item.id, name)}
-                      className="text-neutral-400 hover:text-red-600"
+                      className="text-muted-foreground hover:text-red-600"
                       aria-label={`Quitar ${name}`}
                     >
                       ×
@@ -122,7 +122,7 @@ export default function ProfileCollaborations({ items, onChange, error }) {
       <button
         type="button"
         onClick={() => onChange([...items, createEmptyCollaboration()])}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 bg-white py-4 text-xs font-bold text-neutral-700 transition hover:border-neutral-900"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-white py-4 text-xs font-bold text-foreground/80 transition hover:border-primary"
       >
         <Plus className="h-4 w-4" strokeWidth={2} />
         Agregar otra colaboración

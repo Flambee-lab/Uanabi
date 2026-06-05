@@ -10,6 +10,7 @@ export default function Profile({
   onProfileChange,
   events,
   onOpenChat,
+  onGoToEvents,
 }) {
   const [isPublicPreview, setIsPublicPreview] = useState(false)
   const [reopenWizard, setReopenWizard] = useState(false)
@@ -66,6 +67,7 @@ export default function Profile({
       <ProfilePublicView
         profile={profile}
         events={events}
+        onGoToEvents={onGoToEvents}
         onExitPreview={() => {
           setIsPublicPreview(false)
           setCommercialEventId(null)

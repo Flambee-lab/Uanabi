@@ -1,65 +1,83 @@
-import { useEffect, useRef } from 'react'
-import { Search } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { ChevronDown, Search } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import {
-  EXPLORE_FORMATS,
-  EXPLORE_RUBROS,
-  EXPLORE_SCALES,
+  EXPLORE_CATEGORY_OPTIONS,
+  getExploreCategoryLabel,
 } from '../../utils/exploreFilters'
+import {
+  EXPLORE_CATEGORY_ICONS,
+  EXPLORE_CATEGORY_ICON_TONES,
+} from './exploreCategoryIcons'
 
-function FilterSection({ title, children }) {
-  return (
-    <div className="space-y-3">
-      <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">
-        {title}
-      </p>
-      <div className="flex flex-wrap gap-2">{children}</div>
-    </div>
-  )
-}
+const EXPLORE_LOCATIONS = [
+  { id: 'caba', label: 'Capital Federal', available: true },
+  { id: 'more', label: 'Más zonas', available: false },
+]
 
-function FilterPill({ label, selected, onClick }) {
+function SearchSegment({ active, className, ...props }) {
   return (
     <button
       type="button"
-      onClick={onClick}
-      className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
-        selected
-          ? 'border-neutral-900 bg-neutral-900 font-medium text-white'
-          : 'border-neutral-200 text-neutral-600 hover:border-neutral-900'
-      }`}
+      className={cn(
+        'uanabi-search-segment h-full px-4 py-2 sm:px-5',
+        active && 'uanabi-search-segment-active',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+function SegmentLabel({ children }) {
+  return <span className="uanabi-search-segment-label">{children}</span>
+}
+
+function SegmentValue({ className, children }) {
+  return (
+    <span
+      className={cn(
+        'uanabi-search-segment-value flex items-center gap-1 truncate',
+        className,
+      )}
     >
-      {label}
-    </button>
+      {children}
+    </span>
   )
 }
 
 export default function ExploreSearchCapsule({
   searchQuery,
   onSearchChange,
-  rubros,
-  onRubrosChange,
-  formats,
-  onFormatsChange,
-  scales,
-  onScalesChange,
-  isOpen,
-  onOpenChange,
-  onClear,
-  hasActiveFilters,
+  selectedRubro,
+  onSelectRubro,
 }) {
   const rootRef = useRef(null)
+  const [locationOpen, setLocationOpen] = useState(false)
+  const [categoryOpen, setCategoryOpen] = useState(false)
+  const [brandFocused, setBrandFocused] = useState(false)
+  const selectedLocation = EXPLORE_LOCATIONS[0]
+  const categoryLabel = getExploreCategoryLabel(selectedRubro)
+  const panelOpen = locationOpen || categoryOpen
 
   useEffect(() => {
-    if (!isOpen) return
+    if (!panelOpen) return
 
     const handlePointerDown = (e) => {
       if (rootRef.current && !rootRef.current.contains(e.target)) {
-        onOpenChange(false)
+        setLocationOpen(false)
+        setCategoryOpen(false)
       }
     }
 
     const handleEscape = (e) => {
-      if (e.key === 'Escape') onOpenChange(false)
+      if (e.key === 'Escape') {
+        setLocationOpen(false)
+        setCategoryOpen(false)
+      }
     }
 
     document.addEventListener('mousedown', handlePointerDown)
@@ -68,83 +86,210 @@ export default function ExploreSearchCapsule({
       document.removeEventListener('mousedown', handlePointerDown)
       document.removeEventListener('keydown', handleEscape)
     }
-  }, [isOpen, onOpenChange])
+  }, [panelOpen])
+
+  const closePanels = () => {
+    setLocationOpen(false)
+    setCategoryOpen(false)
+  }
 
   return (
-    <div ref={rootRef} className="relative mx-auto w-full max-w-xl">
-      <p className="mb-3 text-center text-[11px] font-medium text-neutral-500">
-        📍 Buscando sponsors en CABA — Próximamente más ubicaciones
-      </p>
-
-      <div className="relative">
-        <Search
-          className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
-          strokeWidth={1.75}
-        />
-        <input
-          type="search"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          onFocus={() => onOpenChange(true)}
-          onClick={() => onOpenChange(true)}
-          placeholder="Buscar Uanabis por nombre, rubro o tipo de aporte..."
-          className="block w-full rounded-full border border-neutral-200 bg-white py-3 pl-12 pr-6 text-xs text-neutral-900 shadow-sm outline-none transition placeholder:text-neutral-400 focus:border-neutral-900 focus:shadow-md"
-          aria-expanded={isOpen}
-          aria-controls="explore-filter-panel"
-        />
-      </div>
-
-      {isOpen && (
-        <div
-          id="explore-filter-panel"
-          className="absolute left-0 right-0 z-50 mt-2 space-y-5 rounded-3xl border border-neutral-100 bg-white p-6 shadow-xl"
-        >
-          <FilterSection title="Rubros">
-            {EXPLORE_RUBROS.map((r) => (
-              <FilterPill
-                key={r.id}
-                label={r.label}
-                selected={rubros.includes(r.id)}
-                onClick={() => onRubrosChange(r.id)}
+    <div ref={rootRef} className="relative mx-auto w-full max-w-4xl">
+      <div
+        className={cn(
+          'uanabi-search-bar h-[4.25rem] hover:shadow-[0_8px_28px_rgba(0,0,0,0.1)]',
+          panelOpen && 'uanabi-search-bar-open',
+        )}
+      >
+        {/* Ubicación */}
+        <div className="relative shrink-0">
+          <SearchSegment
+            active={locationOpen}
+            className="uanabi-search-segment-first min-w-[6.5rem] sm:min-w-[9.5rem]"
+            onClick={() => {
+              setLocationOpen((o) => !o)
+              setCategoryOpen(false)
+            }}
+            aria-expanded={locationOpen}
+            aria-haspopup="listbox"
+            aria-controls="explore-location-menu"
+          >
+            <SegmentLabel>Ubicación</SegmentLabel>
+            <SegmentValue>
+              {selectedLocation.label}
+              <ChevronDown
+                className={cn(
+                  'h-4 w-4 shrink-0 text-muted-foreground transition-transform',
+                  locationOpen && 'rotate-180 text-foreground/70',
+                )}
+                strokeWidth={2}
               />
-            ))}
-          </FilterSection>
+            </SegmentValue>
+          </SearchSegment>
 
-          <FilterSection title="Formato de Sponsor">
-            {EXPLORE_FORMATS.map((f) => (
-              <FilterPill
-                key={f.id}
-                label={f.label}
-                selected={formats.includes(f.id)}
-                onClick={() => onFormatsChange(f.id)}
-              />
-            ))}
-          </FilterSection>
-
-          <FilterSection title="Escala">
-            {EXPLORE_SCALES.map((s) => (
-              <FilterPill
-                key={s.id}
-                label={s.label}
-                selected={scales.includes(s.id)}
-                onClick={() => onScalesChange(s.id)}
-              />
-            ))}
-          </FilterSection>
-
-          {hasActiveFilters && (
-            <div className="flex justify-end border-t border-neutral-100 pt-4">
-              <button
-                type="button"
-                onClick={onClear}
-                className="text-xs font-semibold text-neutral-500 transition hover:text-neutral-900"
-              >
-                Limpiar filtros
-              </button>
-            </div>
+          {locationOpen && (
+            <Card
+              id="explore-location-menu"
+              role="listbox"
+              className="absolute top-[calc(100%+0.65rem)] left-0 z-50 min-w-[15rem] gap-0 overflow-hidden rounded-2xl border-border-subtle py-1.5 shadow-xl ring-0"
+            >
+              <CardContent className="p-1.5">
+                {EXPLORE_LOCATIONS.map((option) => (
+                  <div
+                    key={option.id}
+                    role="option"
+                    aria-selected={option.available}
+                    aria-disabled={!option.available}
+                    className={cn(
+                      'flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm',
+                      option.available
+                        ? 'uanabi-menu-item-active'
+                        : 'text-muted-foreground',
+                    )}
+                  >
+                    <span>{option.label}</span>
+                    {!option.available && (
+                      <Badge
+                        variant="secondary"
+                        className="shrink-0 rounded-full border-0 bg-sky-100 px-2 py-0.5 text-[0.625rem] font-semibold text-sky-700"
+                      >
+                        Próximamente
+                      </Badge>
+                    )}
+                  </div>
+                ))}
+                <p className="px-3 pb-2 pt-1 text-xs leading-relaxed text-muted-foreground">
+                  Estamos sumando más zonas del AMBA.
+                </p>
+              </CardContent>
+            </Card>
           )}
         </div>
-      )}
+
+        <div className="my-3 w-px shrink-0 bg-border" aria-hidden />
+
+        {/* Categoría */}
+        <div className="relative min-w-0 shrink-0 sm:min-w-[8.5rem]">
+          <SearchSegment
+            active={categoryOpen}
+            className="w-full min-w-[5.5rem]"
+            onClick={() => {
+              setCategoryOpen((o) => !o)
+              setLocationOpen(false)
+            }}
+            aria-expanded={categoryOpen}
+            aria-haspopup="listbox"
+            aria-controls="explore-category-menu"
+          >
+            <SegmentLabel>Categoría</SegmentLabel>
+            <SegmentValue>
+              <span className="truncate">{categoryLabel}</span>
+              <ChevronDown
+                className={cn(
+                  'h-4 w-4 shrink-0 text-muted-foreground transition-transform',
+                  categoryOpen && 'rotate-180 text-foreground/70',
+                )}
+                strokeWidth={2}
+              />
+            </SegmentValue>
+          </SearchSegment>
+
+          {categoryOpen && (
+            <Card
+              id="explore-category-menu"
+              role="listbox"
+              className="absolute top-[calc(100%+0.65rem)] left-0 z-50 w-[min(100vw-2rem,22rem)] gap-0 overflow-hidden rounded-2xl border-border-subtle py-2 shadow-xl ring-0 sm:left-1/2 sm:w-[22rem] sm:-translate-x-1/2"
+            >
+              <CardContent className="max-h-[min(20rem,55vh)] space-y-0.5 overflow-y-auto p-2">
+                {EXPLORE_CATEGORY_OPTIONS.map((option) => {
+                  const Icon = EXPLORE_CATEGORY_ICONS[option.id] ?? EXPLORE_CATEGORY_ICONS.all
+                  const isSelected =
+                    option.rubroId === null
+                      ? selectedRubro === null
+                      : selectedRubro === option.rubroId
+                  const toneClass =
+                    EXPLORE_CATEGORY_ICON_TONES[option.iconTone] ??
+                    EXPLORE_CATEGORY_ICON_TONES.violet
+
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      role="option"
+                      aria-selected={isSelected}
+                      onClick={() => {
+                        onSelectRubro(option.rubroId)
+                        closePanels()
+                      }}
+                      className={cn(
+                        'uanabi-menu-item flex items-center gap-3 px-2 py-2.5',
+                        isSelected && 'uanabi-menu-item-active',
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl',
+                          toneClass,
+                        )}
+                      >
+                        <Icon className="h-5 w-5" strokeWidth={1.75} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold text-foreground">
+                          {option.label}
+                        </span>
+                        <span className="block text-xs leading-snug text-muted-foreground">
+                          {option.hint}
+                        </span>
+                      </span>
+                    </button>
+                  )
+                })}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        <div className="my-3 w-px shrink-0 bg-border" aria-hidden />
+
+        {/* Marca */}
+        <label
+          className={cn(
+            'uanabi-search-segment flex min-w-0 flex-1 cursor-text flex-col px-4 py-2 sm:px-5',
+            brandFocused && 'uanabi-search-segment-active',
+          )}
+        >
+          <SegmentLabel>Marca</SegmentLabel>
+          <input
+            id="explore-brand-search"
+            type="search"
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            onFocus={() => {
+              setBrandFocused(true)
+              closePanels()
+            }}
+            onBlur={() => setBrandFocused(false)}
+            placeholder="Nombre o rubro"
+            className={cn(
+              'uanabi-search-segment-value mt-1 w-full border-0 bg-transparent p-0 outline-none placeholder:font-normal placeholder:text-muted-foreground',
+              (brandFocused || searchQuery.trim()) && 'text-foreground',
+            )}
+          />
+        </label>
+
+        <div className="flex shrink-0 items-center pr-2 sm:pr-3">
+          <Button
+            type="button"
+            size="icon"
+            className="h-11 w-11 shrink-0 rounded-full shadow-sm"
+            aria-label="Buscar marcas"
+            onClick={() => document.getElementById('explore-brand-search')?.focus()}
+          >
+            <Search className="h-[1.15rem] w-[1.15rem]" strokeWidth={2.25} />
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }

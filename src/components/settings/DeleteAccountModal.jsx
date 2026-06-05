@@ -26,7 +26,7 @@ export default function DeleteAccountModal({ isOpen, email, onClose, onConfirm }
       aria-modal="true"
       aria-labelledby="delete-account-title"
     >
-      <div className="w-full max-w-md rounded-2xl border border-neutral-100 bg-white p-8">
+      <div className="w-full max-w-md rounded-2xl border border-border-subtle bg-white p-8">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
@@ -35,11 +35,11 @@ export default function DeleteAccountModal({ isOpen, email, onClose, onConfirm }
             <div>
               <h2
                 id="delete-account-title"
-                className="font-display text-lg font-bold text-neutral-900"
+                className="font-display text-lg font-bold text-foreground"
               >
                 Eliminar cuenta definitivamente
               </h2>
-              <p className="mt-2 text-xs leading-relaxed text-neutral-500">
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                 Esta acción es irreversible. Se borrarán tu perfil de Host, eventos y
                 colaboraciones asociadas en Supabase.
               </p>
@@ -48,21 +48,21 @@ export default function DeleteAccountModal({ isOpen, email, onClose, onConfirm }
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-50"
+            className="rounded-lg p-1 text-muted-foreground hover:bg-secondary"
             aria-label="Cerrar"
           >
             <X className="h-4 w-4" strokeWidth={2} />
           </button>
         </div>
 
-        <p className="mt-6 text-[11px] text-neutral-500">
-          Cuenta: <span className="font-semibold text-neutral-700">{email}</span>
+        <p className="mt-6 type-small text-muted-foreground">
+          Cuenta: <span className="font-semibold text-foreground/80">{email}</span>
         </p>
-        <p className="mt-4 text-xs font-medium text-neutral-700">
+        <p className="mt-4 text-xs font-medium text-foreground/80">
           Escribí <span className="font-bold text-red-600">ELIMINAR</span> para confirmar
         </p>
         <input
-          className="mt-2 w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs text-neutral-900 focus:border-red-500 focus:bg-white focus:outline-none"
+          className="mt-2 w-full rounded-xl border border-border bg-secondary px-4 py-3 text-xs text-foreground focus:border-red-500 focus:bg-white focus:outline-none"
           value={confirmText}
           onChange={(e) => setConfirmText(e.target.value)}
           placeholder="ELIMINAR"
@@ -73,7 +73,7 @@ export default function DeleteAccountModal({ isOpen, email, onClose, onConfirm }
           <button
             type="button"
             onClick={handleClose}
-            className="flex-1 rounded-xl border border-neutral-200 py-3 text-xs font-semibold text-neutral-600 hover:bg-neutral-50"
+            className="flex-1 rounded-xl border border-border py-3 text-xs font-semibold text-muted-foreground hover:bg-secondary"
           >
             Cancelar
           </button>

@@ -1,25 +1,21 @@
 import { useEffect, useState } from 'react'
 import { ChevronDown, Plus, Sparkles, X } from 'lucide-react'
 import BrandLogo from '../BrandLogo'
+import { INPUT_CLASS, LABEL_CLASS } from '@/components/ui/form-field'
 import { EMPTY_EVENT_FORM, createEventFromForm } from '../../data/hostEvents'
-
-const INPUT_CLASS =
-  'w-full rounded-2xl border border-[#eef0f2] bg-white px-4 py-3.5 text-sm text-[#111827] placeholder:text-[#9ca3af] outline-none transition-colors focus:border-[#d1d5db]'
-
-const LABEL_CLASS = 'mb-2 block text-[11px] font-semibold uppercase tracking-[0.12em] text-[#9ca3af]'
 
 function FormSection({ step, title, description, children }) {
   return (
-    <section className="rounded-2xl border border-[#eef0f2] bg-[#fbfbfc] p-6">
+    <section className="rounded-2xl border border-border-subtle bg-background p-6">
       <div className="mb-5 flex items-start gap-3">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#111827] text-xs font-bold text-white">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary text-xs font-bold text-white">
           {step}
         </span>
         <div>
-          <h3 className="font-display text-sm font-extrabold tracking-tight text-[#111827]">
+          <h3 className="font-display text-sm font-extrabold tracking-tight text-foreground">
             {title}
           </h3>
-          <p className="mt-0.5 text-xs leading-relaxed text-[#6b7280]">{description}</p>
+          <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{description}</p>
         </div>
       </div>
       <div className="space-y-4">{children}</div>
@@ -27,7 +23,7 @@ function FormSection({ step, title, description, children }) {
   )
 }
 
-function QuickEventForm({ form, onChange, onSubmit, onBack, showBack }) {
+export function QuickEventForm({ form, onChange, onSubmit, onBack, showBack }) {
   const isValid =
     form.title.trim() &&
     form.socialLink.trim() &&
@@ -88,8 +84,8 @@ function QuickEventForm({ form, onChange, onSubmit, onBack, showBack }) {
             onClick={() => onChange({ ...form, isVirtual: !form.isVirtual })}
             className={`rounded-2xl border px-4 py-2 text-xs font-semibold transition-all ${
               form.isVirtual
-                ? 'border-[#111827] bg-[#111827] text-white'
-                : 'border-[#eef0f2] bg-white text-[#6b7280] hover:border-[#d1d5db]'
+                ? 'border-[#111827] bg-primary text-white'
+                : 'border-border-subtle bg-white text-muted-foreground hover:border-[#d1d5db]'
             }`}
           >
             Virtual
@@ -99,8 +95,8 @@ function QuickEventForm({ form, onChange, onSubmit, onBack, showBack }) {
             onClick={() => onChange({ ...form, isVirtual: false })}
             className={`rounded-2xl border px-4 py-2 text-xs font-semibold transition-all ${
               !form.isVirtual
-                ? 'border-[#111827] bg-[#111827] text-white'
-                : 'border-[#eef0f2] bg-white text-[#6b7280] hover:border-[#d1d5db]'
+                ? 'border-[#111827] bg-primary text-white'
+                : 'border-border-subtle bg-white text-muted-foreground hover:border-[#d1d5db]'
             }`}
           >
             Presencial
@@ -174,7 +170,7 @@ function QuickEventForm({ form, onChange, onSubmit, onBack, showBack }) {
           <button
             type="button"
             onClick={onBack}
-            className="text-sm font-medium text-[#6b7280] transition-colors hover:text-[#111827]"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             ← Volver al selector
           </button>
@@ -184,7 +180,7 @@ function QuickEventForm({ form, onChange, onSubmit, onBack, showBack }) {
         <button
           type="submit"
           disabled={!isValid}
-          className="rounded-2xl bg-[#111827] px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-[#1f2937] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-2xl bg-primary px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
         >
           Confirmar y Postular
         </button>
@@ -245,26 +241,31 @@ export default function ApplyToBrandModal({
         type="button"
         aria-label="Cerrar modal"
         onClick={onClose}
-        className="animate-backdrop-enter absolute inset-0 bg-[#111827]/25 backdrop-blur-md"
+        className="animate-backdrop-enter absolute inset-0 bg-primary/25 backdrop-blur-md"
       />
 
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="apply-modal-title"
-        className="animate-modal-enter relative flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-[#eef0f2] bg-white shadow-2xl shadow-black/10 sm:rounded-3xl"
+        className="animate-modal-enter relative flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-border-subtle bg-white shadow-2xl shadow-black/10 sm:rounded-3xl"
       >
-        <div className="shrink-0 border-b border-[#eef0f2] px-7 py-6">
+        <div className="shrink-0 border-b border-border-subtle px-7 py-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-4">
-              <BrandLogo name={brand.name} logo={brand.logo} size="md" />
+              <BrandLogo
+                name={brand.name}
+                logo={brand.logo}
+                logoFallback={brand.logoFallback}
+                size="md"
+              />
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#9ca3af]">
+                <p className="type-label ">
                   Postulación directa
                 </p>
                 <h2
                   id="apply-modal-title"
-                  className="font-display text-lg font-extrabold tracking-tight text-[#111827]"
+                  className="font-display text-lg font-extrabold tracking-tight text-foreground"
                 >
                   {brand.name}
                 </h2>
@@ -273,7 +274,7 @@ export default function ApplyToBrandModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl p-2 text-[#9ca3af] transition-colors hover:bg-[#f9fafb] hover:text-[#111827]"
+              className="rounded-xl p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               <X className="h-5 w-5" strokeWidth={1.75} />
             </button>
@@ -305,16 +306,16 @@ export default function ApplyToBrandModal({
                       ))}
                     </select>
                     <ChevronDown
-                      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]"
+                      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                       strokeWidth={1.75}
                     />
                   </div>
                 </div>
 
                 {selectedEvent && (
-                  <div className="rounded-2xl border border-[#eef0f2] bg-[#fbfbfc] p-4">
-                    <p className="text-xs font-medium text-[#9ca3af]">{selectedEvent.audience}</p>
-                    <p className="mt-1 text-sm text-[#6b7280]">
+                  <div className="rounded-2xl border border-border-subtle bg-background p-4">
+                    <p className="text-xs font-medium text-muted-foreground">{selectedEvent.audience}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {selectedEvent.isVirtual ? 'Virtual' : selectedEvent.location}
                     </p>
                   </div>
@@ -323,14 +324,14 @@ export default function ApplyToBrandModal({
                 <button
                   type="button"
                   onClick={() => setView('create')}
-                  className="flex w-full items-center gap-3 rounded-2xl border border-dashed border-[#d1d5db] bg-[#fafafa] px-5 py-4 text-left transition-all hover:border-[#111827] hover:bg-[#f4f6e9]/40"
+                  className="flex w-full items-center gap-3 rounded-2xl border border-dashed border-[#d1d5db] bg-[#fafafa] px-5 py-4 text-left transition-all hover:border-[#111827] hover:bg-match/40"
                 >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-[#eef0f2]">
-                    <Plus className="h-4 w-4 text-[#111827]" strokeWidth={2} />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-border-subtle">
+                    <Plus className="h-4 w-4 text-foreground" strokeWidth={2} />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[#111827]">Crear un evento nuevo desde cero</p>
-                    <p className="mt-0.5 text-xs text-[#9ca3af]">Formulario rápido en 3 pasos</p>
+                    <p className="text-sm font-bold text-foreground">Crear un evento nuevo desde cero</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">Formulario rápido en 3 pasos</p>
                   </div>
                 </button>
 
@@ -338,7 +339,7 @@ export default function ApplyToBrandModal({
                   type="button"
                   onClick={handleExistingSubmit}
                   disabled={!selectedEventId}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#111827] px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-[#1f2937] active:scale-[0.98] disabled:opacity-40"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40"
                 >
                   <Sparkles className="h-4 w-4" strokeWidth={2} />
                   Postular con este evento

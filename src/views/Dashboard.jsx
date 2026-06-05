@@ -9,7 +9,10 @@ import {
   createInvitationRecord,
 } from '../utils/sponsorshipProposal'
 import Toast from '../components/ui/Toast'
-import { createApplicationFromSubmission } from '../data/hostEvents'
+import {
+  buildHostEventFromQuickForm,
+  createApplicationFromSubmission,
+} from '../data/hostEvents'
 import { mockNotifications as initialNotifications } from '../data/mockNotifications'
 import { DEFAULT_HOST_PROFILE } from '../data/hostProfile'
 import {
@@ -135,6 +138,18 @@ export default function Dashboard() {
     setProposalModal({ brand, activeEvent })
   }
 
+  const handleRequestPartnership = (brandId) => {
+    openProposalModal(brandId, null)
+  }
+
+  const handleProposalEventCreated = (quickEvent) => {
+    const fullEvent = buildHostEventFromQuickForm(quickEvent)
+    setMyEvents((prev) => [fullEvent, ...prev])
+    if (proposalModal?.brand) {
+      setProposalModal({ brand: proposalModal.brand, activeEvent: fullEvent })
+    }
+  }
+
   const handleSubmitProposal = ({ event, proposal }) => {
     if (!proposalModal?.brand || !event?.id) return
 
@@ -245,21 +260,22 @@ export default function Dashboard() {
         {!isCreateEventOpen && activeNav === 'explore' && (
           <ExploreHome
             brands={brands}
-            onApply={handleStartApply}
-            onPropose={(brandId) => openProposalModal(brandId, null)}
-            onOpenChat={handleOpenChat}
+            hostEvents={myEvents}
+            onRequestPartnership={handleRequestPartnership}
           />
         )}
 
         {!isCreateEventOpen && activeNav === 'matches' && (
           <MyEventsAndProposals
             events={myEvents}
+            hostProfile={hostProfile}
             onEventsChange={setMyEvents}
             onCreateEvent={handleOpenCreateEvent}
             focusEventId={focusEventId}
             onFocusEventConsumed={() => setFocusEventId(null)}
             onOpenChat={handleOpenChat}
             onBrandsMatch={handleBrandsMatch}
+            onGoToProfile={() => handleNavChange('profile')}
             onProposeToBrand={(brandId, activeEvent) =>
               openProposalModal(brandId, activeEvent)
             }
@@ -275,6 +291,7 @@ export default function Dashboard() {
             }}
             events={myEvents}
             onOpenChat={handleOpenChat}
+            onGoToEvents={() => handleNavChange('matches')}
           />
         )}
 
@@ -321,6 +338,7 @@ export default function Dashboard() {
         activeEvent={proposalModal?.activeEvent ?? null}
         onClose={() => setProposalModal(null)}
         onSubmit={handleSubmitProposal}
+        onEventCreated={handleProposalEventCreated}
       />
 
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}

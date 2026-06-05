@@ -201,8 +201,8 @@ export const PROFILE_EDIT_SECTIONS = [
 ]
 
 export const PROFILE_PUBLIC_TABS = [
-  { id: 'historial', label: 'Historial' },
-  { id: 'eventos', label: 'Eventos Activos' },
+  { id: 'historial', label: 'Colaboraciones' },
+  { id: 'eventos', label: 'Próximos eventos' },
 ]
 
 export function getProfileCategories(profile) {

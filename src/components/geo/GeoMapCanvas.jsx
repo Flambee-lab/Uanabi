@@ -4,14 +4,16 @@ import { coordsToPercent, getPinLabel } from '../../utils/geoMap'
 
 function PinLogo({ logo, name }) {
   const [failed, setFailed] = useState(false)
-  if (failed) return <span className="text-[9px] font-bold">{name.charAt(0)}</span>
+  if (failed) return <span className="type-small font-bold">{name.charAt(0)}</span>
   return (
-    <img
-      src={logo}
-      alt=""
-      className="h-4 w-4 object-contain"
-      onError={() => setFailed(true)}
-    />
+    <span className="brand-logo-surface h-5 w-5 rounded-md p-0.5">
+      <img
+        src={logo}
+        alt=""
+        className="h-full w-full object-contain"
+        onError={() => setFailed(true)}
+      />
+    </span>
   )
 }
 
@@ -25,7 +27,7 @@ export default function GeoMapCanvas({
   const popoverBrand = brands.find((b) => b.id === popoverBrandId)
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-neutral-100">
+    <div className="relative h-full w-full overflow-hidden bg-secondary">
       {/* Mapa estilizado AMBA (capa base) */}
       <div
         className="absolute inset-0 bg-gradient-to-br from-[#e8eef4] via-[#dce8f0] to-[#d4e4dc]"
@@ -46,7 +48,7 @@ export default function GeoMapCanvas({
         aria-hidden
       />
 
-      <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/80 bg-white/90 px-3 py-1.5 text-[10px] font-semibold text-neutral-600 shadow-sm backdrop-blur-sm">
+      <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/80 bg-white/90 px-3 py-1.5 type-small font-semibold text-muted-foreground shadow-sm backdrop-blur-sm">
         <Map className="h-3.5 w-3.5" strokeWidth={1.75} />
         AMBA · Buenos Aires
       </div>
@@ -62,10 +64,10 @@ export default function GeoMapCanvas({
             type="button"
             style={{ left: pos.left, top: pos.top }}
             onClick={() => onPinClick(brand.id)}
-            className={`absolute z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border bg-white px-2.5 py-1 font-bold text-[10px] text-neutral-800 shadow-md transition-all hover:scale-105 ${
+            className={`absolute z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border bg-white px-2.5 py-1 font-bold type-small text-foreground shadow-md transition-all hover:scale-105 ${
               isActive
-                ? 'z-20 scale-110 border-neutral-900 ring-2 ring-neutral-900/20'
-                : 'border-neutral-100 hover:border-neutral-300'
+                ? 'z-20 scale-110 border-primary ring-2 ring-primary/20'
+                : 'border-border-subtle hover:border-border'
             }`}
           >
             <span className="flex items-center gap-1.5">
@@ -79,23 +81,23 @@ export default function GeoMapCanvas({
       {/* Popover inmersivo */}
       {popoverBrand && (
         <div
-          className="absolute bottom-6 left-1/2 z-30 w-56 max-w-[90%] -translate-x-1/2 rounded-2xl border border-neutral-100 bg-white p-4 shadow-xl sm:left-auto sm:right-6 sm:translate-x-0"
+          className="absolute bottom-6 left-1/2 z-30 w-56 max-w-[90%] -translate-x-1/2 rounded-2xl border border-border-subtle bg-white p-4 shadow-xl sm:left-auto sm:right-6 sm:translate-x-0"
         >
-          <p className="font-display text-sm font-bold text-neutral-900">{popoverBrand.name}</p>
-          <p className="mt-0.5 text-[11px] text-neutral-400">{popoverBrand.zone}</p>
-          <p className="mt-2 line-clamp-2 text-xs text-neutral-600">
+          <p className="font-display text-sm font-bold text-foreground">{popoverBrand.name}</p>
+          <p className="mt-0.5 type-small text-muted-foreground">{popoverBrand.zone}</p>
+          <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">
             {popoverBrand.offers?.[0]}
           </p>
           {popoverBrand.applicationStatus === 'disponible' ? (
             <button
               type="button"
               onClick={() => onApply?.(popoverBrand.id)}
-              className="mt-3 w-full rounded-xl bg-neutral-900 py-2 text-xs font-bold text-white hover:bg-neutral-800"
+              className="mt-3 w-full rounded-xl bg-primary py-2 text-xs font-bold text-white hover:bg-primary/90"
             >
               Postular mi Evento
             </button>
           ) : (
-            <p className="mt-3 text-center text-xs font-medium text-neutral-400">
+            <p className="mt-3 text-center text-xs font-medium text-muted-foreground">
               Postulación enviada
             </p>
           )}
@@ -104,7 +106,7 @@ export default function GeoMapCanvas({
 
       {brands.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <p className="rounded-xl bg-white/90 px-4 py-2 text-sm font-medium text-neutral-500 shadow-sm">
+          <p className="rounded-xl bg-white/90 px-4 py-2 text-sm font-medium text-muted-foreground shadow-sm">
             No hay marcas en esta zona
           </p>
         </div>

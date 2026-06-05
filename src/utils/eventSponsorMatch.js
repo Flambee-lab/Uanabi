@@ -1,19 +1,8 @@
 import { isBrandInCaba } from './exploreFilters'
+import { scoreBrandForEvent } from './brandSeekMatch'
+import { getMatchIndustriesForEvent } from './eventIndustries'
 
-/** Industrias sugeridas por nicho del evento cuando no hay matchIndustries explícito */
-export const NICHE_INDUSTRY_MAP = {
-  Gaming: ['Bebidas', 'Tecnología'],
-  Moda: ['Indumentaria', 'Bebidas', 'Entretenimiento'],
-  Gastronomía: ['Bebidas', 'Gastronomía'],
-  Entretenimiento: ['Bebidas', 'Entretenimiento', 'Tecnología'],
-  Lifestyle: ['Bebidas', 'Entretenimiento', 'Indumentaria'],
-}
-
-export function getMatchIndustriesForEvent(event) {
-  if (event?.matchIndustries?.length) return event.matchIndustries
-  if (event?.niche && NICHE_INDUSTRY_MAP[event.niche]) return NICHE_INDUSTRY_MAP[event.niche]
-  return []
-}
+export { NICHE_INDUSTRY_MAP, getMatchIndustriesForEvent } from './eventIndustries'
 
 export function getInvitedBrandIds(event) {
   return new Set((event?.invitedBrands ?? []).map((i) => i.brandId))
@@ -51,7 +40,9 @@ export function getSuggestedBrands(event, catalog, { searchQuery = '' } = {}) {
 
   list = list.filter(isBrandInCaba)
 
-  return list.sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0))
+  return list.sort(
+    (a, b) => scoreBrandForEvent(b, event) - scoreBrandForEvent(a, event),
+  )
 }
 
 export function getInvitedBrandsForEvent(event, catalog, { searchQuery = '' } = {}) {

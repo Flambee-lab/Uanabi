@@ -22,26 +22,26 @@ const TABS = [
 
 function MetricBubble({ label, value }) {
   return (
-    <div className="rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3 text-center">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+    <div className="rounded-2xl border border-border-subtle bg-secondary px-4 py-3 text-center">
+      <p className="type-label ">
         {label}
       </p>
-      <p className="mt-1 font-display text-lg font-black text-neutral-900">{value}</p>
+      <p className="mt-1 font-display text-lg font-black text-foreground">{value}</p>
     </div>
   )
 }
 
 function OpenEventCard({ event }) {
   return (
-    <article className="overflow-hidden rounded-[24px] border border-neutral-100 bg-white shadow-sm">
+    <article className="overflow-hidden rounded-[24px] border border-border-subtle bg-white shadow-sm">
       <div className={`h-32 bg-gradient-to-br ${event.coverGradient ?? 'from-neutral-100 to-white'}`} />
       <div className="p-5">
-        <h3 className="font-display text-sm font-bold text-neutral-900">{event.title}</h3>
-        <p className="mt-2 flex items-center gap-2 text-xs text-neutral-500">
+        <h3 className="font-display text-sm font-bold text-foreground">{event.title}</h3>
+        <p className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
           <Calendar className="h-3.5 w-3.5" strokeWidth={1.75} />
           {event.date}
         </p>
-        <p className="mt-1 flex items-center gap-2 text-xs text-neutral-500">
+        <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
           <MapPin className="h-3.5 w-3.5 text-orange-500" strokeWidth={1.75} />
           {event.venueName ?? event.location}
         </p>
@@ -60,23 +60,23 @@ function SuccessStoryCard({ story, brandCatalog }) {
   ].filter(Boolean)
 
   return (
-    <article className="flex gap-5 overflow-hidden rounded-[24px] border border-neutral-100 bg-white p-5 shadow-sm">
+    <article className="flex gap-5 overflow-hidden rounded-[24px] border border-border-subtle bg-white p-5 shadow-sm">
       <div className="flex min-w-0 flex-1 flex-col justify-center">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+        <p className="type-label ">
           Colaboración verificada
         </p>
-        <h3 className="mt-1 font-display text-base font-bold text-neutral-900">
+        <h3 className="mt-1 font-display text-base font-bold text-foreground">
           {story.title}
         </h3>
         {metaParts.length > 0 && (
-          <p className="mt-2 text-xs text-neutral-500">{metaParts.join(' · ')}</p>
+          <p className="mt-2 text-xs text-muted-foreground">{metaParts.join(' · ')}</p>
         )}
         {story.referenceLink && (
           <a
             href={story.referenceLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 text-xs font-semibold text-neutral-600 underline-offset-2 hover:underline"
+            className="mt-2 text-xs font-semibold text-muted-foreground underline-offset-2 hover:underline"
           >
             Ver referencia
           </a>
@@ -89,12 +89,12 @@ function SuccessStoryCard({ story, brandCatalog }) {
                   key={b.name}
                   src={b.logo}
                   alt=""
-                  className="h-8 w-8 rounded-lg border border-neutral-100 bg-white object-contain p-1 grayscale opacity-70"
+                  className="h-8 w-8 rounded-lg border border-border-subtle bg-white object-contain p-1 grayscale opacity-70"
                 />
               ) : (
                 <span
                   key={b.name}
-                  className="rounded-lg bg-neutral-100 px-2 py-1 text-[10px] font-bold text-neutral-500"
+                  className="rounded-lg bg-secondary px-2 py-1 type-small font-bold text-muted-foreground"
                 >
                   {b.name}
                 </span>
@@ -130,11 +130,11 @@ export default function ProfilePublicMeetup({
   return (
     <div className="rounded-[32px] bg-[#fcfcfc] p-4 sm:p-6">
       <div className="flex flex-col gap-6 lg:flex-row">
-        <aside className="relative w-full shrink-0 rounded-3xl border border-neutral-100 bg-white p-6 lg:w-[300px]">
+        <aside className="relative w-full shrink-0 rounded-3xl border border-border-subtle bg-white p-6 lg:w-[300px]">
           <button
             type="button"
             onClick={onQuickEdit}
-            className="absolute right-4 top-4 rounded-full border border-neutral-200 bg-white p-2 text-neutral-500 shadow-sm transition hover:border-neutral-900 hover:text-neutral-900"
+            className="absolute right-4 top-4 rounded-full border border-border bg-white p-2 text-muted-foreground shadow-sm transition hover:border-primary hover:text-foreground"
             aria-label="Editar perfil"
             title="Editar perfil"
           >
@@ -142,13 +142,13 @@ export default function ProfilePublicMeetup({
           </button>
 
           <div className="flex flex-col items-center text-center">
-            <div className="flex h-24 w-24 items-center justify-center rounded-[24px] bg-neutral-900 font-display text-3xl font-black text-white">
+            <div className="flex h-24 w-24 items-center justify-center rounded-[24px] bg-primary font-display text-3xl font-black text-white">
               {profile.displayName?.charAt(0) ?? 'H'}
             </div>
-            <p className="mt-4 text-xs font-semibold text-neutral-500">
+            <p className="mt-4 text-xs font-semibold text-muted-foreground">
               Host verificado en Uanabi
             </p>
-            <p className="mt-1 text-[11px] text-neutral-400">
+            <p className="mt-1 type-small text-muted-foreground">
               Desde {formatJoinedDate(profile.joinedAt)}
             </p>
 
@@ -158,12 +158,12 @@ export default function ProfilePublicMeetup({
                   href={instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 rounded-full border border-neutral-200 py-2.5 text-xs font-semibold text-neutral-700 hover:border-neutral-900"
+                  className="flex items-center justify-center gap-2 rounded-full border border-border py-2.5 text-xs font-semibold text-foreground/80 hover:border-primary"
                 >
                   <AtSign className="h-3.5 w-3.5" strokeWidth={2} />
                   Instagram
                   {profile.validatedLinks?.instagram && (
-                    <span className="text-[#1d230d]">✓</span>
+                    <span className="text-match-foreground">✓</span>
                   )}
                   <ExternalLink className="h-3 w-3 opacity-40" />
                 </a>
@@ -173,11 +173,11 @@ export default function ProfilePublicMeetup({
                   href={tiktokUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 rounded-full border border-neutral-200 py-2.5 text-xs font-semibold text-neutral-700 hover:border-neutral-900"
+                  className="flex items-center justify-center gap-2 rounded-full border border-border py-2.5 text-xs font-semibold text-foreground/80 hover:border-primary"
                 >
                   TikTok
                   {profile.validatedLinks?.tiktok && (
-                    <span className="text-[#1d230d]">✓</span>
+                    <span className="text-match-foreground">✓</span>
                   )}
                   <ExternalLink className="h-3 w-3 opacity-40" />
                 </a>
@@ -196,7 +196,7 @@ export default function ProfilePublicMeetup({
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-[24px] bg-[#f4f6e9] py-3.5 text-xs font-bold text-[#1d230d] transition hover:bg-[#e8ecd8]"
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-[24px] bg-match py-3.5 text-xs font-bold text-match-foreground transition hover:bg-[#e8ecd8]"
               >
                 <MessageCircle className="h-4 w-4" strokeWidth={2} />
                 Contactar por WhatsApp
@@ -207,21 +207,21 @@ export default function ProfilePublicMeetup({
 
         <div className="min-w-0 flex-1 space-y-6 p-2 sm:p-4">
           <div>
-            <h1 className="font-display text-3xl font-black tracking-tight text-neutral-900 sm:text-4xl">
+            <h1 className="font-display text-3xl font-black tracking-tight text-foreground sm:text-4xl">
               {profile.displayName}
             </h1>
             {profile.tagline && (
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-500">
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                 {profile.tagline}
               </p>
             )}
-            <p className="mt-2 text-xs font-medium text-neutral-400">
+            <p className="mt-2 text-xs font-medium text-muted-foreground">
               {profile.socialMetrics?.totalFollowers} seguidores ·{' '}
               {profile.socialMetrics?.engagementPercent} engagement
             </p>
           </div>
 
-          <div className="inline-flex rounded-xl bg-neutral-100 p-1">
+          <div className="inline-flex rounded-xl bg-secondary p-1">
             {TABS.map((t) => (
               <button
                 key={t.id}
@@ -229,8 +229,8 @@ export default function ProfilePublicMeetup({
                 onClick={() => setTab(t.id)}
                 className={`rounded-lg px-4 py-2.5 text-xs font-bold transition ${
                   tab === t.id
-                    ? 'bg-white text-neutral-900 shadow-sm'
-                    : 'text-neutral-500 hover:text-neutral-700'
+                    ? 'bg-white text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground/80'
                 }`}
               >
                 {t.label}
@@ -240,7 +240,7 @@ export default function ProfilePublicMeetup({
 
           {tab === 'open' ? (
             events.length === 0 ? (
-              <p className="rounded-[24px] border border-dashed border-neutral-200 py-16 text-center text-sm text-neutral-400">
+              <p className="rounded-[24px] border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
                 Sin convocatorias abiertas por ahora
               </p>
             ) : (
@@ -251,7 +251,7 @@ export default function ProfilePublicMeetup({
               </div>
             )
           ) : (profile.successStories ?? []).length === 0 ? (
-            <p className="rounded-[24px] border border-dashed border-neutral-200 py-16 text-center text-sm text-neutral-400">
+            <p className="rounded-[24px] border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
               El host aún no cargó historial de éxitos
             </p>
           ) : (

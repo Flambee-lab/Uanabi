@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import EventEditModal from './EventEditModal'
+import { isEventPast } from '../../utils/sponsorshipLifecycle'
 import EventSponsorsManage from './EventSponsorsManage'
 import EventSummaryBar from './EventSummaryBar'
 
@@ -12,6 +13,11 @@ export default function EventAdminView({
   onEventUpdate,
 }) {
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const isPastEvent = isEventPast(event)
+
+  useEffect(() => {
+    if (isPastEvent) setIsEditOpen(false)
+  }, [event?.id, isPastEvent])
 
   return (
     <div className="min-h-full bg-white px-6 py-8 sm:px-10">
@@ -27,12 +33,14 @@ export default function EventAdminView({
         />
       </div>
 
-      <EventEditModal
-        event={event}
-        isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-        onSave={onEventUpdate}
-      />
+      {!isPastEvent && (
+        <EventEditModal
+          event={event}
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          onSave={onEventUpdate}
+        />
+      )}
     </div>
   )
 }

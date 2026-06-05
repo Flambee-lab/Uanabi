@@ -21,12 +21,12 @@ const TIPS = [
 export default function ProfileSuggestionsSidebar() {
   return (
     <aside className="space-y-4 lg:sticky lg:top-24">
-      <div className="rounded-2xl border border-neutral-100 bg-white p-6">
+      <div className="rounded-2xl border border-border-subtle bg-white p-6">
         <div className="flex items-center gap-2">
-          <Lightbulb className="h-4 w-4 text-neutral-500" strokeWidth={1.75} />
-          <p className="text-sm font-bold text-neutral-900">Tips para un perfil de alto impacto</p>
+          <Lightbulb className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+          <p className="text-sm font-bold text-foreground">Tips para un perfil de alto impacto</p>
         </div>
-        <p className="mt-2 text-xs leading-relaxed text-neutral-500">
+        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
           La información que cargás acá alimenta tu vista pública espejo — lo que ven las marcas antes
           de contactarte.
         </p>
@@ -35,11 +35,11 @@ export default function ProfileSuggestionsSidebar() {
       {TIPS.map((tip) => (
         <div
           key={tip.title}
-          className="rounded-2xl border border-neutral-100 bg-white p-5"
+          className="rounded-2xl border border-border-subtle bg-white p-5"
         >
-          <tip.icon className="mb-2 h-4 w-4 text-neutral-500" strokeWidth={1.75} />
-          <p className="text-xs font-bold text-neutral-900">{tip.title}</p>
-          <p className="mt-2 text-xs leading-relaxed text-neutral-500">{tip.body}</p>
+          <tip.icon className="mb-2 h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+          <p className="text-xs font-bold text-foreground">{tip.title}</p>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{tip.body}</p>
         </div>
       ))}
     </aside>

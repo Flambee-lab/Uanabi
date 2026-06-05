@@ -43,15 +43,15 @@ export default function ProfileEditCollaborations({ items, onChange, showBrands 
       {items.map((item, index) => (
         <div
           key={item.id}
-          className="space-y-5 rounded-2xl border border-neutral-100 bg-white p-6"
+          className="space-y-5 rounded-2xl border border-border-subtle bg-white p-6"
         >
           <div className="flex items-center justify-between">
-            <p className="text-sm font-bold text-neutral-900">Colaboración #{index + 1}</p>
+            <p className="text-sm font-bold text-foreground">Colaboración #{index + 1}</p>
             {items.length > 1 && (
               <button
                 type="button"
                 onClick={() => onChange(items.filter((i) => i.id !== item.id))}
-                className="text-neutral-400 transition hover:text-red-600"
+                className="text-muted-foreground transition hover:text-red-600"
                 aria-label="Eliminar"
               >
                 <Trash2 className="h-4 w-4" strokeWidth={1.75} />
@@ -91,7 +91,7 @@ export default function ProfileEditCollaborations({ items, onChange, showBrands 
                 <button
                   type="button"
                   onClick={() => addBrand(item.id)}
-                  className="flex h-[42px] w-10 shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-white hover:bg-neutral-100"
+                  className="flex h-[42px] w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-white hover:bg-secondary"
                 >
                   <Plus className="h-4 w-4" strokeWidth={2} />
                 </button>
@@ -101,7 +101,7 @@ export default function ProfileEditCollaborations({ items, onChange, showBrands 
                   {item.brandNames.map((name) => (
                     <span
                       key={name}
-                      className="inline-flex items-center gap-1 rounded-full border border-neutral-200 px-3 py-1 text-[11px] font-semibold text-neutral-700"
+                      className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 type-small font-semibold text-foreground/80"
                     >
                       {name}
                       <button type="button" onClick={() => removeBrand(item.id, name)}>
@@ -116,7 +116,7 @@ export default function ProfileEditCollaborations({ items, onChange, showBrands 
 
           <ProfileField label="Link de respaldo / Drive">
             <div className="relative">
-              <Link2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <Link2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 className={`${profileEditInputClass} pl-10`}
                 value={item.referenceLink ?? ''}
@@ -139,7 +139,7 @@ export default function ProfileEditCollaborations({ items, onChange, showBrands 
       <button
         type="button"
         onClick={() => onChange([...items, createEmptyCollaboration()])}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 bg-white py-4 text-xs font-bold text-neutral-700 transition hover:border-neutral-900"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-white py-4 text-xs font-bold text-foreground/80 transition hover:border-primary"
       >
         <Plus className="h-4 w-4" strokeWidth={2} />
         Agregar otra colaboración

@@ -1,7 +1,7 @@
 export default function ProfileViewToggle({ isPublicView, onChange }) {
   return (
-    <label className="inline-flex cursor-pointer items-center gap-2.5 rounded-full border border-neutral-200 bg-white px-4 py-2 text-xs font-semibold text-neutral-600 shadow-sm transition hover:border-neutral-300">
-      <span className={!isPublicView ? 'text-neutral-900' : 'text-neutral-400'}>
+    <label className="inline-flex cursor-pointer items-center gap-2.5 rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-muted-foreground shadow-sm transition hover:border-border">
+      <span className={!isPublicView ? 'text-foreground' : 'text-muted-foreground'}>
         Vista privada
       </span>
       <button
@@ -10,7 +10,7 @@ export default function ProfileViewToggle({ isPublicView, onChange }) {
         aria-checked={isPublicView}
         onClick={() => onChange(!isPublicView)}
         className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-          isPublicView ? 'bg-neutral-900' : 'bg-neutral-200'
+          isPublicView ? 'bg-primary' : 'bg-border'
         }`}
       >
         <span
@@ -19,7 +19,7 @@ export default function ProfileViewToggle({ isPublicView, onChange }) {
           }`}
         />
       </button>
-      <span className={isPublicView ? 'text-neutral-900' : 'text-neutral-400'}>
+      <span className={isPublicView ? 'text-foreground' : 'text-muted-foreground'}>
         Ver perfil público
       </span>
     </label>

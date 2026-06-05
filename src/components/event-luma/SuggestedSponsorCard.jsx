@@ -1,50 +1,62 @@
-import { useState } from 'react'
 import { Plus } from 'lucide-react'
+import BrandLogo from '../BrandLogo'
+import BrandEventMatchTags from '../events/BrandEventMatchTags'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
 
 function formatContribution(brand) {
   const type = brand.typicalContribution ?? brand.budgetType
   const firstOffer = brand.offers?.[0]
-  if (firstOffer && type) return `Aporta: ${type} + ${firstOffer}`
-  if (type) return `Aporta: ${type}`
-  return 'Aporta: patrocinio a medida'
+  if (firstOffer && type) return `${type} · ${firstOffer}`
+  if (type) return type
+  return 'Patrocinio a medida'
 }
 
-export default function SuggestedSponsorCard({ brand, onInvite }) {
-  const [failed, setFailed] = useState(false)
-
+export default function SuggestedSponsorCard({ brand, event, onInvite }) {
   return (
-    <article className="flex flex-col rounded-2xl border border-neutral-100 bg-white p-5 transition-shadow hover:shadow-sm">
-      <div className="flex items-start gap-3">
-        {failed ? (
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-sm font-bold text-neutral-800">
-            {brand.name.charAt(0)}
-          </div>
-        ) : (
+    <Card className="uanabi-card-hover gap-0 overflow-hidden rounded-2xl border-border-subtle py-0 shadow-none">
+      {brand.coverImage && (
+        <div className="relative h-24 w-full border-b border-border-subtle bg-muted">
           <img
-            src={brand.logo}
+            src={brand.coverImage}
             alt=""
-            className="h-11 w-11 shrink-0 rounded-xl border border-neutral-100 bg-white object-contain p-1"
-            onError={() => setFailed(true)}
+            className="h-full w-full object-cover"
           />
-        )}
-        <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-bold text-neutral-900">{brand.name}</h3>
-          <p className="text-[11px] text-neutral-400">{brand.industry}</p>
         </div>
-      </div>
+      )}
 
-      <p className="mt-4 line-clamp-2 text-xs leading-relaxed text-neutral-600">
-        {formatContribution(brand)}
-      </p>
+      <CardContent className="p-5">
+        <div className="flex items-start gap-3">
+          <BrandLogo
+            name={brand.name}
+            logo={brand.logo}
+            logoFallback={brand.logoFallback}
+            size="sm"
+          />
+          <div className="min-w-0 flex-1 pt-0.5">
+            <h3 className="type-body truncate font-bold text-foreground">{brand.name}</h3>
+            <p className="type-small text-muted-foreground">{brand.industry}</p>
+          </div>
+        </div>
 
-      <button
-        type="button"
-        onClick={() => onInvite(brand.id)}
-        className="mt-5 flex w-full items-center justify-center gap-1.5 rounded-xl bg-neutral-900 py-2.5 text-xs font-bold text-white transition hover:bg-neutral-800"
-      >
-        <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
-        Enviar propuesta
-      </button>
-    </article>
+        {event && <BrandEventMatchTags brand={brand} event={event} className="mt-4" />}
+
+        <p className="type-small mt-3 line-clamp-2 text-muted-foreground">
+          {formatContribution(brand)}
+        </p>
+      </CardContent>
+
+      <CardFooter className="border-t border-border-subtle bg-background p-4">
+        <Button
+          type="button"
+          size="event"
+          className="w-full"
+          onClick={() => onInvite(brand.id)}
+        >
+          <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+          Enviar propuesta
+        </Button>
+      </CardFooter>
+    </Card>
   )
 }

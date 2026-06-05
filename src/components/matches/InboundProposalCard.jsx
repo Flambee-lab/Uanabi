@@ -6,14 +6,14 @@ function BrandAvatar({ name, logo }) {
 
   if (failed) {
     return (
-      <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-3xl border border-[#eef0f2] bg-[#f9fafb] text-2xl font-extrabold text-[#111827]">
+      <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-3xl border border-border-subtle bg-secondary text-2xl font-extrabold text-foreground">
         {name.charAt(0)}
       </div>
     )
   }
 
   return (
-    <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-[#eef0f2] bg-[#fafafa] p-5">
+    <div className="brand-logo-surface h-28 w-28 shrink-0 rounded-3xl border border-border-subtle p-5">
       <img
         src={logo}
         alt={name}
@@ -28,19 +28,19 @@ function HighlightedProposal({ text, budget, volume }) {
   const parts = text.split(/(\$[\d.,]+k?|\$[\d.,]+)/gi)
 
   return (
-    <div className="rounded-2xl border border-[#eef0f2] bg-[#fbfbfc] p-6">
+    <div className="rounded-2xl border border-border-subtle bg-background p-6">
       <div className="mb-4 flex flex-wrap gap-2">
-        <span className="rounded-full bg-[#111827] px-3 py-1 text-xs font-bold text-white">
+        <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-white">
           {budget}
         </span>
-        <span className="rounded-full border border-[#eef0f2] bg-white px-3 py-1 text-xs font-medium text-[#6b7280]">
+        <span className="rounded-full border border-border-subtle bg-white px-3 py-1 text-xs font-medium text-muted-foreground">
           {volume}
         </span>
       </div>
-      <p className="text-[15px] leading-relaxed text-[#374151]">
+      <p className="type-body leading-relaxed text-foreground/80">
         {parts.map((part, i) =>
           /^\$/.test(part) ? (
-            <strong key={i} className="font-extrabold text-[#111827]">
+            <strong key={i} className="font-extrabold text-foreground">
               {part}
             </strong>
           ) : (
@@ -56,15 +56,15 @@ export default function InboundProposalCard({ proposal, onAccept, onReject, onOp
   const isAccepted = proposal.status === 'aceptado'
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-[#eef0f2] bg-white p-8 transition-all duration-300 hover:border-[#e5e7eb]">
+    <article className="overflow-hidden rounded-3xl border border-border-subtle bg-white p-8 transition-all duration-300 hover:border-[#e5e7eb]">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
         <div className="flex shrink-0 flex-col items-start gap-4 lg:w-44">
           <BrandAvatar name={proposal.brandName} logo={proposal.brandLogo} />
           <div>
-            <h3 className="font-display text-xl font-extrabold tracking-tight text-[#111827]">
+            <h3 className="font-display text-xl font-extrabold tracking-tight text-foreground">
               {proposal.brandName}
             </h3>
-            <span className="mt-2 inline-block rounded-full border border-[#eef0f2] bg-[#f9fafb] px-3 py-1 text-xs font-semibold text-[#6b7280]">
+            <span className="mt-2 inline-block rounded-full border border-border-subtle bg-secondary px-3 py-1 text-xs font-semibold text-muted-foreground">
               {proposal.rubro ?? proposal.industry}
             </span>
           </div>
@@ -72,16 +72,16 @@ export default function InboundProposalCard({ proposal, onAccept, onReject, onOp
 
         <div className="min-w-0 flex-1 space-y-6">
           <div>
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#9ca3af]">
+            <p className="mb-2 type-label ">
               Quieren patrocinar
             </p>
-            <p className="font-display text-lg font-bold leading-snug tracking-tight text-[#111827]">
+            <p className="font-display text-lg font-bold leading-snug tracking-tight text-foreground">
               {proposal.eventTarget}
             </p>
           </div>
 
           <div>
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#9ca3af]">
+            <p className="mb-3 type-label ">
               Qué aportan
             </p>
             <HighlightedProposal
@@ -96,7 +96,7 @@ export default function InboundProposalCard({ proposal, onAccept, onReject, onOp
               <button
                 type="button"
                 onClick={() => onReject?.(proposal.id)}
-                className="text-sm font-medium text-[#9ca3af] transition-colors hover:text-[#111827]"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 Rechazar
               </button>
@@ -108,7 +108,7 @@ export default function InboundProposalCard({ proposal, onAccept, onReject, onOp
               <button
                 type="button"
                 onClick={() => onOpenChat?.(proposal.id)}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#f4f6e9] px-8 py-3.5 text-sm font-bold text-[#1d230d] transition-all hover:bg-[#e8ecd8] active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-match px-8 py-3.5 text-sm font-bold text-match-foreground transition-all hover:bg-[#e8ecd8] active:scale-[0.98]"
               >
                 <MessageCircle className="h-4 w-4" strokeWidth={2} />
                 Ir al Chat Directo
@@ -118,7 +118,7 @@ export default function InboundProposalCard({ proposal, onAccept, onReject, onOp
               <button
                 type="button"
                 onClick={() => onAccept?.(proposal.id)}
-                className="inline-flex items-center justify-center rounded-2xl bg-[#111827] px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-[#1f2937] active:scale-[0.98]"
+                className="inline-flex items-center justify-center rounded-2xl bg-primary px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-primary/90 active:scale-[0.98]"
               >
                 Aceptar Match
               </button>
