@@ -50,6 +50,7 @@ export function buildHostEventFromQuickForm(event) {
     time: '19:00',
     organizer: { name: 'Host Demo', role: 'Organizador' },
     invitedBrands: [],
+    publicationStatus: 'publicado',
   }
 }
 

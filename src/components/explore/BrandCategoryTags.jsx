@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import { getBrandCategoryTags } from '../../utils/exploreFilters'
 
-const TAG_CLASS =
+export const BRAND_CATEGORY_TAG_CLASS =
   'rounded-full border border-neutral-300 bg-secondary/80 px-2.5 py-0.5 type-small font-semibold text-foreground/75'
 
 export default function BrandCategoryTags({
@@ -17,7 +17,7 @@ export default function BrandCategoryTags({
   return (
     <ul className={cn('flex flex-wrap gap-1.5', className)}>
       {tags.map((tag) => (
-        <li key={tag} className={cn(TAG_CLASS, tagClassName)}>
+        <li key={tag} className={cn(BRAND_CATEGORY_TAG_CLASS, tagClassName)}>
           {tag}
         </li>
       ))}

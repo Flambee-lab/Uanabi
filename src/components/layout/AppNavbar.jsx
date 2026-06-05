@@ -29,18 +29,17 @@ export default function AppNavbar({
 }) {
   return (
     <header className="uanabi-navbar">
-      <button
-        type="button"
-        onClick={() => onNavChange('explore')}
-        className="uanabi-navbar-brand shrink-0"
-      >
-        Uanabi
-      </button>
+      <div className="uanabi-navbar-start">
+        <button
+          type="button"
+          onClick={() => onNavChange('explore')}
+          className="uanabi-navbar-brand shrink-0"
+        >
+          Uanabi
+        </button>
+      </div>
 
-      <nav
-        className="flex min-w-0 flex-1 items-center justify-center"
-        aria-label="Navegación principal"
-      >
+      <nav className="uanabi-navbar-center" aria-label="Navegación principal">
         <div className="uanabi-nav-rail">
           {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
             const isActive = activeNav === id

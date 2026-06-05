@@ -21,6 +21,10 @@ import {
 } from '../data/brandProfileExtras'
 import { useBrandLogoSrc } from '../hooks/useBrandLogoSrc'
 import { cn } from '@/lib/utils'
+import {
+  UANABI_PROFILE_CARD_CLASS,
+  UANABI_PROFILE_COVER_CLASS,
+} from '../components/layout/UanabiProfileLayout'
 import { getBrandCategoryTags } from '../utils/exploreFilters'
 
 const COVER_BY_INDUSTRY = {
@@ -216,8 +220,8 @@ export default function BrandPublicView({
       <div className="mx-auto max-w-6xl px-6 pb-8 pt-4 sm:px-10 sm:pb-10 sm:pt-5">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-10">
           <div className="min-w-0 space-y-8">
-            <Card className="overflow-hidden rounded-2xl border-border-subtle shadow-none">
-              <div className="relative aspect-[2.4/1] max-h-28 w-full bg-muted sm:max-h-32">
+            <Card className={UANABI_PROFILE_CARD_CLASS}>
+              <div className={UANABI_PROFILE_COVER_CLASS}>
                 {showCover ? (
                   <img
                     src={coverSrc}
@@ -280,7 +284,7 @@ export default function BrandPublicView({
               </CardContent>
             </Card>
 
-            <Card className="rounded-2xl border-border-subtle shadow-none">
+            <Card className={UANABI_PROFILE_CARD_CLASS}>
               <CardContent className="p-6 sm:p-8">
                 <div className="flex items-start justify-between gap-6 border-b border-border-subtle pb-5">
                   <div className="min-w-0">
@@ -315,7 +319,7 @@ export default function BrandPublicView({
 
             <PartnershipsGallery photos={partnershipPhotos} />
 
-            <Card className="rounded-2xl border-border-subtle shadow-none">
+            <Card className={UANABI_PROFILE_CARD_CLASS}>
               <CardContent className="p-6 sm:p-8">
                 <h2 className="type-heading font-display font-bold text-foreground">Equipo</h2>
                 <div className="mt-4 rounded-2xl border border-dashed border-border-subtle bg-secondary/30 px-6 py-10 text-center">
@@ -332,7 +336,7 @@ export default function BrandPublicView({
 
           <aside className="space-y-6 lg:sticky lg:top-[4.5rem] lg:self-start">
             {alsoViewed.length > 0 && (
-              <Card className="rounded-2xl border-border-subtle shadow-none">
+              <Card className={UANABI_PROFILE_CARD_CLASS}>
                 <CardContent className="p-6">
                   <h2 className="type-heading font-display font-bold text-foreground">
                     Otras marcas sugeridas

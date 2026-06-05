@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 import Input from '../ui/Input'
+import { isEventPast } from '../../utils/sponsorshipLifecycle'
 
 export default function EventEditModal({ event, isOpen, onClose, onSave }) {
   const [form, setForm] = useState({
@@ -18,6 +19,7 @@ export default function EventEditModal({ event, isOpen, onClose, onSave }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    if (isEventPast(event)) return
     onSave?.({
       ...event,
       title: form.title.trim(),

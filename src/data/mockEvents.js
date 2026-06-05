@@ -340,7 +340,51 @@ function yesterdayISO() {
   return d.toISOString().slice(0, 10)
 }
 
+const EVENT_PORTADA_IMAGES = {
+  gaming:
+    'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80',
+  gastronomy:
+    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=900&q=80',
+  lifestyle:
+    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80',
+}
+
 export const myEvents = [
+  {
+    id: 'evt-past-002',
+    title: 'Feria Foodie — Invierno en San Telmo',
+    date: '2026-03-08',
+    time: '12:00 – 20:00',
+    location: 'San Telmo, Buenos Aires',
+    audience: '120 presenciales / 4.5k reach',
+    niche: 'Gastronomía',
+    coverImage: EVENT_PORTADA_IMAGES.gastronomy,
+    coverGradient: 'from-amber-100 via-orange-50 to-white',
+    coverLabel: 'FOODIE',
+    venueAddress: 'Plaza Dorrego · San Telmo, CABA',
+    description: 'Feria gastronómica de invierno con stands, música y activaciones de marcas.',
+    matchIndustries: ['Bebidas', 'Gastronomía'],
+    invitedBrands: [
+      { brandId: 'brand-009', status: 'match_aceptado', invitedAt: '2026-02-20' },
+    ],
+  },
+  {
+    id: 'evt-past-003',
+    title: 'Meetup Tech Founders — Edición CABA',
+    date: '2026-02-14',
+    time: '19:00 – 22:00',
+    location: 'Microcentro, Buenos Aires',
+    audience: '60 presenciales / 1.8k reach',
+    niche: 'Tecnología',
+    coverGradient: 'from-sky-100 via-indigo-50 to-white',
+    coverLabel: 'TECH',
+    venueAddress: 'Av. Corrientes 800 · Microcentro, CABA',
+    description: 'Encuentro de founders con paneles, networking y sponsors tech.',
+    matchIndustries: ['Tecnología'],
+    invitedBrands: [
+      { brandId: 'brand-004', status: 'en_verificacion_admin', invitedAt: '2026-01-30' },
+    ],
+  },
   {
     id: 'evt-past-close',
     title: 'Pop-up Street Food — Edición Primavera',
@@ -378,7 +422,9 @@ export const myEvents = [
     time: '18:00 – 02:00',
     location: 'Palermo, Buenos Aires',
     audience: '120 presenciales / 12k reach',
+    audienceGender: 'Masculino 55% · Femenino 45%',
     niche: 'Gaming',
+    coverImage: EVENT_PORTADA_IMAGES.gaming,
     coverGradient: 'from-cyan-200 via-violet-100 to-fuchsia-100',
     organizer: {
       name: 'Neon Collective',
@@ -420,7 +466,9 @@ export const myEvents = [
     time: '20:00 – 01:00',
     location: 'Puerto Madero, Buenos Aires',
     audience: '25 presenciales / 850 reach',
+    audienceGender: 'Masculino 50% · Femenino 50%',
     niche: 'Lifestyle',
+    coverImage: EVENT_PORTADA_IMAGES.lifestyle,
     coverGradient: 'from-amber-100 via-rose-50 to-sky-100',
     organizer: { name: 'Studio Norte', role: 'Organizador', isSuperHost: true },
     coOrganizersCount: 1,
@@ -453,6 +501,7 @@ export const myEvents = [
   {
     id: 'evt-003',
     title: 'Runway Underground — Desfile Moda Independiente',
+    publicationStatus: 'bajado',
     date: '2026-09-05',
     time: '21:00 – 00:30',
     location: 'Villa Crespo, Buenos Aires',
@@ -489,11 +538,12 @@ export const myEvents = [
   {
     id: 'evt-004',
     title: 'Cena Degustación — Chefs Emergentes',
-    date: '2026-06-14',
+    date: '2026-05-10',
     time: '20:30 – 23:30',
     location: 'San Telmo, Buenos Aires',
     audience: '40 presenciales / 3.2k reach',
     niche: 'Gastronomía',
+    coverImage: EVENT_PORTADA_IMAGES.gastronomy,
     coverGradient: 'from-orange-100 via-amber-50 to-white',
     organizer: { name: 'Mesa Emergente', role: 'Organizador', isSuperHost: true },
     hostCommunity: {

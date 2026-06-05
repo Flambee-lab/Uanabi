@@ -1,4 +1,7 @@
+import { isEventPast } from '../../utils/sponsorshipLifecycle'
+
 export default function EventSummaryBar({ event, onEdit }) {
+  const canEdit = !isEventPast(event)
   const locationLine = event.venueAddress ?? event.location
   const dateLine = [event.date, event.time].filter(Boolean).join(' · ')
 
@@ -12,13 +15,15 @@ export default function EventSummaryBar({ event, onEdit }) {
           {locationLine}
         </p>
       </div>
-      <button
-        type="button"
-        onClick={onEdit}
-        className="shrink-0 text-xs font-semibold text-muted-foreground underline-offset-2 transition hover:text-foreground hover:underline"
-      >
-        Editar información
-      </button>
+      {canEdit ? (
+        <button
+          type="button"
+          onClick={onEdit}
+          className="shrink-0 text-xs font-semibold text-muted-foreground underline-offset-2 transition hover:text-foreground hover:underline"
+        >
+          Editar información
+        </button>
+      ) : null}
     </div>
   )
 }

@@ -14,7 +14,7 @@ function formatContribution(brand) {
 
 export default function SuggestedSponsorCard({ brand, event, onInvite }) {
   return (
-    <Card className="uanabi-panel uanabi-card-hover gap-0 overflow-hidden py-0 shadow-none">
+    <Card className="uanabi-card-hover gap-0 overflow-hidden rounded-2xl border-border-subtle py-0 shadow-none">
       {brand.coverImage && (
         <div className="relative h-24 w-full border-b border-border-subtle bg-muted">
           <img

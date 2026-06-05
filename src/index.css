@@ -300,7 +300,13 @@ body {
 
   /* Barra principal de la app */
   .uanabi-navbar {
-    @apply flex h-14 shrink-0 items-center gap-3 border-b border-border-subtle bg-background px-4 sm:gap-4 sm:px-6;
+    @apply grid h-14 shrink-0 grid-cols-[1fr_auto_1fr] items-center border-b border-border-subtle bg-background px-4 sm:px-6;
+  }
+  .uanabi-navbar-start {
+    @apply flex min-w-0 items-center justify-start;
+  }
+  .uanabi-navbar-center {
+    @apply flex items-center justify-center px-2;
   }
   .uanabi-navbar-brand {
     @apply font-display text-lg font-extrabold tracking-tight text-foreground transition-opacity hover:opacity-75;
@@ -315,7 +321,7 @@ body {
     @apply bg-selection text-foreground hover:bg-selection;
   }
   .uanabi-navbar-actions {
-    @apply flex shrink-0 items-center gap-1 sm:gap-2;
+    @apply flex shrink-0 items-center justify-end gap-1 sm:gap-2;
   }
   .uanabi-navbar-divider {
     @apply mx-0.5 hidden h-6 w-px bg-border-subtle sm:block;

@@ -1,9 +1,18 @@
-import { useState } from 'react'
-import { Calendar, MapPin, Pencil } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { useEffect, useState } from 'react'
+import { Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import {
+  UANABI_PROFILE_CARD_CLASS,
+  UANABI_PROFILE_COVER_CLASS,
+  UanabiProfilePage,
+} from '../components/layout/UanabiProfileLayout'
+import EventAboutSection from '../components/events/EventAboutSection'
+import EventCoverMedia from '../components/events/EventCoverMedia'
+import EventFactsSheet from '../components/events/EventFactsSheet'
+import EventPublicationStatusTag from '../components/events/EventPublicationStatusTag'
+import { isEventPast } from '../utils/sponsorshipLifecycle'
 import EventEditModal from '../components/event-luma/EventEditModal'
 import EventInvitedSponsors from '../components/event-luma/EventInvitedSponsors'
 import SuggestedSponsorCard from '../components/event-luma/SuggestedSponsorCard'
@@ -12,45 +21,6 @@ const SPONSOR_TABS = [
   { id: 'invited', label: 'Marcas invitadas' },
   { id: 'recommended', label: 'Recomendadas' },
 ]
-
-function formatEventDate(date, time) {
-  if (!date) return ''
-  const parsed = new Date(`${date}T12:00:00`)
-  const formatted = Number.isNaN(parsed.getTime())
-    ? date
-    : parsed.toLocaleDateString('es-AR', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
-  return time ? `${formatted} · ${time}` : formatted
-}
-
-function EventCover({ event }) {
-  if (event.coverImage) {
-    return (
-      <img
-        src={event.coverImage}
-        alt=""
-        className="h-52 w-full rounded-2xl border border-border-subtle object-cover shadow-sm"
-      />
-    )
-  }
-
-  return (
-    <div
-      className={`relative h-52 w-full overflow-hidden rounded-2xl border border-border-subtle bg-gradient-to-br shadow-sm ${event.coverGradient ?? 'from-muted via-secondary to-card'}`}
-    >
-      {event.coverLabel && (
-        <span className="uanabi-label absolute bottom-4 left-5 text-foreground/25">
-          {event.coverLabel}
-        </span>
-      )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-    </div>
-  )
-}
 
 function SponsorTabs({ active, onChange }) {
   return (
@@ -81,10 +51,14 @@ export default function MatchesAndRequests({
   onEventUpdate,
   pendingCasesForEvent = [],
   onCloseCaseForBrand,
-  compact = false,
 }) {
   const [activeTab, setActiveTab] = useState('invited')
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const isPastEvent = isEventPast(event)
+
+  useEffect(() => {
+    if (isPastEvent) setIsEditOpen(false)
+  }, [event?.id, isPastEvent])
 
   if (!event) {
     return (
@@ -94,80 +68,64 @@ export default function MatchesAndRequests({
     )
   }
 
-  const locationLine = event.venueAddress ?? event.location
-  const dateLine = formatEventDate(event.date, event.time)
+  const handlePublicationStatusChange = (publicationStatus) => {
+    onEventUpdate?.({ ...event, publicationStatus })
+  }
 
   return (
-    <div className="min-h-full bg-background">
-      <div
-        className={cn(
-          'mx-auto max-w-5xl',
-          compact ? 'px-6 py-6 sm:px-8' : 'p-8 sm:p-10',
-        )}
-      >
-        <header className={cn(compact ? 'mb-5' : 'mb-10')}>
-          {!compact && <EventCover event={event} />}
+    <UanabiProfilePage>
+      <Card className={UANABI_PROFILE_CARD_CLASS}>
+        <div className={UANABI_PROFILE_COVER_CLASS}>
+          <EventCoverMedia event={event} variant="brandHero" />
+        </div>
 
-          <div
-            className={cn(
-              'flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between',
-              !compact && 'mt-8',
-            )}
-          >
+        <CardContent className="px-6 pb-5 pt-0 sm:px-8 sm:pb-6">
+          <div className="flex items-start justify-between gap-4 pt-4">
             <div className="min-w-0 space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className={cn(compact ? 'type-heading' : 'uanabi-title-lg', 'font-display font-bold')}>
-                  {event.title}
-                </h1>
-                {event.niche && compact && (
-                  <Badge variant="secondary" className="rounded-full px-2.5 py-0.5 text-xs font-semibold">
-                    {event.niche}
-                  </Badge>
-                )}
-              </div>
-              <div className="flex flex-col gap-1.5 text-sm text-muted-foreground">
-                {dateLine && (
-                  <p className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 shrink-0 opacity-60" strokeWidth={1.75} />
-                    <span className="capitalize">{dateLine}</span>
-                  </p>
-                )}
-                {locationLine && (
-                  <p className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 shrink-0 opacity-60" strokeWidth={1.75} />
-                    {locationLine}
-                  </p>
-                )}
-              </div>
-              {event.niche && !compact && (
-                <Badge variant="secondary" className="rounded-full px-3 py-1 font-semibold">
-                  {event.niche}
-                </Badge>
-              )}
+              <EventPublicationStatusTag
+                event={event}
+                onStatusChange={handlePublicationStatusChange}
+              />
+              <h1 className="type-display font-display font-black tracking-tight text-foreground">
+                {event.title}
+              </h1>
             </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setIsEditOpen(true)}
-              className="shrink-0 gap-2 rounded-xl"
-            >
-              <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
-              Editar
-            </Button>
+            {!isPastEvent ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditOpen(true)}
+                className="shrink-0 gap-2 rounded-xl"
+              >
+                <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
+                Editar
+              </Button>
+            ) : (
+              <p className="type-small max-w-[8rem] text-right text-muted-foreground">
+                Evento finalizado — solo lectura
+              </p>
+            )}
           </div>
-        </header>
 
-        <Card className="uanabi-panel gap-0 py-0">
-          <CardHeader className="border-b border-border-subtle px-6 pt-6 pb-5 sm:px-8">
+          <div className="mt-6 space-y-6 border-t border-border-subtle pt-6 sm:mt-7 sm:pt-7">
+            <EventFactsSheet event={event} />
+            <EventAboutSection event={event} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className={cn(UANABI_PROFILE_CARD_CLASS, 'gap-0 py-0')}>
+        <CardContent className="p-6 sm:p-8">
+          <h2 className="type-heading font-display font-bold text-foreground">Patrocinio</h2>
+          <div className="mt-4 border-b border-border-subtle pb-4">
             <SponsorTabs active={activeTab} onChange={setActiveTab} />
-          </CardHeader>
+          </div>
 
-          <CardContent className="p-6 sm:p-8">
+          <div className="pt-6">
             {activeTab === 'invited' ? (
-              <section className="space-y-8">
-                <p className="type-small">
+              <section className="space-y-6">
+                <p className="type-small text-muted-foreground">
                   Marcas contactadas para este evento — estados de invitación en tiempo real.
                 </p>
                 {pendingCasesForEvent.length > 0 && (
@@ -198,8 +156,8 @@ export default function MatchesAndRequests({
                   formato). Las etiquetas verdes muestran por qué encajan.
                 </p>
                 {suggestedBrands.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-border-subtle py-16 text-center">
-                    <p className="uanabi-meta">
+                  <div className="rounded-2xl border border-dashed border-border-subtle bg-secondary/30 px-6 py-16 text-center">
+                    <p className="type-body-muted">
                       No hay más marcas recomendadas para este evento
                     </p>
                   </div>
@@ -217,16 +175,18 @@ export default function MatchesAndRequests({
                 )}
               </section>
             )}
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <EventEditModal
-        event={event}
-        isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-        onSave={onEventUpdate}
-      />
-    </div>
+      {!isPastEvent && (
+        <EventEditModal
+          event={event}
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          onSave={onEventUpdate}
+        />
+      )}
+    </UanabiProfilePage>
   )
 }

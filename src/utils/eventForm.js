@@ -97,6 +97,7 @@ export function buildEventFromForm(form, id) {
     venueName,
     venueAddress,
     invitedBrands: [],
+    publicationStatus: 'bajado',
   }
 }
 

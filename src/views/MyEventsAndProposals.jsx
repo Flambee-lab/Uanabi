@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import EventsTimelineSidebar from '../components/events/EventsTimelineSidebar'
 import HostPartnershipsView from '../components/events/HostPartnershipsView'
+import HostPastEventsView from '../components/events/HostPastEventsView'
 import SponsorshipCloseCaseModal from '../components/events/SponsorshipCloseCaseModal'
 import { availableBrands } from '../data/mockEvents'
 import {
@@ -12,6 +13,7 @@ import {
 } from '../utils/hostEventBuckets'
 import {
   getPendingClosureCases,
+  isEventPast,
   SPONSORSHIP_STATUS,
 } from '../utils/sponsorshipLifecycle'
 import {
@@ -95,7 +97,11 @@ export default function MyEventsAndProposals({
 
   const handleEventUpdate = (updated) => {
     onEventsChange((prev) =>
-      prev.map((event) => (event.id === updated.id ? { ...event, ...updated } : event)),
+      prev.map((event) => {
+        if (event.id !== updated.id) return event
+        if (isEventPast(event)) return event
+        return { ...event, ...updated }
+      }),
     )
   }
 
@@ -131,6 +137,11 @@ export default function MyEventsAndProposals({
     setPanelMode('event')
   }
 
+  const handleSelectEventFromPast = (eventId) => {
+    setSelectedEventId(eventId)
+    setPanelMode('event')
+  }
+
   if (events.length === 0) {
     return (
       <div className="flex h-full min-h-0 w-full flex-col items-center justify-center bg-background p-12 text-center">
@@ -161,14 +172,14 @@ export default function MyEventsAndProposals({
     <div className="flex h-full min-h-0 w-full overflow-hidden bg-background">
       <EventsTimelineSidebar
         upcoming={upcoming}
-        past={past}
+        pastCount={past.length}
         selectedId={selectedEvent?.id}
         panelMode={panelMode}
         partnershipCount={partnerships.length}
         onSelectEvent={handleSelectEvent}
+        onShowPastEvents={() => setPanelMode('past')}
         onShowPartnerships={() => setPanelMode('partnerships')}
         onCreateEvent={onCreateEvent}
-        onGoToProfile={onGoToProfile}
       />
 
       <div className="min-w-0 flex-1 overflow-y-auto">
@@ -179,10 +190,11 @@ export default function MyEventsAndProposals({
             onGoToProfile={onGoToProfile}
             onSelectEvent={handleSelectEventFromPartnership}
           />
+        ) : panelMode === 'past' ? (
+          <HostPastEventsView events={past} onSelectEvent={handleSelectEventFromPast} />
         ) : selectedEvent ? (
           <>
             <MatchesAndRequests
-              compact
               event={selectedEvent}
               invitedBrands={invitedBrands}
               suggestedBrands={suggestedBrands}

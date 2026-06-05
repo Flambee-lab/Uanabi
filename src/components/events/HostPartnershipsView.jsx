@@ -1,10 +1,20 @@
 import { ArrowUpRight, Calendar, User } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import BrandLogo from '../BrandLogo'
+import {
+  UANABI_PROFILE_CARD_CLASS,
+  UanabiProfilePage,
+} from '../layout/UanabiProfileLayout'
 import { countPartnershipsInProfile } from '../../utils/hostEventBuckets'
 
 function PartnershipCard({ item, publishedInProfile, onSelectEvent, onGoToProfile }) {
   return (
-    <article className="uanabi-panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+    <article
+      className={cn(
+        UANABI_PROFILE_CARD_CLASS,
+        'flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between',
+      )}
+    >
       <div className="flex min-w-0 items-start gap-3">
         <BrandLogo name={item.brandName} logo={item.brandLogo} size="sm" />
         <div className="min-w-0">
@@ -62,7 +72,9 @@ export default function HostPartnershipsView({
 
   if (partnerships.length === 0) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center px-8 py-16 text-center">
+      <UanabiProfilePage
+        innerClassName="flex flex-1 flex-col items-center justify-center max-w-3xl py-16 text-center"
+      >
         <p className="type-heading font-display font-bold text-foreground">
           Todavía no tenés colaboraciones confirmadas
         </p>
@@ -78,12 +90,12 @@ export default function HostPartnershipsView({
           <User className="h-4 w-4" strokeWidth={2} />
           Preparar Mi Perfil
         </button>
-      </div>
+      </UanabiProfilePage>
     )
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 py-6 sm:px-8">
+    <UanabiProfilePage innerClassName="max-w-3xl">
       <p className="type-small text-muted-foreground">
         {inProfileCount} de {partnerships.length} publicadas en Mi Perfil
       </p>
@@ -99,6 +111,6 @@ export default function HostPartnershipsView({
           />
         ))}
       </div>
-    </div>
+    </UanabiProfilePage>
   )
 }
