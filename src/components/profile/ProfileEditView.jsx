@@ -105,15 +105,15 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
 
   return (
     <div ref={scrollRootRef} className="min-h-full overflow-y-auto bg-[#fafafa]">
-      <div className="border-b border-neutral-100 bg-white">
+      <div className="border-b border-border-subtle bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-10">
           <div>
-            <p className="text-xs font-medium text-neutral-400">
-              <span className="text-neutral-500">Home</span>
+            <p className="text-xs font-medium text-muted-foreground">
+              <span className="text-muted-foreground">Home</span>
               <span className="mx-1.5 text-neutral-300">›</span>
-              <span className="text-neutral-600">Edit Profile</span>
+              <span className="text-muted-foreground">Edit Profile</span>
             </p>
-            <h1 className="mt-2 font-display text-2xl font-black tracking-tight text-neutral-900 sm:text-3xl">
+            <h1 className="mt-2 font-display text-2xl font-black tracking-tight text-foreground sm:text-3xl">
               Edit Profile
             </h1>
           </div>
@@ -122,7 +122,7 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
               <button
                 type="button"
                 onClick={onReopenWizard}
-                className="text-xs font-semibold text-neutral-400 hover:text-neutral-700"
+                className="text-xs font-semibold text-muted-foreground hover:text-foreground/80"
               >
                 Wizard guiado
               </button>
@@ -130,14 +130,14 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
             <button
               type="button"
               onClick={handlePreview}
-              className="rounded-xl border border-neutral-200 bg-white px-5 py-2.5 text-xs font-bold text-neutral-800 transition hover:border-neutral-300"
+              className="rounded-xl border border-border bg-white px-5 py-2.5 text-xs font-bold text-foreground transition hover:border-border"
             >
               Preview Public Profile
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="rounded-xl bg-neutral-900 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-neutral-800"
+              className="rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-white transition hover:bg-primary/90"
             >
               Guardar cambios
             </button>
@@ -173,22 +173,22 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
                     className="h-28 w-28 rounded-2xl object-cover shadow-sm ring-1 ring-neutral-100"
                   />
                 ) : (
-                  <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-neutral-900 font-display text-3xl font-black text-white shadow-sm">
+                  <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-primary font-display text-3xl font-black text-white shadow-sm">
                     {displayInitial}
                   </div>
                 )}
                 <button
                   type="button"
                   onClick={() => avatarInputRef.current?.click()}
-                  className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-600 shadow-sm hover:text-neutral-900"
+                  className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white text-muted-foreground shadow-sm hover:text-foreground"
                   aria-label="Editar foto"
                 >
                   <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
                 </button>
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="font-display text-lg font-bold text-neutral-900">Basic Information</h2>
-                <p className="mt-1 text-xs text-neutral-500">
+                <h2 className="font-display text-lg font-bold text-foreground">Basic Information</h2>
+                <p className="mt-1 text-xs text-muted-foreground">
                   Última actualización:{' '}
                   {profile.joinedAt
                     ? new Date(profile.joinedAt).toLocaleDateString('es-AR')
@@ -197,7 +197,7 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
               </div>
             </div>
 
-            <div className="space-y-6 rounded-2xl border border-neutral-100 bg-white p-6 sm:p-8">
+            <div className="space-y-6 rounded-2xl border border-border-subtle bg-white p-6 sm:p-8">
               <ProfileField label="Full Name" required>
                 <input
                   className={profileEditInputClass}
@@ -219,7 +219,7 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
               </ProfileField>
               <ProfileField label="WhatsApp comercial" required>
                 <div className="relative">
-                  <MessageCircle className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                  <MessageCircle className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
                     className={`${profileEditInputClass} pl-10`}
                     value={draft.whatsapp}
@@ -231,14 +231,14 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
               </ProfileField>
               <ProfileField label="Ubicación">
                 <div className="relative">
-                  <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                  <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
-                    className={`${profileEditInputClass} cursor-not-allowed bg-neutral-100 pl-10 text-neutral-600`}
+                    className={`${profileEditInputClass} cursor-not-allowed bg-secondary pl-10 text-muted-foreground`}
                     value={HOST_LOCATION}
                     readOnly
                   />
                 </div>
-                <p className="text-[11px] text-neutral-500">{HOST_LOCATION_HINT}</p>
+                <p className="type-small text-muted-foreground">{HOST_LOCATION_HINT}</p>
               </ProfileField>
               <ProfileField label="Tags de identificación" required>
                 <IdentityTagPills
@@ -254,7 +254,7 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
                   placeholder="Contá quién sos, qué eventos producís y qué tipo de sponsors buscás..."
                   rows={5}
                 />
-                <p className="text-[10px] text-neutral-400">{draft.bio.length} caracteres</p>
+                <p className="type-small text-muted-foreground">{draft.bio.length} caracteres</p>
               </ProfileField>
               <ProfileField label="Tagline">
                 <input
@@ -274,10 +274,10 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
             }}
             className="scroll-mt-28"
           >
-            <h2 className="mb-6 font-display text-lg font-bold text-neutral-900">
+            <h2 className="mb-6 font-display text-lg font-bold text-foreground">
               Channels & Metrics
             </h2>
-            <div className="space-y-6 rounded-2xl border border-neutral-100 bg-white p-6 sm:p-8">
+            <div className="space-y-6 rounded-2xl border border-border-subtle bg-white p-6 sm:p-8">
               <ProfileField label="Instagram">
                 <input
                   className={profileEditInputClass}
@@ -323,10 +323,10 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
             }}
             className="scroll-mt-28"
           >
-            <h2 className="mb-2 font-display text-lg font-bold text-neutral-900">
+            <h2 className="mb-2 font-display text-lg font-bold text-foreground">
               Past Collaborations
             </h2>
-            <p className="mb-6 text-xs text-neutral-500">
+            <p className="mb-6 text-xs text-muted-foreground">
               Agregaste {draft.successStories.filter((s) => s.title?.trim()).length} colaboración
               {draft.successStories.filter((s) => s.title?.trim()).length !== 1 ? 'es' : ''}.
             </p>

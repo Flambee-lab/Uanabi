@@ -1,11 +1,13 @@
 import { Plus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { countEventInvites } from '../../utils/eventSponsorMatch'
 
 export default function EventPickerRail({ events, selectedId, onSelect, onCreateEvent }) {
   return (
-    <aside className="flex h-full w-56 shrink-0 flex-col overflow-hidden border-r border-neutral-100 bg-white">
-      <div className="shrink-0 border-b border-neutral-100 px-4 py-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
+    <aside className="flex h-full w-60 shrink-0 flex-col overflow-hidden border-r border-border-subtle bg-card shadow-sm">
+      <div className="shrink-0 border-b border-border-subtle px-4 py-3">
+        <p className="type-label">
           Tus eventos
         </p>
       </div>
@@ -15,58 +17,57 @@ export default function EventPickerRail({ events, selectedId, onSelect, onCreate
           const isActive = event.id === selectedId
 
           return (
-            <button
+            <Button
               key={event.id}
               type="button"
+              variant={isActive ? 'default' : 'ghost'}
               onClick={() => onSelect(event.id)}
-              className={`w-full rounded-xl px-3 py-2 text-left transition-all ${
-                isActive
-                  ? 'bg-neutral-900 text-white'
-                  : 'text-neutral-700 hover:bg-neutral-50'
-              }`}
+              className={cn(
+                'h-auto w-full flex-col items-start rounded-xl px-3 py-2 text-left',
+                isActive && 'bg-primary hover:bg-primary/90',
+              )}
             >
               <p
-                className={`line-clamp-2 text-xs font-bold leading-snug ${
-                  isActive ? 'text-white' : 'text-neutral-900'
-                }`}
+                className={cn(
+                  'type-small line-clamp-2 font-bold text-foreground',
+                  isActive ? 'text-primary-foreground' : 'text-foreground',
+                )}
               >
                 {event.title}
               </p>
               <p
-                className={`mt-1 text-[10px] ${
-                  isActive ? 'text-neutral-300' : 'text-neutral-400'
-                }`}
+                className={cn(
+                  'type-small mt-1',
+                  isActive ? 'text-primary-foreground/70' : 'text-muted-foreground',
+                )}
               >
                 {event.date}
               </p>
               {(matches > 0 || activeInvites > 0) && (
                 <p
-                  className={`mt-1 text-[9px] font-medium ${
-                    isActive ? 'text-neutral-400' : 'text-neutral-500'
-                  }`}
+                  className={cn(
+                    'type-small mt-1 font-medium',
+                    isActive ? 'text-primary-foreground/60' : 'text-muted-foreground',
+                  )}
                 >
                   {matches > 0 && `${matches} match`}
                   {matches > 0 && activeInvites > 0 && ' · '}
                   {activeInvites > 0 && `${activeInvites} invit.`}
                 </p>
               )}
-            </button>
+            </Button>
           )
         })}
         {events.length === 0 && (
-          <p className="px-3 py-8 text-center text-xs text-neutral-400">Sin eventos</p>
+          <p className="px-3 py-8 text-center text-xs text-muted-foreground">Sin eventos</p>
         )}
       </div>
 
-      <div className="shrink-0 border-t border-neutral-100 p-3">
-        <button
-          type="button"
-          onClick={onCreateEvent}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-neutral-900 py-3 text-xs font-bold text-white transition hover:bg-neutral-800"
-        >
+      <div className="shrink-0 border-t border-border-subtle p-3">
+        <Button type="button" size="event" className="w-full text-xs" onClick={onCreateEvent}>
           <Plus className="h-4 w-4" strokeWidth={2.5} />
           Crear evento
-        </button>
+        </Button>
       </div>
     </aside>
   )

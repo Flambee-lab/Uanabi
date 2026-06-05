@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Calendar, Check, MapPin, X } from 'lucide-react'
+import { Calendar, Check, MapPin, Plus, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { QuickEventForm } from '../apply/ApplyToBrandModal'
+import { EMPTY_EVENT_FORM } from '../../data/hostEvents'
 import { INVITATION_SENT_COPY } from '../../utils/sponsorshipLifecycle'
 import {
   buildCommercialSnapshot,
@@ -7,7 +10,7 @@ import {
 } from '../../utils/sponsorshipProposal'
 
 const INPUT_CLASS =
-  'w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs text-neutral-900 transition-all placeholder:text-neutral-400 focus:border-neutral-900 focus:bg-white focus:outline-none focus:ring-0'
+  'w-full rounded-xl border border-border bg-secondary px-4 py-3 text-xs text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:bg-white focus:outline-none focus:ring-0'
 
 function EventMiniCard({ event, selected, onSelect }) {
   const location = event.venueAddress ?? event.location
@@ -18,29 +21,29 @@ function EventMiniCard({ event, selected, onSelect }) {
       onClick={() => onSelect(event)}
       className={`flex w-full items-center gap-4 rounded-2xl border p-3 text-left transition ${
         selected
-          ? 'border-neutral-900 bg-neutral-50'
-          : 'border-neutral-100 bg-white hover:border-neutral-300'
+          ? 'border-primary bg-secondary'
+          : 'border-border-subtle bg-white hover:border-border'
       }`}
     >
       <div
         className={`h-14 w-20 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br ${event.coverGradient ?? 'from-neutral-100 to-white'}`}
       />
       <div className="min-w-0 flex-1">
-        <p className="font-bold text-xs text-neutral-900">{event.title}</p>
-        <p className="mt-1 flex items-center gap-1 text-[10px] text-neutral-500">
+        <p className="font-bold text-xs text-foreground">{event.title}</p>
+        <p className="mt-1 flex items-center gap-1 type-small text-muted-foreground">
           <Calendar className="h-3 w-3" strokeWidth={1.75} />
           {event.date}
           {event.time ? ` · ${event.time}` : ''}
         </p>
         {location && (
-          <p className="mt-0.5 flex items-center gap-1 text-[10px] text-neutral-400">
+          <p className="mt-0.5 flex items-center gap-1 type-small text-muted-foreground">
             <MapPin className="h-3 w-3" strokeWidth={1.75} />
             <span className="truncate">{location}</span>
           </p>
         )}
       </div>
       {selected && (
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-white">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white">
           <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
         </span>
       )}
@@ -55,24 +58,31 @@ export default function ProposalModal({
   activeEvent = null,
   onClose,
   onSubmit,
+  onEventCreated,
 }) {
   const skipEventStep = Boolean(activeEvent)
   const initialStep = skipEventStep ? 2 : 1
+  const hasEvents = hostEvents.length > 0
 
   const [step, setStep] = useState(initialStep)
+  const [eventView, setEventView] = useState(hasEvents ? 'list' : 'create')
   const [selectedEvent, setSelectedEvent] = useState(activeEvent)
+  const [quickForm, setQuickForm] = useState(EMPTY_EVENT_FORM)
   const [materialRequest, setMaterialRequest] = useState('')
   const [leadTimeDays, setLeadTimeDays] = useState('7')
   const [showSuccess, setShowSuccess] = useState(false)
 
   useEffect(() => {
     if (!isOpen) return
+    const eventsExist = hostEvents.length > 0
     setStep(activeEvent ? 2 : 1)
+    setEventView(activeEvent ? 'list' : eventsExist ? 'list' : 'create')
     setSelectedEvent(activeEvent)
+    setQuickForm(EMPTY_EVENT_FORM)
     setMaterialRequest('')
     setLeadTimeDays('7')
     setShowSuccess(false)
-  }, [isOpen, activeEvent, brand?.id])
+  }, [isOpen, activeEvent, brand?.id, hostEvents.length])
 
   if (!isOpen || !brand) return null
 
@@ -84,6 +94,13 @@ export default function ProposalModal({
   const handleSelectEvent = (event) => {
     setSelectedEvent(event)
     setTimeout(() => setStep(2), 180)
+  }
+
+  const handleQuickEventSubmit = (event) => {
+    onEventCreated?.(event)
+    setSelectedEvent(event)
+    setEventView('list')
+    setStep(2)
   }
 
   const handleSubmit = (e) => {
@@ -105,6 +122,10 @@ export default function ProposalModal({
     onClose?.()
   }
 
+  const step1Title = `¿Qué evento querés que patrocine ${brand.name}?`
+  const step1Subtitle =
+    'Le vas a solicitar a la marca que sponsoree tu evento. Se adjunta la Ficha Comercial del evento que elijas.'
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/25 p-4 backdrop-blur-sm"
@@ -112,27 +133,32 @@ export default function ProposalModal({
       aria-modal="true"
       aria-labelledby="proposal-modal-title"
     >
-      <div className="animate-[modal-enter_0.25s_ease-out] flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-neutral-100 bg-white">
-        <div className="flex items-start justify-between border-b border-neutral-100 px-8 py-6">
+      <div className="animate-[modal-enter_0.25s_ease-out] flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border-subtle bg-white">
+        <div className="flex items-start justify-between border-b border-border-subtle px-8 py-6">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+            <p className="type-label ">
               {showSuccess ? 'Confirmación' : `Paso ${step} de 2`}
             </p>
             <h2
               id="proposal-modal-title"
-              className="mt-1 font-display text-xl font-black tracking-tight text-neutral-900"
+              className="mt-1 font-display text-xl font-black tracking-tight text-foreground"
             >
               {showSuccess
                 ? 'Propuesta enviada'
                 : step === 1
-                  ? 'Selecciona el evento para esta marca'
-                  : `Detalles de la propuesta para ${brand.name}`}
+                  ? step1Title
+                  : `Detalles del patrocinio`}
             </h2>
+            {!showSuccess && step === 1 && (
+              <p className="mt-2 max-w-md type-small leading-relaxed text-muted-foreground">
+                {step1Subtitle}
+              </p>
+            )}
           </div>
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-50"
+            className="rounded-lg p-1 text-muted-foreground hover:bg-secondary"
             aria-label="Cerrar"
           >
             <X className="h-5 w-5" strokeWidth={2} />
@@ -148,59 +174,89 @@ export default function ProposalModal({
               <button
                 type="button"
                 onClick={handleClose}
-                className="w-full rounded-xl bg-neutral-900 py-3.5 text-sm font-bold text-white hover:bg-neutral-800"
+                className="w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-white hover:bg-primary/90"
               >
                 Entendido
               </button>
             </div>
           ) : step === 1 ? (
-            <div className="space-y-3">
-              {hostEvents.length === 0 ? (
-                <p className="rounded-2xl border border-dashed border-neutral-200 py-12 text-center text-sm text-neutral-400">
-                  Creá un evento antes de enviar una propuesta
-                </p>
-              ) : (
-                hostEvents.map((event) => (
-                  <EventMiniCard
-                    key={event.id}
-                    event={event}
-                    selected={resolvedEvent?.id === event.id}
-                    onSelect={handleSelectEvent}
-                  />
-                ))
-              )}
-            </div>
+            eventView === 'create' ? (
+              <QuickEventForm
+                form={quickForm}
+                onChange={setQuickForm}
+                onSubmit={handleQuickEventSubmit}
+                onBack={hasEvents ? () => setEventView('list') : undefined}
+                showBack={hasEvents}
+              />
+            ) : (
+              <div className="space-y-4">
+                {hostEvents.length === 0 ? (
+                  <p className="rounded-2xl border border-dashed border-border-subtle bg-secondary/40 px-4 py-6 text-center type-small text-muted-foreground">
+                    Todavía no tenés eventos. Creá uno para solicitarle el patrocinio a{' '}
+                    {brand.name}.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {hostEvents.map((event) => (
+                      <EventMiniCard
+                        key={event.id}
+                        event={event}
+                        selected={resolvedEvent?.id === event.id}
+                        onSelect={handleSelectEvent}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setEventView('create')}
+                  className="flex w-full items-center gap-3 rounded-2xl border border-dashed border-neutral-300 bg-secondary/50 px-5 py-4 text-left transition hover:border-foreground/30 hover:bg-selection/60"
+                >
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border-subtle bg-card">
+                    <Plus className="h-4 w-4 text-foreground" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <p className="type-body font-bold text-foreground">
+                      {hasEvents ? 'Crear otro evento' : 'Crear mi evento'}
+                    </p>
+                    <p className="type-small mt-0.5 text-muted-foreground">
+                      Formulario rápido · después seguís con la propuesta
+                    </p>
+                  </div>
+                </button>
+              </div>
+            )
           ) : (
             <form id="proposal-form" onSubmit={handleSubmit} className="space-y-6">
               {resolvedEvent && (
-                <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                    Evento seleccionado
-                  </p>
-                  <p className="mt-1 text-sm font-bold text-neutral-900">{resolvedEvent.title}</p>
-                  <p className="mt-0.5 text-[11px] text-neutral-500">
-                    La Ficha Comercial de este evento se adjunta automáticamente a tu propuesta.
+                <div className="rounded-2xl border border-border-subtle bg-secondary p-4">
+                  <p className="type-label ">Evento a patrocinar</p>
+                  <p className="mt-1 text-sm font-bold text-foreground">{resolvedEvent.title}</p>
+                  <p className="mt-0.5 type-small text-muted-foreground">
+                    La Ficha Comercial de este evento se adjunta automáticamente a tu
+                    propuesta para {brand.name}.
                   </p>
                 </div>
               )}
 
               <div className="space-y-2">
-                <label htmlFor="material-request" className="block text-xs font-bold text-neutral-800">
-                  ¿Qué productos o recursos específicos necesitás de esta marca para tu evento?
+                <label htmlFor="material-request" className="block text-xs font-bold text-foreground">
+                  ¿Qué productos o recursos necesitás de {brand.name}?
                 </label>
                 <textarea
                   id="material-request"
                   className={`${INPUT_CLASS} min-h-[100px] resize-y`}
                   value={materialRequest}
                   onChange={(e) => setMaterialRequest(e.target.value)}
-                  placeholder='Ej: "400 latas de producto para la zona de acreditaciones"'
+                  placeholder='Ej: "400 unidades para sampling en acreditaciones"'
                   rows={4}
                 />
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="lead-time" className="block text-xs font-bold text-neutral-800">
-                  ¿Con cuántos días de anticipación necesitás que llegue el producto al lugar?
+                <label htmlFor="lead-time" className="block text-xs font-bold text-foreground">
+                  ¿Con cuántos días de anticipación necesitás el producto en el venue?
                 </label>
                 <select
                   id="lead-time"
@@ -219,40 +275,41 @@ export default function ProposalModal({
           )}
         </div>
 
-        {!showSuccess && step === 1 && (
-          <div className="flex justify-end border-t border-neutral-100 px-8 py-6">
+        {!showSuccess && step === 1 && eventView === 'list' && (
+          <div className="flex justify-end border-t border-border-subtle px-8 py-6">
             <button
               type="button"
               disabled={!canContinueStep1}
               onClick={() => setStep(2)}
-              className="rounded-xl bg-neutral-900 px-6 py-3 text-sm font-bold text-white disabled:opacity-40 hover:bg-neutral-800"
+              className="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white disabled:opacity-40 hover:bg-primary/90"
             >
-              Continuar
+              Continuar con este evento
             </button>
           </div>
         )}
 
         {!showSuccess && step === 2 && (
-          <div className="flex items-center justify-between border-t border-neutral-100 px-8 py-6">
+          <div className="flex items-center justify-between border-t border-border-subtle px-8 py-6">
             {!skipEventStep ? (
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="text-sm font-semibold text-neutral-400 hover:text-neutral-700"
+                className="text-sm font-semibold text-muted-foreground hover:text-foreground/80"
               >
                 Volver
               </button>
             ) : (
               <span />
             )}
-            <button
+            <Button
               type="submit"
               form="proposal-form"
+              size="event"
               disabled={!canSubmit}
-              className="rounded-xl bg-neutral-900 px-6 py-3 text-sm font-bold text-white disabled:opacity-40 hover:bg-neutral-800"
+              className="px-8"
             >
-              Enviar propuesta
-            </button>
+              Enviar propuesta de patrocinio
+            </Button>
           </div>
         )}
       </div>

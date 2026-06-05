@@ -41,7 +41,7 @@ function ProgressBar({ step }) {
         <span
           key={i}
           className={`h-1.5 w-16 rounded-full transition-colors duration-300 ${
-            i < step ? 'bg-neutral-900' : 'bg-neutral-200'
+            i < step ? 'bg-primary' : 'bg-border'
           }`}
         />
       ))}
@@ -161,7 +161,7 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="text-sm font-medium text-neutral-400 hover:text-neutral-700"
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground/80"
                   >
                     ← Volver
                   </button>
@@ -172,7 +172,7 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                   <button
                     type="button"
                     onClick={handleSkipStep}
-                    className="text-xs font-semibold text-neutral-400 hover:text-neutral-900"
+                    className="text-xs font-semibold text-muted-foreground hover:text-foreground"
                   >
                     [ Omitir paso ]
                   </button>
@@ -180,7 +180,7 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
               </div>
 
               <div key={step} className="space-y-8">
-                <h1 className="font-display text-3xl font-black tracking-tight text-neutral-900 sm:text-4xl">
+                <h1 className="font-display text-3xl font-black tracking-tight text-foreground sm:text-4xl">
                   {stepTitles[step]}
                 </h1>
 
@@ -210,7 +210,7 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
 
                     <ProfileField label="WhatsApp comercial" required>
                       <div className="relative">
-                        <MessageCircle className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                        <MessageCircle className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <input
                           className={`${profileInputClass} pl-10`}
                           value={form.whatsapp}
@@ -226,15 +226,15 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
 
                     <ProfileField label="Ubicación">
                       <div className="relative">
-                        <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                        <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <input
-                          className={`${profileInputClass} cursor-not-allowed bg-neutral-100 pl-10 text-neutral-600`}
+                          className={`${profileInputClass} cursor-not-allowed bg-secondary pl-10 text-muted-foreground`}
                           value={HOST_LOCATION}
                           readOnly
                           aria-readonly
                         />
                       </div>
-                      <p className="text-[11px] text-neutral-500">{HOST_LOCATION_HINT}</p>
+                      <p className="type-small text-muted-foreground">{HOST_LOCATION_HINT}</p>
                     </ProfileField>
 
                     <ProfileField
@@ -300,13 +300,13 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-4 border-t border-neutral-100 pt-8">
+              <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border-subtle pt-8">
                 <div className="flex items-center gap-4">
                   {step > 1 ? (
                     <button
                       type="button"
                       onClick={handleBack}
-                      className="text-sm font-semibold text-neutral-400 hover:text-neutral-700"
+                      className="text-sm font-semibold text-muted-foreground hover:text-foreground/80"
                     >
                       Volver
                     </button>
@@ -316,7 +316,7 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                       <button
                         type="button"
                         onClick={onCancel}
-                        className="text-sm font-semibold text-neutral-400"
+                        className="text-sm font-semibold text-muted-foreground"
                       >
                         Cancelar
                       </button>
@@ -326,7 +326,7 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                     <button
                       type="button"
                       onClick={handleSkipAll}
-                      className="text-sm font-semibold text-neutral-400 hover:text-neutral-700"
+                      className="text-sm font-semibold text-muted-foreground hover:text-foreground/80"
                     >
                       Ver perfil sin publicar
                     </button>
@@ -337,14 +337,14 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                   <button
                     type="button"
                     onClick={handleNext}
-                    className="rounded-full bg-neutral-900 px-8 py-3.5 text-sm font-bold text-white hover:bg-neutral-800"
+                    className="rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-white hover:bg-primary/90"
                   >
                     Siguiente paso
                   </button>
                 ) : (
                   <button
                     type="submit"
-                    className="rounded-full bg-neutral-900 px-8 py-3.5 text-sm font-bold text-white hover:bg-neutral-800"
+                    className="rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-white hover:bg-primary/90"
                   >
                     {isEdit ? 'Guardar cambios' : 'Guardar y publicar perfil'}
                   </button>

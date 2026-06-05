@@ -60,10 +60,10 @@ export function getInvitationBadgeClass(status) {
     return 'bg-orange-50 text-orange-700 border-orange-100'
   }
   if (status === SPONSORSHIP_STATUS.MATCH_ACEPTADO) {
-    return 'bg-[#f4f6e9] text-[#1d230d] border-[#e8ecd8]'
+    return 'bg-match text-match-foreground border-match/30'
   }
   if (status === SPONSORSHIP_STATUS.DECLINADO) {
-    return 'bg-neutral-50 text-neutral-500 border-neutral-100'
+    return 'bg-secondary text-muted-foreground border-border-subtle'
   }
-  return 'bg-neutral-50 text-neutral-600 border-neutral-100'
+  return 'bg-secondary text-muted-foreground border-border-subtle'
 }

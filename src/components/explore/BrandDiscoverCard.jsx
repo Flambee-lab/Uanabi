@@ -1,125 +1,120 @@
 import { useState } from 'react'
-import { ArrowUpRight, MessageCircle, Star, Users } from 'lucide-react'
+import { Infinity } from 'lucide-react'
+import { useBrandLogoSrc } from '@/hooks/useBrandLogoSrc'
+import BrandCategoryTags from './BrandCategoryTags'
 
-const BUDGET_LABELS = {
-  Canje: 'Canje',
-  'Presupuesto Efectivo': 'Efectivo',
-  Híbrido: 'Híbrido',
+const COVER_BY_INDUSTRY = {
+  Bebidas:
+    'https://images.unsplash.com/photo-1629203857988-ef7dd06ae83c?auto=format&fit=crop&w=800&q=80',
+  Tecnología:
+    'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=800&q=80',
+  Indumentaria:
+    'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=800&q=80',
+  Gastronomía:
+    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
+  Entretenimiento:
+    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80',
 }
 
-const STATUS_BADGE = {
-  disponible: { label: 'Abierta', className: 'bg-white/95 text-[#111827]' },
-  enviada: { label: 'Postulaste', className: 'bg-white/95 text-[#6b7280]' },
-  match_aceptado: { label: 'Match', className: 'bg-[#111827] text-white' },
+function participacionesLabel(count) {
+  const n = count ?? 0
+  return n === 1 ? '1 participación' : `${n} participaciones`
 }
 
-function CardHero({ brand }) {
-  const [logoFailed, setLogoFailed] = useState(false)
+function BrandAvatar({ brand }) {
+  const { src, exhausted, onError, key } = useBrandLogoSrc(brand)
 
   return (
-    <div
-      className={`relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br ${brand.coverGradient ?? 'from-gray-100 to-white'}`}
-    >
-      <div className="absolute inset-0 flex items-center justify-center p-8">
-        {!logoFailed ? (
-          <img
-            src={brand.logo}
-            alt=""
-            className="max-h-16 max-w-[70%] object-contain drop-shadow-sm"
-            onError={() => setLogoFailed(true)}
-          />
-        ) : (
-          <span className="font-display text-3xl font-extrabold text-[#111827]/80">
-            {brand.name.charAt(0)}
-          </span>
-        )}
-      </div>
+    <div className="relative brand-logo-surface h-14 w-14 shrink-0 rounded-full border-2 border-card ring-1 ring-border-subtle">
+      {!exhausted ? (
+        <img
+          key={key}
+          src={src}
+          alt=""
+          className="h-10 w-10 object-contain"
+          onError={onError}
+        />
+      ) : (
+        <span className="font-display text-lg font-extrabold text-foreground/70">
+          {brand.name.charAt(0)}
+        </span>
+      )}
+    </div>
+  )
+}
 
-      <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-        <span className="rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-[#111827] shadow-sm">
-          {BUDGET_LABELS[brand.budgetType]}
-        </span>
-        <span
-          className={`rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm ${STATUS_BADGE[brand.applicationStatus]?.className ?? STATUS_BADGE.disponible.className}`}
-        >
-          {STATUS_BADGE[brand.applicationStatus]?.label ?? 'Abierta'}
-        </span>
+function CardCover({ brand }) {
+  const [coverFailed, setCoverFailed] = useState(false)
+  const coverSrc =
+    brand.coverImage ?? COVER_BY_INDUSTRY[brand.industry] ?? null
+  const showImage = coverSrc && !coverFailed
+
+  return (
+    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+      {showImage ? (
+        <img
+          src={coverSrc}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          onError={() => setCoverFailed(true)}
+        />
+      ) : (
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${brand.coverGradient ?? 'from-muted to-background'}`}
+        />
+      )}
+
+      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/5" />
+
+      <div className="absolute bottom-3 left-3">
+        <BrandAvatar brand={brand} />
       </div>
     </div>
   )
 }
 
-export default function BrandDiscoverCard({ brand, onApply, onPropose, onOpenChat }) {
-  const primaryOffer = brand.offers.find((o) => o.includes('$')) ?? brand.offers[0]
-  const isMatch = brand.applicationStatus === 'match_aceptado'
-  const isSent = brand.applicationStatus === 'enviada'
+/** Card de catálogo — solo descubrimiento; el detalle se abre al hacer click. */
+export default function BrandDiscoverCard({ brand, onSelect }) {
+  const participations = brand.participations ?? brand.activeHosts ?? 0
+
+  const handleActivate = () => onSelect?.(brand.id)
 
   return (
-    <article className="group flex flex-col">
-      <CardHero brand={brand} />
+    <article
+      role={onSelect ? 'button' : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      onClick={onSelect ? handleActivate : undefined}
+      onKeyDown={
+        onSelect
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                handleActivate()
+              }
+            }
+          : undefined
+      }
+      className={`uanabi-card-hover group flex flex-col shadow-none ${
+        onSelect ? 'cursor-pointer text-left' : ''
+      }`}
+    >
+      <CardCover brand={brand} />
 
-      <div className="mt-3 flex flex-1 flex-col">
-        <h3 className="line-clamp-2 font-display text-[15px] font-bold leading-snug text-[#111827] group-hover:underline group-hover:underline-offset-2">
+      <div className="flex flex-1 flex-col pt-3">
+        <h3 className="type-heading line-clamp-2 group-hover:underline group-hover:underline-offset-2">
           {brand.name}
         </h3>
-        <p className="mt-1 line-clamp-1 text-sm text-[#6b7280]">
-          {brand.industry} · Busca {brand.seeks[0]}
-        </p>
-        <p className="mt-0.5 line-clamp-1 text-sm font-medium text-[#374151]">
-          Aporta {primaryOffer}
-        </p>
 
-        <div className="mt-3 flex items-center justify-between gap-2 border-t border-[#eef0f2] pt-3">
-          <div className="flex items-center gap-3 text-xs text-[#6b7280]">
-            <span className="flex items-center gap-1">
-              <Users className="h-3.5 w-3.5" strokeWidth={1.75} />
-              {brand.activeHosts ?? 0} hosts
-            </span>
-            <span className="flex items-center gap-1 font-semibold text-[#111827]">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" strokeWidth={0} />
-              {brand.matchScore ?? '4.8'}
-            </span>
-          </div>
-        </div>
+        <BrandCategoryTags brand={brand} className="mt-2" />
 
-        <div className="mt-3">
-          {isMatch ? (
-            <button
-              type="button"
-              onClick={() => onOpenChat?.(brand.id)}
-              className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#f4f6e9] py-2.5 text-sm font-bold text-[#1d230d] transition-colors hover:bg-[#e8ecd8]"
-            >
-              <MessageCircle className="h-4 w-4" strokeWidth={2} />
-              Chat
-              <ArrowUpRight className="h-3.5 w-3.5 opacity-60" />
-            </button>
-          ) : isSent ? (
-            <button
-              type="button"
-              disabled
-              className="w-full rounded-xl border border-[#eef0f2] py-2.5 text-sm font-medium text-[#9ca3af]"
-            >
-              Postulación enviada
-            </button>
-          ) : (
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => onPropose?.(brand.id)}
-                className="w-full rounded-xl bg-neutral-900 py-2.5 text-sm font-bold text-white transition-colors hover:bg-neutral-800"
-              >
-                Enviar propuesta
-              </button>
-              <button
-                type="button"
-                onClick={() => onApply?.(brand.id)}
-                className="w-full rounded-xl border border-neutral-200 py-2.5 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50"
-              >
-                Postular mi evento
-              </button>
-            </div>
-          )}
-        </div>
+        <p className="type-small mt-2 inline-flex items-center gap-1.5 text-muted-foreground">
+          <Infinity
+            className="h-3.5 w-3.5 shrink-0 text-foreground/45"
+            strokeWidth={2}
+            aria-hidden
+          />
+          {participacionesLabel(participations)}
+        </p>
       </div>
     </article>
   )

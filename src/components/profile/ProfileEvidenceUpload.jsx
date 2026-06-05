@@ -56,13 +56,13 @@ export default function ProfileEvidenceUpload({ photos = [], onChange, max = 6 }
         }}
         className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed py-8 text-center transition ${
           dragOver
-            ? 'border-neutral-900 bg-neutral-50'
-            : 'border-neutral-300 bg-white hover:border-neutral-900'
+            ? 'border-primary bg-secondary'
+            : 'border-border bg-white hover:border-primary'
         }`}
       >
-        <ImagePlus className="h-5 w-5 text-neutral-500" strokeWidth={1.75} />
-        <p className="text-xs font-bold text-neutral-700">+ Añadir fotos de evidencia</p>
-        <p className="text-[10px] text-neutral-400">Arrastrá imágenes o hacé clic para cargar</p>
+        <ImagePlus className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
+        <p className="text-xs font-bold text-foreground/80">+ Añadir fotos de evidencia</p>
+        <p className="type-small text-muted-foreground">Arrastrá imágenes o hacé clic para cargar</p>
       </div>
 
       {photos.length > 0 && (
@@ -70,12 +70,12 @@ export default function ProfileEvidenceUpload({ photos = [], onChange, max = 6 }
           {photos.map((photo) => (
             <div
               key={photo.id}
-              className="group relative aspect-square overflow-hidden rounded-lg border border-neutral-100"
+              className="group relative aspect-square overflow-hidden rounded-lg border border-border-subtle"
             >
               {photo.previewUrl ? (
                 <img src={photo.previewUrl} alt="" className="h-full w-full object-cover" />
               ) : (
-                <div className="flex h-full items-center justify-center bg-neutral-100 p-2 text-center text-[9px] font-medium text-neutral-500">
+                <div className="flex h-full items-center justify-center bg-secondary p-2 text-center type-small font-medium text-muted-foreground">
                   {photo.name}
                 </div>
               )}

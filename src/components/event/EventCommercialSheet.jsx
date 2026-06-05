@@ -25,10 +25,10 @@ function formatEventDate(date, time) {
 
 function SpecItem({ icon: Icon, label, value }) {
   return (
-    <div className="rounded-xl border border-neutral-100 bg-white p-4">
-      <Icon className="mb-2 h-4 w-4 text-neutral-400" strokeWidth={1.75} />
-      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-neutral-900">{value}</p>
+    <div className="rounded-xl border border-border-subtle bg-white p-4">
+      <Icon className="mb-2 h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+      <p className="type-label ">{label}</p>
+      <p className="mt-1 text-sm font-semibold text-foreground">{value}</p>
     </div>
   )
 }
@@ -36,10 +36,10 @@ function SpecItem({ icon: Icon, label, value }) {
 function DealList({ title, items }) {
   return (
     <div>
-      <p className="text-xs font-bold text-neutral-900">{title}</p>
+      <p className="text-xs font-bold text-foreground">{title}</p>
       <ul className="mt-3 space-y-2">
         {(items ?? []).map((item) => (
-          <li key={item} className="flex gap-2 text-xs leading-relaxed text-neutral-600">
+          <li key={item} className="flex gap-2 text-xs leading-relaxed text-muted-foreground">
             <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neutral-400" />
             {item}
           </li>
@@ -73,17 +73,17 @@ export default function EventCommercialSheet({ event, hostProfile, onBack, onOpe
 
   return (
     <div className="min-h-full overflow-y-auto bg-white">
-      <div className="border-b border-neutral-100">
+      <div className="border-b border-border-subtle">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-8 py-4">
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 hover:text-neutral-900"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" strokeWidth={2} />
             Volver al perfil del Host
           </button>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+          <p className="type-label ">
             Ficha comercial · Solo lectura
           </p>
         </div>
@@ -91,11 +91,11 @@ export default function EventCommercialSheet({ event, hostProfile, onBack, onOpe
 
       <div className="mx-auto max-w-4xl px-8 py-8">
         <div
-          className={`aspect-[16/6] w-full overflow-hidden rounded-2xl border border-neutral-100 bg-gradient-to-br ${event.coverGradient ?? 'from-neutral-200 to-white'}`}
+          className={`aspect-[16/6] w-full overflow-hidden rounded-2xl border border-border-subtle bg-gradient-to-br ${event.coverGradient ?? 'from-neutral-200 to-white'}`}
         >
           {event.coverLabel && (
             <div className="flex h-full items-end p-8">
-              <span className="font-display text-xs font-black uppercase tracking-[0.4em] text-neutral-900/20">
+              <span className="font-display text-xs font-black uppercase tracking-[0.4em] text-foreground/20">
                 {event.coverLabel}
               </span>
             </div>
@@ -103,13 +103,13 @@ export default function EventCommercialSheet({ event, hostProfile, onBack, onOpe
         </div>
 
         <div className="mt-8 space-y-4">
-          <span className="inline-block rounded-full border border-neutral-200 px-3 py-1 text-[11px] font-bold text-neutral-600">
+          <span className="inline-block rounded-full border border-border px-3 py-1 type-small font-bold text-muted-foreground">
             {event.niche}
           </span>
-          <h1 className="font-display text-2xl font-black tracking-tight text-neutral-900 sm:text-3xl">
+          <h1 className="font-display text-2xl font-black tracking-tight text-foreground sm:text-3xl">
             {event.title}
           </h1>
-          <p className="max-w-3xl text-sm leading-relaxed text-neutral-600">
+          <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
             {event.description}
           </p>
         </div>
@@ -120,16 +120,16 @@ export default function EventCommercialSheet({ event, hostProfile, onBack, onOpe
           <SpecItem icon={Calendar} label="Fecha y hora" value={dateLine} />
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 rounded-2xl border border-neutral-100 bg-neutral-50 p-6 md:grid-cols-2 md:p-8">
+        <div className="mt-10 grid grid-cols-1 gap-6 rounded-2xl border border-border-subtle bg-secondary p-6 md:grid-cols-2 md:p-8">
           <DealList title="Qué ofrece el evento" items={offers} />
           <DealList title="Qué busca el evento" items={seeks} />
         </div>
 
-        <div className="mt-12 border-t border-neutral-100 pt-10">
+        <div className="mt-12 border-t border-border-subtle pt-10">
           <button
             type="button"
             onClick={() => setProposalOpen(true)}
-            className="w-full rounded-xl bg-neutral-900 py-4 text-sm font-bold text-white transition hover:bg-neutral-800 sm:w-auto sm:px-12"
+            className="w-full rounded-xl bg-primary py-4 text-sm font-bold text-white transition hover:bg-primary/90 sm:w-auto sm:px-12"
           >
             Proponer Patrocinio
           </button>
@@ -142,34 +142,34 @@ export default function EventCommercialSheet({ event, hostProfile, onBack, onOpe
           role="dialog"
           aria-modal="true"
         >
-          <div className="w-full max-w-md rounded-2xl border border-neutral-100 bg-white p-8">
+          <div className="w-full max-w-md rounded-2xl border border-border-subtle bg-white p-8">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                <p className="type-label ">
                   Comunicación directa
                 </p>
-                <p className="mt-1 font-display text-lg font-bold text-neutral-900">
+                <p className="mt-1 font-display text-lg font-bold text-foreground">
                   Proponer patrocinio
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setProposalOpen(false)}
-                className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-50"
+                className="rounded-lg p-1 text-muted-foreground hover:bg-secondary"
                 aria-label="Cerrar"
               >
                 <X className="h-4 w-4" strokeWidth={2} />
               </button>
             </div>
-            <p className="mt-4 text-sm leading-relaxed text-neutral-500">
-              Tu propuesta para <span className="font-semibold text-neutral-800">{event.title}</span>{' '}
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              Tu propuesta para <span className="font-semibold text-foreground">{event.title}</span>{' '}
               se enviará al Host por el canal de mensajería de Uanabi o WhatsApp comercial.
             </p>
             <div className="mt-6 flex flex-col gap-2 sm:flex-row">
               <button
                 type="button"
                 onClick={() => setProposalOpen(false)}
-                className="flex-1 rounded-xl border border-neutral-200 py-3 text-xs font-semibold text-neutral-600 hover:bg-neutral-50"
+                className="flex-1 rounded-xl border border-border py-3 text-xs font-semibold text-muted-foreground hover:bg-secondary"
               >
                 Cancelar
               </button>
@@ -178,7 +178,7 @@ export default function EventCommercialSheet({ event, hostProfile, onBack, onOpe
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-neutral-900 py-3 text-xs font-bold text-white hover:bg-neutral-800"
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 text-xs font-bold text-white hover:bg-primary/90"
                 >
                   <MessageCircle className="h-4 w-4" strokeWidth={2} />
                   WhatsApp
@@ -190,7 +190,7 @@ export default function EventCommercialSheet({ event, hostProfile, onBack, onOpe
                   onOpenChat?.()
                   setProposalOpen(false)
                 }}
-                className="flex-1 rounded-xl bg-[#f4f6e9] py-3 text-xs font-bold text-[#1d230d] hover:bg-[#e8ecd8]"
+                className="flex-1 rounded-xl bg-match py-3 text-xs font-bold text-match-foreground hover:bg-[#e8ecd8]"
               >
                 Ir al chat
               </button>

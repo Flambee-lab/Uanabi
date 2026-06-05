@@ -1,4 +1,4 @@
-import { NICHE_INDUSTRY_MAP } from './eventSponsorMatch'
+import { NICHE_INDUSTRY_MAP } from './eventIndustries'
 
 export const EVENT_NICHES = Object.keys(NICHE_INDUSTRY_MAP)
 

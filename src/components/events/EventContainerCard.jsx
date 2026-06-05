@@ -20,40 +20,40 @@ export default function EventContainerCard({
   const pendingCount = proposals.filter((p) => p.status === 'pendiente').length
 
   return (
-    <article className="rounded-3xl border border-[#eef0f2] bg-white p-7 sm:p-8">
-      <header className="border-b border-[#eef0f2] pb-6">
-        <h3 className="font-display text-xl font-extrabold tracking-tight text-[#111827] sm:text-2xl">
+    <article className="rounded-3xl border border-border-subtle bg-white p-7 sm:p-8">
+      <header className="border-b border-border-subtle pb-6">
+        <h3 className="font-display text-xl font-extrabold tracking-tight text-foreground sm:text-2xl">
           {event.title}
         </h3>
 
-        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[#6b7280]">
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <Calendar className="h-4 w-4 text-[#9ca3af]" strokeWidth={1.75} />
+            <Calendar className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
             {formatEventDate(event.date)}
           </span>
           <span className="flex items-center gap-1.5">
-            <MapPin className="h-4 w-4 text-[#9ca3af]" strokeWidth={1.75} />
+            <MapPin className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
             {event.location}
           </span>
           <span className="flex items-center gap-1.5">
-            <Users className="h-4 w-4 text-[#9ca3af]" strokeWidth={1.75} />
+            <Users className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
             {event.audience}
           </span>
         </div>
       </header>
 
-      <div className="mt-6 rounded-2xl bg-neutral-50/40 p-6">
+      <div className="mt-6 rounded-2xl bg-secondary/40 p-6">
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#9ca3af]">
+            <p className="type-label ">
               Propuestas de marcas
             </p>
-            <p className="mt-0.5 text-sm text-[#6b7280]">
+            <p className="mt-0.5 text-sm text-muted-foreground">
               Interesadas en patrocinar este evento
             </p>
           </div>
           {proposals.length > 0 && (
-            <span className="rounded-full bg-[#111827] px-3 py-1 text-xs font-bold text-white tabular-nums">
+            <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-white tabular-nums">
               {proposals.length}
               {pendingCount > 0 && (
                 <span className="ml-1 font-medium text-white/70">
@@ -65,7 +65,7 @@ export default function EventContainerCard({
         </div>
 
         {proposals.length === 0 ? (
-          <p className="py-6 text-center text-sm text-[#9ca3af]">
+          <p className="py-6 text-center text-sm text-muted-foreground">
             Todavía no hay marcas interesadas en este evento.
           </p>
         ) : (

@@ -28,12 +28,12 @@ export default function ProfileSuccessStories({ stories, onChange }) {
   return (
     <div className="space-y-6">
       {stories.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50/80 py-10 text-center">
+        <div className="rounded-2xl border border-dashed border-border bg-secondary/80 py-10 text-center">
           <Sparkles className="mx-auto h-6 w-6 text-neutral-300" strokeWidth={1.5} />
-          <p className="mt-3 text-sm font-medium text-neutral-600">
+          <p className="mt-3 text-sm font-medium text-muted-foreground">
             Sumá al menos un evento pasado con marcas reales
           </p>
-          <p className="mt-1 text-xs text-neutral-400">
+          <p className="mt-1 text-xs text-muted-foreground">
             Esto valida tu trayectoria ante nuevos sponsors en Uanabi.
           </p>
         </div>
@@ -42,14 +42,14 @@ export default function ProfileSuccessStories({ stories, onChange }) {
       {stories.map((story, index) => (
         <div
           key={story.id}
-          className="space-y-5 rounded-[24px] border border-neutral-100 bg-neutral-50/50 p-6"
+          className="space-y-5 rounded-[24px] border border-border-subtle bg-secondary/50 p-6"
         >
           <div className="flex items-center justify-between">
-            <p className="text-xs font-bold text-neutral-700">Caso #{index + 1}</p>
+            <p className="text-xs font-bold text-foreground/80">Caso #{index + 1}</p>
             <button
               type="button"
               onClick={() => onChange(stories.filter((s) => s.id !== story.id))}
-              className="text-neutral-400 transition hover:text-red-600"
+              className="text-muted-foreground transition hover:text-red-600"
               aria-label="Eliminar caso"
             >
               <Trash2 className="h-4 w-4" strokeWidth={1.75} />
@@ -88,7 +88,7 @@ export default function ProfileSuccessStories({ stories, onChange }) {
               <button
                 type="button"
                 onClick={() => addBrand(story.id)}
-                className="flex h-[42px] w-10 shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-white hover:bg-neutral-100"
+                className="flex h-[42px] w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-white hover:bg-secondary"
               >
                 <Plus className="h-4 w-4" strokeWidth={2} />
               </button>
@@ -98,7 +98,7 @@ export default function ProfileSuccessStories({ stories, onChange }) {
                 {story.brandNames.map((name) => (
                   <span
                     key={name}
-                    className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-3 py-1 text-[11px] font-semibold text-neutral-700"
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-white px-3 py-1 type-small font-semibold text-foreground/80"
                   >
                     {name}
                     <button type="button" onClick={() => removeBrand(story.id, name)}>
@@ -124,7 +124,7 @@ export default function ProfileSuccessStories({ stories, onChange }) {
       <button
         type="button"
         onClick={() => onChange([...stories, createEmptySuccessStory()])}
-        className="flex w-full items-center justify-center gap-2 rounded-[24px] border border-dashed border-neutral-300 bg-white py-4 text-xs font-bold text-neutral-700 transition hover:border-neutral-900 hover:text-neutral-900"
+        className="flex w-full items-center justify-center gap-2 rounded-[24px] border border-dashed border-border bg-white py-4 text-xs font-bold text-foreground/80 transition hover:border-primary hover:text-foreground"
       >
         <Plus className="h-4 w-4" strokeWidth={2} />
         Agregar caso de éxito

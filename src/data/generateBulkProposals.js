@@ -1,7 +1,9 @@
+import { brandLogoFavicon } from '../utils/brandLogoUrl'
+
 const SPONSOR_POOL = [
   {
     brandName: 'Coca-Cola',
-    brandLogo: 'https://logo.clearbit.com/coca-cola.com',
+    brandLogo: brandLogoFavicon('coca-cola.com'),
     industry: 'Bebidas',
     rubro: 'Bebidas',
     budgetType: 'Híbrido',
@@ -10,7 +12,7 @@ const SPONSOR_POOL = [
   },
   {
     brandName: 'Red Bull',
-    brandLogo: 'https://logo.clearbit.com/redbull.com',
+    brandLogo: brandLogoFavicon('redbull.com'),
     industry: 'Bebidas',
     rubro: 'Bebidas',
     budgetType: 'Presupuesto Efectivo',
@@ -19,7 +21,7 @@ const SPONSOR_POOL = [
   },
   {
     brandName: 'Samsung',
-    brandLogo: 'https://logo.clearbit.com/samsung.com',
+    brandLogo: brandLogoFavicon('samsung.com'),
     industry: 'Tecnología',
     rubro: 'Gaming & Tech',
     budgetType: 'Presupuesto Efectivo',
@@ -28,7 +30,7 @@ const SPONSOR_POOL = [
   },
   {
     brandName: 'Nike',
-    brandLogo: 'https://logo.clearbit.com/nike.com',
+    brandLogo: brandLogoFavicon('nike.com'),
     industry: 'Indumentaria',
     rubro: 'Moda & Diseño',
     budgetType: 'Canje',
@@ -37,7 +39,7 @@ const SPONSOR_POOL = [
   },
   {
     brandName: 'Quilmes',
-    brandLogo: 'https://logo.clearbit.com/quilmes.com.ar',
+    brandLogo: brandLogoFavicon('quilmes.com.ar'),
     industry: 'Bebidas',
     rubro: 'Bebidas',
     budgetType: 'Canje',
@@ -46,7 +48,7 @@ const SPONSOR_POOL = [
   },
   {
     brandName: 'Patagonia',
-    brandLogo: 'https://logo.clearbit.com/patagonia.com',
+    brandLogo: brandLogoFavicon('patagonia.com'),
     industry: 'Indumentaria',
     rubro: 'Moda & Diseño',
     budgetType: 'Canje',
@@ -55,7 +57,7 @@ const SPONSOR_POOL = [
   },
   {
     brandName: 'Mercado Libre',
-    brandLogo: 'https://logo.clearbit.com/mercadolibre.com',
+    brandLogo: brandLogoFavicon('mercadolibre.com'),
     industry: 'Tecnología',
     rubro: 'Gaming & Tech',
     budgetType: 'Híbrido',
@@ -64,7 +66,7 @@ const SPONSOR_POOL = [
   },
   {
     brandName: 'Andes',
-    brandLogo: 'https://logo.clearbit.com/andes.com.ar',
+    brandLogo: brandLogoFavicon('andes.com.ar'),
     industry: 'Bebidas',
     rubro: 'Bebidas',
     budgetType: 'Canje',
