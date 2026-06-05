@@ -11,13 +11,13 @@ const MENU_SECTIONS = [
   [{ id: 'logout', label: 'Log Out', danger: true }],
 ]
 
-export default function NavbarUserMenu({ profile, onMenuAction }) {
+export default function NavbarUserMenu({ profile, onMenuAction, isGuest = false }) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
 
-  const fullName = getProfileDisplayName(profile)
-  const role = profile?.role ?? 'Host'
-  const initial = getProfileInitial(profile)
+  const fullName = isGuest ? 'Invitado' : getProfileDisplayName(profile)
+  const role = isGuest ? 'Sin cuenta' : (profile?.role ?? 'Host')
+  const initial = isGuest ? '?' : getProfileInitial(profile)
 
   useEffect(() => {
     if (!open) return
@@ -56,7 +56,11 @@ export default function NavbarUserMenu({ profile, onMenuAction }) {
             className="h-8 w-8 rounded-full object-cover ring-2 ring-white"
           />
         ) : (
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-xs font-bold text-white">
+          <span
+            className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white ${
+              isGuest ? 'bg-neutral-300 text-neutral-700' : 'bg-neutral-900'
+            }`}
+          >
             {initial}
           </span>
         )}

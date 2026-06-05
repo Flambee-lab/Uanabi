@@ -25,6 +25,7 @@ export default function AppNavbar({
   onNotificationClick,
   hostProfile,
   onUserMenuAction,
+  isGuest = false,
 }) {
   return (
     <header className="flex h-14 shrink-0 items-center gap-4 border-b border-[#eef0f2] bg-white px-4 sm:px-6">
@@ -72,7 +73,11 @@ export default function AppNavbar({
           onNotificationClick={onNotificationClick}
         />
 
-        <NavbarUserMenu profile={hostProfile} onMenuAction={onUserMenuAction} />
+        <NavbarUserMenu
+          profile={hostProfile}
+          onMenuAction={onUserMenuAction}
+          isGuest={isGuest}
+        />
       </div>
     </header>
   )

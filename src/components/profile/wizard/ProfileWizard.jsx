@@ -16,14 +16,14 @@ const TOTAL_STEPS = 3
 const STEP_TIPS = {
   1: (
     <>
-      💡 El WhatsApp es obligatorio porque es la vía directa y sin fricciones por la cual las marcas
-      se van a comunicar con vos para cerrar el patrocinio.
+      💡 Ningún campo es obligatorio. Podés omitir este paso y completar nombre, WhatsApp o tags más
+      tarde desde Profile Settings.
     </>
   ),
   2: (
     <>
-      Si aún no tenés métricas finales, podés omitir este paso y completarlo más tarde desde Profile
-      Settings.
+      Si aún no tenés métricas finales, usá <strong>[ Omitir paso ]</strong> y completalo más tarde
+      desde Profile Settings.
     </>
   ),
   3: (
@@ -72,7 +72,6 @@ function initForm(profile) {
 export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdit }) {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState(() => initForm(profile))
-  const [errors, setErrors] = useState({})
 
   const update = (patch) => setForm((prev) => ({ ...prev, ...patch }))
   const updateMetrics = (patch) =>
@@ -81,41 +80,35 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
       socialMetrics: { ...prev.socialMetrics, ...patch },
     }))
 
-  const validateStep = (currentStep, { allowSkip = false } = {}) => {
-    if (allowSkip) return true
-    const next = {}
-    if (currentStep === 1) {
-      if (!form.fullName.trim() && !form.displayName.trim()) {
-        next.name = 'Ingresá tu nombre'
-      }
-      if (!form.whatsapp.trim()) next.whatsapp = 'El WhatsApp comercial es obligatorio'
-      if (form.categories.length === 0) next.tags = 'Seleccioná al menos un tag de identificación'
-    }
-    setErrors(next)
-    return Object.keys(next).length === 0
+  const saveProfile = () => {
+    const cleaned = form.successStories.filter((s) => s.title?.trim())
+    onSave?.(
+      mergeProfileForSave(
+        profile,
+        {
+          ...form,
+          successStories: cleaned.length > 0 ? cleaned : form.successStories,
+        },
+        { skipValidation: true },
+      ),
+    )
   }
 
   const handleNext = () => {
-    if (!validateStep(step)) return
-    if (step < TOTAL_STEPS) {
-      setStep((s) => s + 1)
-      setErrors({})
-    }
+    if (step < TOTAL_STEPS) setStep((s) => s + 1)
   }
 
   const handleSkipStep = () => {
     if (step < TOTAL_STEPS) {
       setStep((s) => s + 1)
-      setErrors({})
     } else {
-      onSave?.(mergeProfileForSave(profile, form, { skipValidation: true }))
+      saveProfile()
     }
   }
 
   const handleBack = () => {
     if (step > 1) {
       setStep((s) => s - 1)
-      setErrors({})
     } else if (isEdit && onCancel) {
       onCancel()
     }
@@ -123,17 +116,7 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
 
   const handlePublish = (e) => {
     e.preventDefault()
-    if (!validateStep(1)) {
-      setStep(1)
-      return
-    }
-    const cleaned = form.successStories.filter((s) => s.title?.trim())
-    onSave?.(
-      mergeProfileForSave(profile, {
-        ...form,
-        successStories: cleaned,
-      }),
-    )
+    saveProfile()
   }
 
   const handleSkipAll = () => {
@@ -145,8 +128,6 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
     2: 'Tus Canales Digitales',
     3: 'Casos de Éxito / Sponsors Pasados',
   }
-
-  const showStepSkip = step === 2 || step === 3
 
   return (
     <div className="min-h-full bg-white pb-16">
@@ -168,15 +149,13 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                 ) : (
                   <span />
                 )}
-                {showStepSkip && (
-                  <button
-                    type="button"
-                    onClick={handleSkipStep}
-                    className="text-xs font-semibold text-neutral-400 hover:text-neutral-900"
-                  >
-                    [ Omitir paso ]
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleSkipStep}
+                  className="text-xs font-semibold text-neutral-400 hover:text-neutral-900"
+                >
+                  [ Omitir paso ]
+                </button>
               </div>
 
               <div key={step} className="space-y-8">
@@ -186,7 +165,7 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
 
                 {step === 1 && (
                   <div className="space-y-6">
-                    <ProfileField label="Nombre completo" required>
+                    <ProfileField label="Nombre completo">
                       <input
                         className={profileInputClass}
                         value={form.fullName}
@@ -195,9 +174,6 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                         autoFocus
                       />
                     </ProfileField>
-                    {errors.name && (
-                      <p className="text-xs font-medium text-red-600">{errors.name}</p>
-                    )}
 
                     <ProfileField label="Nombre público del Host / colectivo">
                       <input
@@ -208,7 +184,7 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                       />
                     </ProfileField>
 
-                    <ProfileField label="WhatsApp comercial" required>
+                    <ProfileField label="WhatsApp comercial">
                       <div className="relative">
                         <MessageCircle className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                         <input
@@ -220,9 +196,6 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                         />
                       </div>
                     </ProfileField>
-                    {errors.whatsapp && (
-                      <p className="text-xs font-medium text-red-600">{errors.whatsapp}</p>
-                    )}
 
                     <ProfileField label="Ubicación">
                       <div className="relative">
@@ -240,16 +213,12 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                     <ProfileField
                       label="Tags de identificación"
                       hint="Seleccioná las categorías que definen tu perfil ante las marcas"
-                      required
                     >
                       <IdentityTagPills
                         selected={form.categories}
                         onChange={(categories) => update({ categories })}
                       />
                     </ProfileField>
-                    {errors.tags && (
-                      <p className="text-xs font-medium text-red-600">{errors.tags}</p>
-                    )}
                   </div>
                 )}
 
@@ -322,17 +291,27 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                       </button>
                     )
                   )}
-                  {!isEdit && onSkip && step === 1 && (
+                  {!isEdit && onSkip && (
                     <button
                       type="button"
                       onClick={handleSkipAll}
                       className="text-sm font-semibold text-neutral-400 hover:text-neutral-700"
                     >
-                      Ver perfil sin publicar
+                      Salir del wizard
                     </button>
                   )}
                 </div>
 
+                <div className="flex flex-wrap items-center gap-3">
+                  {step < TOTAL_STEPS && (
+                    <button
+                      type="button"
+                      onClick={handleSkipStep}
+                      className="text-xs font-semibold text-neutral-400 hover:text-neutral-900"
+                    >
+                      Omitir paso
+                    </button>
+                  )}
                 {step < TOTAL_STEPS ? (
                   <button
                     type="button"
@@ -349,6 +328,7 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                     {isEdit ? 'Guardar cambios' : 'Guardar y publicar perfil'}
                   </button>
                 )}
+                </div>
               </div>
             </div>
 

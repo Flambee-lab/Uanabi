@@ -1,5 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useAuth } from '../context/AuthProvider'
 import AppNavbar from '../components/layout/AppNavbar'
+import GuestBanner from '../components/layout/GuestBanner'
 import ApplyToBrandModal from '../components/apply/ApplyToBrandModal'
 import ProposalModal from '../components/market/ProposalModal'
 import {
@@ -23,7 +25,14 @@ import Profile from './Profile'
 import AccountSettings from './AccountSettings'
 import { DEFAULT_ACCOUNT_SETTINGS } from '../data/accountSettings'
 
+const GUEST_BANNER_KEY = 'uanabi_guest_banner_dismissed'
+
 export default function Dashboard() {
+  const { isGuest, isAuthenticated, user, logout } = useAuth()
+  const [guestBannerDismissed, setGuestBannerDismissed] = useState(
+    () => localStorage.getItem(GUEST_BANNER_KEY) === '1',
+  )
+
   const [brands, setBrands] = useState(mockBrands)
   const [myEvents, setMyEvents] = useState(initialMyEvents)
   const [applications, setApplications] = useState(initialApplications)
@@ -37,6 +46,19 @@ export default function Dashboard() {
   const [proposalModal, setProposalModal] = useState(null)
   const [toast, setToast] = useState(null)
   const [accountSettings, setAccountSettings] = useState(DEFAULT_ACCOUNT_SETTINGS)
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) return
+    setHostProfile((prev) => ({
+      ...prev,
+      fullName: user.fullName || prev.fullName,
+    }))
+    setAccountSettings((prev) => ({
+      ...prev,
+      email: user.email,
+      authProvider: user.provider === 'google' ? 'google' : 'email',
+    }))
+  }, [isAuthenticated, user])
 
   const hostEventsForModal = useMemo(
     () =>
@@ -172,8 +194,28 @@ export default function Dashboard() {
     (activeNav === 'explore' || activeNav === 'profile' || activeNav === 'settings') &&
     !isCreateEventOpen
 
+  const handleLogout = () => {
+    logout()
+    setToast(isGuest ? 'Modo invitado finalizado' : 'Sesión cerrada')
+  }
+
+  const handleRequestLogin = () => {
+    logout()
+  }
+
+  const dismissGuestBanner = () => {
+    setGuestBannerDismissed(true)
+    localStorage.setItem(GUEST_BANNER_KEY, '1')
+  }
+
+  const showGuestBanner = isGuest && !guestBannerDismissed && !isCreateEventOpen
+
   return (
     <div className="flex h-full flex-col overflow-hidden bg-[#fafafa]">
+      {showGuestBanner && (
+        <GuestBanner onLogin={handleRequestLogin} onDismiss={dismissGuestBanner} />
+      )}
+
       {!isCreateEventOpen && (
         <AppNavbar
           activeNav={activeNav}
@@ -185,11 +227,12 @@ export default function Dashboard() {
           onMarkAllRead={handleMarkAllRead}
           onNotificationClick={handleNotificationClick}
           hostProfile={hostProfile}
+          isGuest={isGuest}
           onUserMenuAction={(action) => {
             if (action === 'profile-settings') handleNavChange('settings')
             else if (action === 'event-manager') handleNavChange('matches')
             else if (action === 'privacy') setToast('Privacidad — próximamente')
-            else if (action === 'logout') setToast('Sesión cerrada (demo)')
+            else if (action === 'logout') handleLogout()
           }}
         />
       )}
@@ -250,7 +293,7 @@ export default function Dashboard() {
               setToast('Cuenta eliminada (simulación Supabase)')
               setHostProfile(DEFAULT_HOST_PROFILE)
               setAccountSettings(DEFAULT_ACCOUNT_SETTINGS)
-              handleNavChange('explore')
+              logout()
             }}
           />
         )}
