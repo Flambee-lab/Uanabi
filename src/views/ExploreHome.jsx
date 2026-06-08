@@ -54,6 +54,13 @@ export default function ExploreHome({ brands, hostEvents = [], onRequestPartners
   return (
     <div className="uanabi-page">
       <div className="uanabi-page-hero px-6 pb-6 pt-8 sm:px-10 sm:pb-8 sm:pt-10">
+        <div className="mx-auto mb-8 w-full max-w-4xl text-center sm:mb-10">
+          <h1 className="type-display">Encontrá marcas para tus eventos</h1>
+          <p className="mx-auto mt-2 max-w-xl type-body-muted">
+            Explorá sponsors en Capital Federal, filtrá por rubro y enviá propuestas de patrocinio
+            en pocos pasos.
+          </p>
+        </div>
         <ExploreSearchCapsule
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}

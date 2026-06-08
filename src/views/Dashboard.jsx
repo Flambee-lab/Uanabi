@@ -1,5 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthProvider'
 import AppNavbar from '../components/layout/AppNavbar'
+import GuestBanner from '../components/layout/GuestBanner'
 import ApplyToBrandModal from '../components/apply/ApplyToBrandModal'
 import ProposalModal from '../components/market/ProposalModal'
 import {
@@ -13,7 +16,8 @@ import {
 } from '../data/hostEvents'
 import { mockNotifications as initialNotifications } from '../data/mockNotifications'
 import { restoreInlineNotification } from '../utils/eventInlineNotifications'
-import { DEFAULT_HOST_PROFILE } from '../data/hostProfile'
+import { DEFAULT_HOST_PROFILE, mergeProfileForSave } from '../data/hostProfile'
+import { GUEST_BANNER_KEY } from '../data/appSession'
 import {
   availableBrands,
   mockBrands,
@@ -28,20 +32,44 @@ import Profile from './Profile'
 import AccountSettings from './AccountSettings'
 import { DEFAULT_ACCOUNT_SETTINGS } from '../data/accountSettings'
 
-export default function Dashboard() {
+export default function Dashboard({
+  initialProfile = DEFAULT_HOST_PROFILE,
+  initialOpenCreateEvent = false,
+  initialNav = 'explore',
+  onProfilePersist,
+}) {
+  const navigate = useNavigate()
+  const { isGuest, isAuthenticated, user, logout, restartOnboarding } = useAuth()
+  const [guestBannerDismissed, setGuestBannerDismissed] = useState(
+    () => localStorage.getItem(GUEST_BANNER_KEY) === '1',
+  )
+
   const [brands, setBrands] = useState(mockBrands)
   const [myEvents, setMyEvents] = useState(() => withRuntimeDemoDates(initialMyEvents))
   const [applications, setApplications] = useState(initialApplications)
   const [notifications, setNotifications] = useState(initialNotifications)
-  const [activeNav, setActiveNav] = useState('explore')
+  const [activeNav, setActiveNav] = useState(initialNav)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
-  const [isCreateEventOpen, setIsCreateEventOpen] = useState(false)
+  const [isCreateEventOpen, setIsCreateEventOpen] = useState(initialOpenCreateEvent)
   const [focusEventId, setFocusEventId] = useState(null)
-  const [hostProfile, setHostProfile] = useState(DEFAULT_HOST_PROFILE)
+  const [hostProfile, setHostProfile] = useState(initialProfile)
   const [applyTarget, setApplyTarget] = useState(null)
   const [proposalModal, setProposalModal] = useState(null)
   const [toast, setToast] = useState(null)
   const [accountSettings, setAccountSettings] = useState(DEFAULT_ACCOUNT_SETTINGS)
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) return
+    setHostProfile((prev) => ({
+      ...prev,
+      fullName: user.fullName || prev.fullName,
+    }))
+    setAccountSettings((prev) => ({
+      ...prev,
+      email: user.email,
+      authProvider: user.provider === 'google' ? 'google' : 'email',
+    }))
+  }, [isAuthenticated, user])
 
   const hostEventsForModal = useMemo(
     () =>
@@ -130,8 +158,14 @@ export default function Dashboard() {
     }
   }
 
-  const handleSubmitProposal = ({ event, proposal }) => {
+  const handleSubmitProposal = ({ event, proposal, whatsapp }) => {
     if (!proposalModal?.brand || !event?.id) return
+
+    if (whatsapp?.trim()) {
+      const nextProfile = mergeProfileForSave(hostProfile, { whatsapp: whatsapp.trim() })
+      setHostProfile(nextProfile)
+      onProfilePersist?.(nextProfile)
+    }
 
     const invitation = createInvitationRecord(proposalModal.brand.id, proposal)
 
@@ -194,8 +228,28 @@ export default function Dashboard() {
     (activeNav === 'explore' || activeNav === 'profile' || activeNav === 'settings') &&
     !isCreateEventOpen
 
+  const handleLogout = () => {
+    logout()
+    setToast(isGuest ? 'Modo invitado finalizado' : 'Sesión cerrada')
+  }
+
+  const handleRequestLogin = () => {
+    logout()
+  }
+
+  const dismissGuestBanner = () => {
+    setGuestBannerDismissed(true)
+    localStorage.setItem(GUEST_BANNER_KEY, '1')
+  }
+
+  const showGuestBanner = isGuest && !guestBannerDismissed && !isCreateEventOpen
+
   return (
     <div className="flex h-full flex-col overflow-hidden bg-[#fafafa]">
+      {showGuestBanner && (
+        <GuestBanner onLogin={handleRequestLogin} onDismiss={dismissGuestBanner} />
+      )}
+
       {!isCreateEventOpen && (
         <AppNavbar
           activeNav={activeNav}
@@ -207,11 +261,12 @@ export default function Dashboard() {
           onMarkAllRead={handleMarkAllRead}
           onNotificationClick={handleNotificationClick}
           hostProfile={hostProfile}
+          isGuest={isGuest}
           onUserMenuAction={(action) => {
             if (action === 'profile-settings') handleNavChange('settings')
             else if (action === 'event-manager') handleNavChange('matches')
             else if (action === 'privacy') setToast('Privacidad — próximamente')
-            else if (action === 'logout') setToast('Sesión cerrada (demo)')
+            else if (action === 'logout') handleLogout()
           }}
         />
       )}
@@ -249,13 +304,14 @@ export default function Dashboard() {
         {!isCreateEventOpen && activeNav === 'profile' && (
           <Profile
             profile={hostProfile}
+            brands={brands}
             onProfileChange={(next) => {
               setHostProfile(next)
+              onProfilePersist?.(next)
               setToast('Perfil actualizado')
             }}
             events={myEvents}
             onOpenChat={handleOpenChat}
-            onGoToEvents={() => handleNavChange('matches')}
           />
         )}
 
@@ -273,8 +329,14 @@ export default function Dashboard() {
             onDeleteAccount={() => {
               setToast('Cuenta eliminada (simulación Supabase)')
               setHostProfile(DEFAULT_HOST_PROFILE)
+              onProfilePersist?.(DEFAULT_HOST_PROFILE)
               setAccountSettings(DEFAULT_ACCOUNT_SETTINGS)
-              handleNavChange('explore')
+              logout()
+            }}
+            onRestartOnboarding={async () => {
+              await restartOnboarding()
+              setHostProfile(DEFAULT_HOST_PROFILE)
+              navigate('/profile', { replace: true })
             }}
           />
         )}
@@ -300,6 +362,7 @@ export default function Dashboard() {
         brand={proposalModal?.brand}
         hostEvents={myEvents}
         activeEvent={proposalModal?.activeEvent ?? null}
+        hostProfile={hostProfile}
         onClose={() => setProposalModal(null)}
         onSubmit={handleSubmitProposal}
         onEventCreated={handleProposalEventCreated}

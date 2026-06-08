@@ -8,6 +8,12 @@ export const EVENT_FORMATS = [
   { id: 'hibrido', label: 'Híbrido' },
 ]
 
+export const AUDIENCE_GENDER_OPTIONS = [
+  { id: 'balanced', label: 'Equilibrado' },
+  { id: 'more_women', label: 'Más mujeres' },
+  { id: 'more_men', label: 'Más hombres' },
+]
+
 export const COVER_GRADIENTS = [
   { id: 'aurora', class: 'from-violet-200 via-fuchsia-100 to-orange-50', label: 'Aurora' },
   { id: 'ocean', class: 'from-cyan-200 via-sky-100 to-blue-50', label: 'Océano' },
@@ -32,7 +38,10 @@ export function getDefaultCreateEventForm() {
     description: '',
     niche: 'Entretenimiento',
     capacity: '',
+    audienceGender: 'balanced',
     coverGradientId: 'mono',
+    coverImage: null,
+    secondaryPhotos: [null, null, null],
   }
 }
 
@@ -96,6 +105,11 @@ export function buildEventFromForm(form, id) {
     },
     venueName,
     venueAddress,
+    coverImageUrl: form.coverImage?.previewUrl ?? null,
+    secondaryPhotoUrls: (form.secondaryPhotos ?? [])
+      .filter(Boolean)
+      .map((p) => p.previewUrl),
+    audienceGender: form.audienceGender ?? 'balanced',
     invitedBrands: [],
     publicationStatus: 'bajado',
   }

@@ -26,6 +26,7 @@ export default function AppNavbar({
   onNotificationClick,
   hostProfile,
   onUserMenuAction,
+  isGuest = false,
 }) {
   return (
     <header className="uanabi-navbar">
@@ -79,7 +80,11 @@ export default function AppNavbar({
 
         <span className="uanabi-navbar-divider" aria-hidden />
 
-        <NavbarUserMenu profile={hostProfile} onMenuAction={onUserMenuAction} />
+        <NavbarUserMenu
+          profile={hostProfile}
+          onMenuAction={onUserMenuAction}
+          isGuest={isGuest}
+        />
       </div>
     </header>
   )

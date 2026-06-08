@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Calendar, Check, MapPin, Plus, X } from 'lucide-react'
+import { Calendar, Check, CheckCircle2, MapPin, MessageCircle, Plus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { QuickEventForm } from '../apply/ApplyToBrandModal'
 import { EMPTY_EVENT_FORM } from '../../data/hostEvents'
@@ -56,6 +56,7 @@ export default function ProposalModal({
   brand,
   hostEvents = [],
   activeEvent = null,
+  hostProfile = null,
   onClose,
   onSubmit,
   onEventCreated,
@@ -70,7 +71,12 @@ export default function ProposalModal({
   const [quickForm, setQuickForm] = useState(EMPTY_EVENT_FORM)
   const [materialRequest, setMaterialRequest] = useState('')
   const [leadTimeDays, setLeadTimeDays] = useState('7')
+  const [whatsapp, setWhatsapp] = useState('')
   const [showSuccess, setShowSuccess] = useState(false)
+  const [whatsappSavedInSession, setWhatsappSavedInSession] = useState(false)
+
+  const savedWhatsApp = hostProfile?.whatsapp?.trim() ?? ''
+  const needsWhatsApp = !savedWhatsApp
 
   useEffect(() => {
     if (!isOpen) return
@@ -81,15 +87,20 @@ export default function ProposalModal({
     setQuickForm(EMPTY_EVENT_FORM)
     setMaterialRequest('')
     setLeadTimeDays('7')
+    setWhatsapp(savedWhatsApp)
     setShowSuccess(false)
-  }, [isOpen, activeEvent, brand?.id, hostEvents.length])
+    setWhatsappSavedInSession(false)
+  }, [isOpen, activeEvent, brand?.id, hostEvents.length, savedWhatsApp])
 
   if (!isOpen || !brand) return null
 
   const resolvedEvent = selectedEvent ?? activeEvent
   const canContinueStep1 = Boolean(resolvedEvent)
   const canSubmit =
-    materialRequest.trim().length > 0 && leadTimeDays && resolvedEvent
+    materialRequest.trim().length > 0 &&
+    leadTimeDays &&
+    resolvedEvent &&
+    (!needsWhatsApp || whatsapp.trim().length > 0)
 
   const handleSelectEvent = (event) => {
     setSelectedEvent(event)
@@ -113,7 +124,11 @@ export default function ProposalModal({
         leadTimeDays,
         commercialSnapshot: buildCommercialSnapshot(resolvedEvent),
       },
+      whatsapp: needsWhatsApp ? whatsapp.trim() : undefined,
     })
+    if (needsWhatsApp && whatsapp.trim()) {
+      setWhatsappSavedInSession(true)
+    }
     setShowSuccess(true)
   }
 
@@ -167,7 +182,20 @@ export default function ProposalModal({
 
         <div className="overflow-y-auto px-8 py-8">
           {showSuccess ? (
-            <div className="space-y-6">
+            <div className="space-y-4">
+              {whatsappSavedInSession && (
+                <div className="flex gap-3 rounded-2xl border border-emerald-200/80 bg-emerald-50/80 px-4 py-3">
+                  <CheckCircle2
+                    className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700"
+                    strokeWidth={1.75}
+                  />
+                  <p className="text-xs leading-relaxed text-emerald-950/90">
+                    <strong className="font-bold">WhatsApp guardado con éxito.</strong> Quedó en tu
+                    perfil para tus próximas postulaciones y propuestas a marcas — no vas a tener que
+                    cargarlo de nuevo.
+                  </p>
+                </div>
+              )}
               <p className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-800">
                 {INVITATION_SENT_COPY}
               </p>
@@ -267,6 +295,51 @@ export default function ProposalModal({
                   ))}
                 </select>
               </div>
+
+              {needsWhatsApp ? (
+                <div className="space-y-3 rounded-2xl border border-emerald-200/80 bg-emerald-50/60 p-4">
+                  <div className="flex gap-3">
+                    <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" strokeWidth={1.75} />
+                    <p className="text-xs leading-relaxed text-emerald-950/85">
+                      <strong className="font-bold">Falta tu WhatsApp comercial.</strong> Es el canal
+                      que {brand.name} va a usar para contactarte, coordinar el patrocinio y cerrar
+                      detalles del evento.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="proposal-whatsapp" className="block text-xs font-bold text-foreground">
+                      WhatsApp comercial *
+                    </label>
+                    <div className="relative">
+                      <MessageCircle
+                        className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                        strokeWidth={1.75}
+                      />
+                      <input
+                        id="proposal-whatsapp"
+                        type="tel"
+                        className={`${INPUT_CLASS} pl-11`}
+                        value={whatsapp}
+                        onChange={(e) => setWhatsapp(e.target.value)}
+                        placeholder="11 2345 6789"
+                        autoComplete="tel"
+                      />
+                    </div>
+                    <p className="type-small text-muted-foreground">
+                      Con código de área. Lo guardamos en tu perfil para futuras propuestas.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-3 rounded-2xl border border-border-subtle bg-secondary/50 px-4 py-3">
+                  <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.75} />
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    {brand.name} te va a contactar por WhatsApp al{' '}
+                    <span className="font-bold text-foreground">{savedWhatsApp}</span> para coordinar
+                    el patrocinio.
+                  </p>
+                </div>
+              )}
             </form>
           )}
         </div>

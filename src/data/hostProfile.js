@@ -19,6 +19,8 @@ export const HOST_IDENTITY_TAGS = [
   'Estilo de Vida',
 ]
 
+export const HOST_PROFILE_STORAGE_KEY = 'uanabi_host_profile'
+
 export const DEFAULT_HOST_PROFILE = {
   fullName: DEFAULT_ACCOUNT_USER.fullName,
   displayName: '',
@@ -26,20 +28,34 @@ export const DEFAULT_HOST_PROFILE = {
   bio: '',
   avatarUrl: null,
   location: HOST_LOCATION,
-  categories: [],
-  instagram: '',
-  tiktok: '',
-  whatsapp: '',
+  categories: ['Gaming', 'Esports'],
+  instagram: 'milena.onbrand',
+  tiktok: 'milenaonbrand',
+  youtube: '',
+  twitch: '',
+  twitter: 'milenaonbrand',
+  facebook: 'milena.onbrand',
+  whatsapp: '1123456789',
   pastBrandNames: [],
   socialMetrics: {
-    totalFollowers: '',
-    engagementPercent: '',
+    totalFollowers: '24.5k',
+    engagementPercent: '4.8',
   },
+  tagline: 'Experiencias gaming y cultura digital en CABA',
   validatedLinks: {
     instagram: false,
     tiktok: false,
   },
-  successStories: [],
+  successStories: [
+    {
+      id: 'story-demo-1',
+      title: 'Activación LAN Party con sampling',
+      referenceLink: '',
+      evidencePhotos: [],
+      brandNames: ['Red Bull'],
+      attendance: '800 asistentes',
+    },
+  ],
   joinedAt: null,
   isConfigured: false,
   commercialContactEnabled: true,
@@ -72,6 +88,10 @@ export function normalizeSocialUrl(platform, value) {
   const handle = v.replace(/^@/, '')
   if (platform === 'instagram') return `https://instagram.com/${handle}`
   if (platform === 'tiktok') return `https://tiktok.com/@${handle}`
+  if (platform === 'youtube') return `https://youtube.com/@${handle}`
+  if (platform === 'twitch') return `https://twitch.tv/${handle}`
+  if (platform === 'twitter') return `https://x.com/${handle}`
+  if (platform === 'facebook') return `https://facebook.com/${handle}`
   return v
 }
 
@@ -93,15 +113,52 @@ export function validateSocialLink(platform, value) {
   }
 }
 
+export function loadStoredHostProfile() {
+  try {
+    const raw = localStorage.getItem(HOST_PROFILE_STORAGE_KEY)
+    if (!raw) {
+      return { ...DEFAULT_HOST_PROFILE, isConfigured: false }
+    }
+    const parsed = JSON.parse(raw)
+    return { ...DEFAULT_HOST_PROFILE, ...parsed, isConfigured: Boolean(parsed.isConfigured) }
+  } catch {
+    return { ...DEFAULT_HOST_PROFILE, isConfigured: false }
+  }
+}
+
+export function saveStoredHostProfile(profile) {
+  try {
+    localStorage.setItem(HOST_PROFILE_STORAGE_KEY, JSON.stringify(profile))
+  } catch {
+    /* ignore */
+  }
+}
+
+export function seedProfileFromAuth(profile, authUser) {
+  if (!authUser) return profile
+  const hasName = Boolean(profile.fullName?.trim() || profile.displayName?.trim())
+  return {
+    ...profile,
+    fullName: hasName ? profile.fullName : (authUser.fullName ?? profile.fullName),
+  }
+}
+
+export function validateProfileEssentials(form) {
+  const errors = {}
+  if (!form.fullName?.trim() && !form.displayName?.trim()) {
+    errors.name = 'Ingresá tu nombre o el nombre de tu colectivo'
+  }
+  if (!form.whatsapp?.trim()) {
+    errors.whatsapp = 'El WhatsApp comercial es indispensable para que las marcas te contacten'
+  }
+  if ((form.categories?.length ?? 0) === 0) {
+    errors.tags = 'Seleccioná al menos un tag de identificación'
+  }
+  return errors
+}
+
 export function isProfileConfigured(profile) {
-  if (!profile) return false
-  if (profile.isConfigured) return true
-  const hasName = Boolean(
-    profile.fullName?.trim() || profile.displayName?.trim(),
-  )
-  const hasWhatsApp = Boolean(profile.whatsapp?.trim())
-  const hasTags = (profile.categories?.length ?? 0) > 0
-  return hasName && hasWhatsApp && hasTags
+  return Boolean(profile?.isConfigured)
 }
 
 function parseReachFromAudience(audience) {
