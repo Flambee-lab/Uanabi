@@ -49,7 +49,8 @@ export default function SuggestedSponsorCard({ brand, event, onInvite }) {
       <CardFooter className="border-t border-border-subtle bg-background p-4">
         <Button
           type="button"
-          size="event"
+          variant="primary"
+          size="lg"
           className="w-full"
           onClick={() => onInvite(brand.id)}
         >

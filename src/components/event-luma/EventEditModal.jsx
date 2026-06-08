@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import Input from '../ui/Input'
 import { isEventPast } from '../../utils/sponsorshipLifecycle'
 
@@ -108,19 +109,12 @@ export default function EventEditModal({ event, isOpen, onClose, onSave }) {
         </div>
 
         <div className="mt-6 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
-          >
+          <Button type="button" variant="tertiary" size="sm" className="text-muted-foreground" onClick={onClose}>
             Cancelar
-          </button>
-          <button
-            type="submit"
-            className="rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-white hover:bg-primary/90"
-          >
+          </Button>
+          <Button type="submit" variant="primary" size="sm">
             Guardar
-          </button>
+          </Button>
         </div>
       </form>
     </div>

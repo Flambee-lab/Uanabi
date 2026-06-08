@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ChevronDown, Plus, Sparkles, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import BrandLogo from '../BrandLogo'
 import { INPUT_CLASS, LABEL_CLASS } from '@/components/ui/form-field'
 import { EMPTY_EVENT_FORM, createEventFromForm } from '../../data/hostEvents'
@@ -177,13 +178,9 @@ export function QuickEventForm({ form, onChange, onSubmit, onBack, showBack }) {
         ) : (
           <span />
         )}
-        <button
-          type="submit"
-          disabled={!isValid}
-          className="rounded-2xl bg-primary px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
-        >
+        <Button type="submit" variant="primary" size="lg" disabled={!isValid}>
           Confirmar y Postular
-        </button>
+        </Button>
       </div>
     </form>
   )
@@ -335,15 +332,17 @@ export default function ApplyToBrandModal({
                   </div>
                 </button>
 
-                <button
+                <Button
                   type="button"
+                  variant="primary"
+                  size="lg"
+                  className="w-full"
                   onClick={handleExistingSubmit}
                   disabled={!selectedEventId}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40"
                 >
                   <Sparkles className="h-4 w-4" strokeWidth={2} />
                   Postular con este evento
-                </button>
+                </Button>
               </>
             )}
 

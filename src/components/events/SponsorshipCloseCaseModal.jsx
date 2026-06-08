@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ImagePlus, Star, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 const MAX_PHOTOS = 3
 
@@ -95,13 +96,9 @@ export default function SponsorshipCloseCaseModal({
                 Recibimos tus pruebas. Onbrand verificará el caso en las próximas 24 horas para
                 impactar las marcas en tu perfil público.
               </p>
-              <button
-                type="button"
-                onClick={handleClose}
-                className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white hover:bg-primary/90"
-              >
+              <Button type="button" variant="primary" size="lg" onClick={handleClose}>
                 Entendido
-              </button>
+              </Button>
             </div>
           ) : step === 1 ? (
             <div className="space-y-6">
@@ -201,30 +198,29 @@ export default function SponsorshipCloseCaseModal({
 
         {!success && (
           <div className="flex items-center justify-between border-t border-border-subtle px-8 py-6">
-            <button
+            <Button
               type="button"
+              variant="tertiary"
+              size="sm"
+              className="text-muted-foreground hover:text-foreground/80"
               onClick={() => (step > 1 ? setStep((s) => s - 1) : handleClose())}
-              className="text-sm font-semibold text-muted-foreground hover:text-foreground/80"
             >
               {step > 1 ? 'Volver' : 'Cancelar'}
-            </button>
+            </Button>
             {step < 3 ? (
-              <button
+              <Button
                 type="button"
+                variant="primary"
+                size="default"
                 disabled={step === 1 && delivered === null}
                 onClick={() => setStep((s) => s + 1)}
-                className="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white disabled:opacity-40 hover:bg-primary/90"
               >
                 Continuar
-              </button>
+              </Button>
             ) : (
-              <button
-                type="button"
-                onClick={handleFinalSubmit}
-                className="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white hover:bg-primary/90"
-              >
+              <Button type="button" variant="primary" size="default" onClick={handleFinalSubmit}>
                 Enviar pruebas a revisión
-              </button>
+              </Button>
             )}
           </div>
         )}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { MapPin, MessageCircle, Pencil } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   createEmptyCollaboration,
   getProfileDisplayName,
@@ -127,20 +128,12 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
                 Wizard guiado
               </button>
             )}
-            <button
-              type="button"
-              onClick={handlePreview}
-              className="rounded-xl border border-border bg-white px-5 py-2.5 text-xs font-bold text-foreground transition hover:border-border"
-            >
+            <Button type="button" variant="secondary" size="sm" onClick={handlePreview}>
               Preview Public Profile
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              className="rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-white transition hover:bg-primary/90"
-            >
+            </Button>
+            <Button type="button" variant="primary" size="sm" onClick={handleSave}>
               Guardar cambios
-            </button>
+            </Button>
           </div>
         </div>
         <div className="mx-auto max-w-6xl px-6 sm:px-10">

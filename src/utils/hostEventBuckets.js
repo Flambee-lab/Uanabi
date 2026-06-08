@@ -1,4 +1,4 @@
-import { isEventPast, SPONSORSHIP_STATUS } from './sponsorshipLifecycle'
+import { isEventPast, inviteNeedsClosure, SPONSORSHIP_STATUS } from './sponsorshipLifecycle'
 import { getInvitationStatusLabel } from './eventSponsorMatch'
 
 const CONFIRMED_STATUSES = new Set([
@@ -20,6 +20,13 @@ export function splitEventsByTimeline(events, referenceDate = new Date()) {
   past.sort((a, b) => byDate(b, a))
 
   return { upcoming, past }
+}
+
+export function countPastEventsWithPendingActions(events, referenceDate = new Date()) {
+  const { past } = splitEventsByTimeline(events, referenceDate)
+  return past.filter((event) =>
+    (event.invitedBrands ?? []).some((invite) => inviteNeedsClosure(invite, event)),
+  ).length
 }
 
 export function getHostPartnerships(events, catalog = []) {
@@ -60,6 +67,12 @@ export function countPartnershipsInProfile(partnerships, successStories = []) {
 }
 
 export function pickDefaultEventId(events, referenceDate = new Date()) {
-  const { upcoming, past } = splitEventsByTimeline(events, referenceDate)
-  return upcoming[0]?.id ?? past[0]?.id ?? null
+  const { upcoming } = splitEventsByTimeline(events, referenceDate)
+  return upcoming[0]?.id ?? null
+}
+
+export function isUpcomingEvent(event, events, referenceDate = new Date()) {
+  if (!event?.id) return false
+  const { upcoming } = splitEventsByTimeline(events, referenceDate)
+  return upcoming.some((item) => item.id === event.id)
 }

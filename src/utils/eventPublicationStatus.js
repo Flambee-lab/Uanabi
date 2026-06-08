@@ -11,24 +11,36 @@ export const EVENT_TIMELINE_STATUS = {
   FINALIZADO: 'finalizado',
 }
 
+export const PUBLICATION_MENU_ACTION = {
+  CHANGE_STATUS: 'change_status',
+  DELETE: 'delete',
+}
+
 const DISPLAY = {
   [EVENT_PUBLICATION_STATUS.PUBLICADO]: {
     label: 'Publicado',
     badgeClass:
-      'bg-blue-50 text-blue-800 ring-1 ring-blue-200/90 hover:bg-blue-100/90 focus-visible:ring-blue-300',
+      'border border-blue-200 bg-blue-50 text-blue-800 hover:bg-blue-100/90 focus-visible:ring-blue-300',
     interactive: true,
   },
   [EVENT_PUBLICATION_STATUS.BAJADO]: {
-    label: 'Bajado',
+    label: 'Pausado',
     badgeClass:
-      'bg-amber-50 text-amber-950 ring-1 ring-amber-200/90 hover:bg-amber-100/90 focus-visible:ring-amber-300',
+      'border border-amber-200 bg-amber-50 text-amber-950 hover:bg-amber-100/90 focus-visible:ring-amber-300',
     interactive: true,
   },
   [EVENT_TIMELINE_STATUS.FINALIZADO]: {
     label: 'Finalizado',
-    badgeClass: 'bg-secondary text-muted-foreground',
+    badgeClass: 'border border-navbar-border bg-secondary text-muted-foreground',
     interactive: false,
   },
+}
+
+const DELETE_ACTION = {
+  id: 'eliminar',
+  label: 'Eliminar evento',
+  action: PUBLICATION_MENU_ACTION.DELETE,
+  destructive: true,
 }
 
 export function resolveEventPublicationStatus(event, referenceDate = new Date()) {
@@ -41,31 +53,52 @@ export function resolveEventPublicationStatus(event, referenceDate = new Date())
 export function getEventPublicationDisplay(event, referenceDate = new Date()) {
   const status = resolveEventPublicationStatus(event, referenceDate)
   const meta = DISPLAY[status] ?? DISPLAY[EVENT_PUBLICATION_STATUS.PUBLICADO]
-  return { status, ...meta }
+  const menuActions = getPublicationMenuActions(event, referenceDate)
+  return {
+    status,
+    ...meta,
+    interactive: menuActions.length > 0,
+  }
 }
 
-export function getPublicationMenuActions(status) {
+export function getPublicationMenuActions(event, referenceDate = new Date()) {
+  const status = resolveEventPublicationStatus(event, referenceDate)
+
+  if (status === EVENT_TIMELINE_STATUS.FINALIZADO) {
+    return []
+  }
+
   if (status === EVENT_PUBLICATION_STATUS.PUBLICADO) {
     return [
       {
-        id: 'bajar',
-        label: 'Bajar evento',
+        id: 'pausar',
+        label: 'Pausar publicación',
+        action: PUBLICATION_MENU_ACTION.CHANGE_STATUS,
         nextStatus: EVENT_PUBLICATION_STATUS.BAJADO,
       },
+      DELETE_ACTION,
     ]
   }
+
   if (status === EVENT_PUBLICATION_STATUS.BAJADO) {
     return [
       {
         id: 'publicar',
         label: 'Publicar evento',
+        action: PUBLICATION_MENU_ACTION.CHANGE_STATUS,
         nextStatus: EVENT_PUBLICATION_STATUS.PUBLICADO,
       },
+      DELETE_ACTION,
     ]
   }
+
   return []
 }
 
 export function canChangePublicationStatus(event, referenceDate = new Date()) {
-  return getPublicationMenuActions(resolveEventPublicationStatus(event, referenceDate)).length > 0
+  const status = resolveEventPublicationStatus(event, referenceDate)
+  if (status === EVENT_TIMELINE_STATUS.FINALIZADO) return false
+  return getPublicationMenuActions(event, referenceDate).some(
+    (action) => action.action === PUBLICATION_MENU_ACTION.CHANGE_STATUS,
+  )
 }

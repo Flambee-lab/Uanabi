@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { MapPin, MessageCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   createEmptyCollaboration,
   HOST_LOCATION,
@@ -334,20 +335,13 @@ export default function ProfileWizard({ profile, onSave, onSkip, onCancel, isEdi
                 </div>
 
                 {step < TOTAL_STEPS ? (
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-white hover:bg-primary/90"
-                  >
+                  <Button type="button" variant="primary" size="lg" onClick={handleNext}>
                     Siguiente paso
-                  </button>
+                  </Button>
                 ) : (
-                  <button
-                    type="submit"
-                    className="rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-white hover:bg-primary/90"
-                  >
+                  <Button type="submit" variant="primary" size="lg">
                     {isEdit ? 'Guardar cambios' : 'Guardar y publicar perfil'}
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

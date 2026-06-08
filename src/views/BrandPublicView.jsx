@@ -250,9 +250,9 @@ export default function BrandPublicView({
                       {onRequestPartnership && (
                         <Button
                           type="button"
-                          variant="default"
-                          size="event"
-                          className="shrink-0 gap-2"
+                          variant="primary"
+                          size="lg"
+                          className="shrink-0"
                           onClick={() => onRequestPartnership(brand.id)}
                         >
                           Solicitar patrocinio
@@ -318,20 +318,6 @@ export default function BrandPublicView({
             </Card>
 
             <PartnershipsGallery photos={partnershipPhotos} />
-
-            <Card className={UANABI_PROFILE_CARD_CLASS}>
-              <CardContent className="p-6 sm:p-8">
-                <h2 className="type-heading font-display font-bold text-foreground">Equipo</h2>
-                <div className="mt-4 rounded-2xl border border-dashed border-border-subtle bg-secondary/30 px-6 py-10 text-center">
-                  <p className="type-body font-semibold text-foreground">
-                    Contactos de la marca
-                  </p>
-                  <p className="type-body-muted mx-auto mt-2 max-w-sm">
-                    Los datos de contacto se comparten cuando hay match o propuesta activa.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           <aside className="space-y-6 lg:sticky lg:top-[4.5rem] lg:self-start">

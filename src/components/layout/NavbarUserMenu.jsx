@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { getProfileDisplayName, getProfileInitial } from '../../data/hostProfile'
+import { getProfileDisplayName } from '../../data/hostProfile'
 
 const MENU_SECTIONS = [
   [
@@ -17,8 +17,6 @@ export default function NavbarUserMenu({ profile, onMenuAction }) {
   const rootRef = useRef(null)
 
   const fullName = getProfileDisplayName(profile)
-  const role = profile?.role ?? 'Host'
-  const initial = getProfileInitial(profile)
 
   useEffect(() => {
     if (!open) return
@@ -49,27 +47,18 @@ export default function NavbarUserMenu({ profile, onMenuAction }) {
         className="uanabi-navbar-user-trigger"
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-label={`Configuración — ${fullName}`}
       >
-        {profile?.avatarUrl ? (
-          <img
-            src={profile.avatarUrl}
-            alt=""
-            className="h-8 w-8 shrink-0 rounded-full object-cover ring-2 ring-background"
-          />
-        ) : (
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary font-display text-xs font-bold text-primary-foreground">
-            {initial}
-          </span>
-        )}
-        <span className="hidden min-w-0 truncate text-left md:block">
-          <span className="block truncate text-xs font-bold text-foreground">{fullName}</span>
-          <span className="block truncate type-small font-medium text-muted-foreground">
-            {role}
-          </span>
+        <span className="uanabi-navbar-icon-btn pointer-events-none" aria-hidden>
+          <Settings className="h-4 w-4" strokeWidth={1.75} />
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-muted-foreground transition ${open ? 'rotate-180' : ''}`}
+          className={cn(
+            'h-4 w-4 shrink-0 text-muted-foreground transition-transform',
+            open && 'rotate-180',
+          )}
           strokeWidth={2}
+          aria-hidden
         />
       </button>
 

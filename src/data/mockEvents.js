@@ -1,6 +1,8 @@
 import {
   BRAND_COVER_IMAGES,
+  EVENT_COVER_IMAGES,
   brandLogoFavicon,
+  quilmesLogo,
   simpleIconsLogo,
 } from '../utils/brandLogoUrl'
 
@@ -115,7 +117,8 @@ export const mockBrands = [
   {
     id: 'brand-006',
     name: 'Quilmes',
-    logo: brandLogoFavicon('quilmes.com.ar'),
+    logo: quilmesLogo(),
+    logoFallback: brandLogoFavicon('quilmes.com.ar'),
     coverImage: BRAND_COVER_IMAGES['brand-006'],
     industry: 'Bebidas',
     budgetType: 'Híbrido',
@@ -276,6 +279,65 @@ export const mockBrands = [
     sponsorScale: 'main',
     categories: ['Tech & Gaming'],
   },
+  {
+    id: 'brand-015',
+    name: 'Pepsi',
+    logo: simpleIconsLogo('pepsi', '004B93'),
+    logoFallback: brandLogoFavicon('pepsi.com'),
+    coverImage: BRAND_COVER_IMAGES['brand-015'],
+    industry: 'Bebidas',
+    budgetType: 'Híbrido',
+    zone: 'Capital Federal - Palermo',
+    coordinates: { lat: -34.582, lng: -58.432 },
+    coverGradient: 'from-blue-900/35 to-red-900/30',
+    seeks: ['Lanzamientos VIP', 'Fiestas privadas', 'Eventos lifestyle'],
+    offers: ['Barra de bebidas', 'Activación en rooftop', '$150k en efectivo'],
+    applicationStatus: 'disponible',
+    matchScore: 4.7,
+    participations: 19,
+    activeHosts: 19,
+    sponsorScale: 'main',
+    categories: ['Estilo de Vida'],
+  },
+  {
+    id: 'brand-016',
+    name: 'Netflix',
+    logo: simpleIconsLogo('netflix', 'E50914'),
+    logoFallback: brandLogoFavicon('netflix.com'),
+    coverImage: BRAND_COVER_IMAGES['brand-016'],
+    industry: 'Entretenimiento',
+    budgetType: 'Presupuesto Efectivo',
+    zone: 'Capital Federal - Puerto Madero',
+    coordinates: { lat: -34.615, lng: -58.365 },
+    coverGradient: 'from-red-950/50 to-black/60',
+    seeks: ['Lanzamientos exclusivos', 'Eventos premium', 'Activaciones culturales'],
+    offers: ['$300k patrocinio', 'Contenido co-branded', 'Acceso VIP para invitados'],
+    applicationStatus: 'disponible',
+    matchScore: 4.8,
+    participations: 11,
+    activeHosts: 11,
+    sponsorScale: 'main',
+    categories: ['Estilo de Vida', 'Tech & Gaming'],
+  },
+  {
+    id: 'brand-017',
+    name: 'Absolut',
+    logo: brandLogoFavicon('absolut.com'),
+    coverImage: BRAND_COVER_IMAGES['brand-017'],
+    industry: 'Bebidas',
+    budgetType: 'Canje',
+    zone: 'Capital Federal - Puerto Madero',
+    coordinates: { lat: -34.608, lng: -58.368 },
+    coverGradient: 'from-slate-700/40 to-blue-900/35',
+    seeks: ['Cocktails en terraza', 'Eventos nocturnos', 'Lanzamientos lifestyle'],
+    offers: ['Barra premium', 'Coctelería de la marca', 'Branding en venue'],
+    applicationStatus: 'disponible',
+    matchScore: 4.6,
+    participations: 14,
+    activeHosts: 14,
+    sponsorScale: 'micro',
+    categories: ['Estilo de Vida', 'Gastronomía'],
+  },
 ]
 
 export const ADMISSION_RUBROS = ['Bebidas', 'Gaming & Tech', 'Moda & Diseño']
@@ -325,6 +387,12 @@ const BRAND_BIOS = {
     'Cuidado personal y belleza; sampling, kits y activaciones en ferias y eventos de bienestar.',
   'brand-014':
     'Audio streaming y cultura musical; playlists co-creadas, artistas y branding en vivo.',
+  'brand-015':
+    'Bebidas y lifestyle; activa rooftops, lanzamientos VIP y fiestas privadas con barra y sampling premium.',
+  'brand-016':
+    'Entretenimiento premium; patrocina lanzamientos exclusivos, eventos culturales y experiencias VIP en CABA.',
+  'brand-017':
+    'Destilados y coctelería; barra premium en terrazas, eventos nocturnos y activaciones lifestyle.',
 }
 
 /** Catálogo global de marcas disponibles para invitar (perfil completo) */
@@ -340,15 +408,6 @@ function yesterdayISO() {
   return d.toISOString().slice(0, 10)
 }
 
-const EVENT_PORTADA_IMAGES = {
-  gaming:
-    'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80',
-  gastronomy:
-    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=900&q=80',
-  lifestyle:
-    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80',
-}
-
 export const myEvents = [
   {
     id: 'evt-past-002',
@@ -358,7 +417,7 @@ export const myEvents = [
     location: 'San Telmo, Buenos Aires',
     audience: '120 presenciales / 4.5k reach',
     niche: 'Gastronomía',
-    coverImage: EVENT_PORTADA_IMAGES.gastronomy,
+    coverImage: EVENT_COVER_IMAGES.foodFair,
     coverGradient: 'from-amber-100 via-orange-50 to-white',
     coverLabel: 'FOODIE',
     venueAddress: 'Plaza Dorrego · San Telmo, CABA',
@@ -376,6 +435,7 @@ export const myEvents = [
     location: 'Microcentro, Buenos Aires',
     audience: '60 presenciales / 1.8k reach',
     niche: 'Tecnología',
+    coverImage: EVENT_COVER_IMAGES.techMeetup,
     coverGradient: 'from-sky-100 via-indigo-50 to-white',
     coverLabel: 'TECH',
     venueAddress: 'Av. Corrientes 800 · Microcentro, CABA',
@@ -393,6 +453,7 @@ export const myEvents = [
     location: 'San Telmo, Buenos Aires',
     audience: '85 presenciales / 2.1k reach',
     niche: 'Gastronomía',
+    coverImage: EVENT_COVER_IMAGES.streetFoodPopUp,
     coverGradient: 'from-lime-100 via-amber-50 to-white',
     organizer: { name: 'Mesa Emergente', role: 'Organizador', isSuperHost: true },
     venueName: 'Plaza Dorrego',
@@ -424,7 +485,7 @@ export const myEvents = [
     audience: '120 presenciales / 12k reach',
     audienceGender: 'Masculino 55% · Femenino 45%',
     niche: 'Gaming',
-    coverImage: EVENT_PORTADA_IMAGES.gaming,
+    coverImage: EVENT_COVER_IMAGES.gamingLan,
     coverGradient: 'from-cyan-200 via-violet-100 to-fuchsia-100',
     organizer: {
       name: 'Neon Collective',
@@ -455,8 +516,20 @@ export const myEvents = [
     ],
     invitedBrands: [
       { brandId: 'brand-002', status: 'invitacion_enviada', invitedAt: '2026-06-01' },
-      { brandId: 'brand-004', status: 'match_aceptado', invitedAt: '2026-05-28' },
-      { brandId: 'brand-012', status: 'declinado', invitedAt: '2026-05-20' },
+      { brandId: 'brand-008', status: 'invitada', invitedAt: '2026-05-26' },
+      {
+        brandId: 'brand-004',
+        status: 'match_aceptado',
+        invitedAt: '2026-05-28',
+        statusChangedAt: '2026-06-01',
+      },
+      { brandId: 'brand-001', status: 'invitada', invitedAt: '2026-05-22' },
+      {
+        brandId: 'brand-012',
+        status: 'declinado',
+        invitedAt: '2026-05-20',
+        statusChangedAt: '2026-05-25',
+      },
     ],
   },
   {
@@ -468,7 +541,7 @@ export const myEvents = [
     audience: '25 presenciales / 850 reach',
     audienceGender: 'Masculino 50% · Femenino 50%',
     niche: 'Lifestyle',
-    coverImage: EVENT_PORTADA_IMAGES.lifestyle,
+    coverImage: EVENT_COVER_IMAGES.rooftopVip,
     coverGradient: 'from-amber-100 via-rose-50 to-sky-100',
     organizer: { name: 'Studio Norte', role: 'Organizador', isSuperHost: true },
     coOrganizersCount: 1,
@@ -494,8 +567,33 @@ export const myEvents = [
       'Marca de entretenimiento o lifestyle',
     ],
     invitedBrands: [
+      { brandId: 'brand-001', status: 'invitacion_enviada', invitedAt: '2026-06-03' },
       { brandId: 'brand-002', status: 'invitada', invitedAt: '2026-06-02' },
-      { brandId: 'brand-011', status: 'match_aceptado', invitedAt: '2026-05-15' },
+      { brandId: 'brand-006', status: 'invitada', invitedAt: '2026-05-30' },
+      {
+        brandId: 'brand-011',
+        status: 'match_aceptado',
+        invitedAt: '2026-05-15',
+        statusChangedAt: '2026-05-20',
+      },
+      {
+        brandId: 'brand-014',
+        status: 'match_aceptado',
+        invitedAt: '2026-05-20',
+        statusChangedAt: '2026-05-28',
+      },
+      {
+        brandId: 'brand-013',
+        status: 'declinado',
+        invitedAt: '2026-05-12',
+        statusChangedAt: '2026-05-18',
+      },
+      {
+        brandId: 'brand-012',
+        status: 'declinado',
+        invitedAt: '2026-05-08',
+        statusChangedAt: '2026-05-14',
+      },
     ],
   },
   {
@@ -507,6 +605,7 @@ export const myEvents = [
     location: 'Villa Crespo, Buenos Aires',
     audience: '18.000 reach / 400 presenciales',
     niche: 'Moda',
+    coverImage: EVENT_COVER_IMAGES.fashionRunway,
     coverGradient: 'from-neutral-300 via-stone-100 to-white',
     organizer: { name: 'Underground Moda', role: 'Organizador' },
     hostCommunity: {
@@ -543,7 +642,7 @@ export const myEvents = [
     location: 'San Telmo, Buenos Aires',
     audience: '40 presenciales / 3.2k reach',
     niche: 'Gastronomía',
-    coverImage: EVENT_PORTADA_IMAGES.gastronomy,
+    coverImage: EVENT_COVER_IMAGES.fineDining,
     coverGradient: 'from-orange-100 via-amber-50 to-white',
     organizer: { name: 'Mesa Emergente', role: 'Organizador', isSuperHost: true },
     hostCommunity: {
@@ -588,7 +687,7 @@ export const myApplications = [
   {
     id: 'app-002',
     brandName: 'Quilmes',
-    brandLogo: brandLogoFavicon('quilmes.com.ar'),
+    brandLogo: quilmesLogo(),
     budgetType: 'Híbrido',
     eventTarget: 'Rooftop Privado — Lanzamiento Exclusivo',
     date: '2026-05-25',

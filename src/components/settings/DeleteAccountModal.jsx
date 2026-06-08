@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AlertTriangle, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export default function DeleteAccountModal({ isOpen, email, onClose, onConfirm }) {
   const [confirmText, setConfirmText] = useState('')
@@ -70,21 +71,19 @@ export default function DeleteAccountModal({ isOpen, email, onClose, onConfirm }
         />
 
         <div className="mt-6 flex gap-3">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="flex-1 rounded-xl border border-border py-3 text-xs font-semibold text-muted-foreground hover:bg-secondary"
-          >
+          <Button type="button" variant="secondary" size="default" className="flex-1" onClick={handleClose}>
             Cancelar
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="destructive"
+            size="default"
+            className="flex-1 bg-red-600 text-white hover:bg-red-700"
             onClick={handleConfirm}
             disabled={!canDelete}
-            className="flex-1 rounded-xl bg-red-600 py-3 text-xs font-bold text-white disabled:opacity-40 hover:bg-red-700"
           >
             Eliminar cuenta
-          </button>
+          </Button>
         </div>
       </div>
     </div>

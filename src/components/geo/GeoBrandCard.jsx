@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Button } from '@/components/ui/button'
 import { MapPin } from 'lucide-react'
 
 const BUDGET_SHORT = {
@@ -62,16 +63,18 @@ export default function GeoBrandCard({ brand, isHighlighted, onSelect, onApply }
       </div>
 
       {canApply && isHighlighted && (
-        <button
+        <Button
           type="button"
+          variant="primary"
+          size="sm"
+          className="mt-3 w-full"
           onClick={(e) => {
             e.stopPropagation()
             onApply?.(brand.id)
           }}
-          className="mt-3 w-full rounded-xl bg-primary py-2 text-xs font-bold text-white transition hover:bg-primary/90"
         >
           Postular mi Evento
-        </button>
+        </Button>
       )}
     </article>
   )

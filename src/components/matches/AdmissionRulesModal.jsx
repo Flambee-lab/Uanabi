@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Check, Shield, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { ADMISSION_RUBROS } from '../../data/mockEvents'
 
 function SelectablePill({ active, onClick, children }) {
@@ -177,20 +178,12 @@ export default function AdmissionRulesModal({ isOpen, rules, onClose, onSave, on
         </div>
 
         <div className="flex flex-col-reverse gap-3 border-t border-border-subtle bg-background px-8 py-6 sm:flex-row sm:justify-between">
-          <button
-            type="button"
-            onClick={handleClear}
-            className="rounded-2xl px-5 py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
+          <Button type="button" variant="tertiary" size="default" className="text-muted-foreground" onClick={handleClear}>
             Limpiar Filtros
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            className="rounded-2xl bg-primary px-8 py-3 text-sm font-bold text-white transition-all hover:bg-primary/90 active:scale-[0.98]"
-          >
+          </Button>
+          <Button type="button" variant="primary" size="lg" onClick={handleSave}>
             Guardar Reglas
-          </button>
+          </Button>
         </div>
       </div>
     </div>

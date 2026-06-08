@@ -1,43 +1,63 @@
-import { useEffect, useState } from 'react'
-import { Pencil } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  dismissInlineNotification,
+  getDismissedInlineNotificationIds,
+  getEventInlineNotifications,
+  getInlineNotificationId,
+  getUnreadBrandNotificationsMap,
+  migrateLegacyApprovedBannerDismiss,
+} from '../utils/eventInlineNotifications'
+import { openEventBrandPreview } from '../utils/eventBrandPreview'
+import { isEventPast } from '../utils/sponsorshipLifecycle'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import {
-  UANABI_PROFILE_CARD_CLASS,
-  UANABI_PROFILE_COVER_CLASS,
-  UanabiProfilePage,
-} from '../components/layout/UanabiProfileLayout'
-import EventAboutSection from '../components/events/EventAboutSection'
-import EventCoverMedia from '../components/events/EventCoverMedia'
-import EventFactsSheet from '../components/events/EventFactsSheet'
-import EventPublicationStatusTag from '../components/events/EventPublicationStatusTag'
-import { isEventPast } from '../utils/sponsorshipLifecycle'
+import { UANABI_PROFILE_CARD_CLASS, UanabiProfilePage } from '../components/layout/UanabiProfileLayout'
+import HostEventDashboardHeader from '../components/events/HostEventDashboardHeader'
 import EventEditModal from '../components/event-luma/EventEditModal'
 import EventInvitedSponsors from '../components/event-luma/EventInvitedSponsors'
-import SuggestedSponsorCard from '../components/event-luma/SuggestedSponsorCard'
+import HostRecommendedBrandCard from '../components/events/HostRecommendedBrandCard'
+import RecommendedBrandsTagLegend from '../components/events/RecommendedBrandsTagLegend'
 
-const SPONSOR_TABS = [
-  { id: 'invited', label: 'Marcas invitadas' },
-  { id: 'recommended', label: 'Recomendadas' },
-]
+function SponsorTabs({ active, onChange, invitedCount = 0, recommendedCount = 0 }) {
+  const tabs = [
+    { id: 'invited', label: 'Marcas invitadas', count: invitedCount },
+    { id: 'recommended', label: 'Recomendadas', count: recommendedCount },
+  ]
 
-function SponsorTabs({ active, onChange }) {
   return (
-    <div className="uanabi-nav-rail">
-      {SPONSOR_TABS.map((tab) => (
-        <button
-          key={tab.id}
-          type="button"
-          onClick={() => onChange(tab.id)}
-          className={cn(
-            'uanabi-nav-item',
-            active === tab.id && 'uanabi-nav-item-active',
-          )}
-        >
-          {tab.label}
-        </button>
-      ))}
+    <div
+      className="uanabi-segmented-control"
+      role="tablist"
+      aria-label="Secciones de patrocinio"
+    >
+      {tabs.map((tab) => {
+        const isActive = active === tab.id
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            onClick={() => onChange(tab.id)}
+            className={cn(
+              'uanabi-segmented-control-tab',
+              isActive && 'uanabi-segmented-control-tab-active',
+            )}
+          >
+            <span>{tab.label}</span>
+            {tab.count > 0 && (
+              <span
+                className={cn(
+                  'text-xs font-semibold tabular-nums',
+                  isActive ? 'text-muted-foreground' : 'text-muted-foreground/70',
+                )}
+              >
+                {tab.count}
+              </span>
+            )}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -49,16 +69,42 @@ export default function MatchesAndRequests({
   onInvite,
   onOpenChat,
   onEventUpdate,
-  pendingCasesForEvent = [],
   onCloseCaseForBrand,
+  onNotificationsDismissed,
+  onDeleteEventRequest,
+  notifRevision = 0,
+  hostProfile,
 }) {
   const [activeTab, setActiveTab] = useState('invited')
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const [dismissedNotifIds, setDismissedNotifIds] = useState(() => new Set())
   const isPastEvent = isEventPast(event)
 
   useEffect(() => {
-    if (isPastEvent) setIsEditOpen(false)
+    if (isPastEvent) {
+      setIsEditOpen(false)
+      setActiveTab('invited')
+    }
   }, [event?.id, isPastEvent])
+
+  useEffect(() => {
+    if (!event?.id) return
+    migrateLegacyApprovedBannerDismiss(event.id, invitedBrands)
+    setDismissedNotifIds(getDismissedInlineNotificationIds(event.id))
+  }, [event?.id, invitedBrands, notifRevision])
+
+  const inlineNotifications = useMemo(
+    () =>
+      isPastEvent
+        ? []
+        : getEventInlineNotifications(event, invitedBrands, dismissedNotifIds),
+    [isPastEvent, event, invitedBrands, dismissedNotifIds],
+  )
+
+  const unreadBrandNotifications = useMemo(
+    () => getUnreadBrandNotificationsMap(inlineNotifications),
+    [inlineNotifications],
+  )
 
   if (!event) {
     return (
@@ -72,89 +118,50 @@ export default function MatchesAndRequests({
     onEventUpdate?.({ ...event, publicationStatus })
   }
 
+  const handleAcknowledgeBrandNotification = (brandId, status) => {
+    dismissInlineNotification(event.id, getInlineNotificationId(brandId, status))
+    setDismissedNotifIds(getDismissedInlineNotificationIds(event.id))
+    onNotificationsDismissed?.()
+  }
+
   return (
-    <UanabiProfilePage>
-      <Card className={UANABI_PROFILE_CARD_CLASS}>
-        <div className={UANABI_PROFILE_COVER_CLASS}>
-          <EventCoverMedia event={event} variant="brandHero" />
-        </div>
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+      <UanabiProfilePage innerClassName="space-y-6">
+        <HostEventDashboardHeader
+          event={event}
+          isPastEvent={isPastEvent}
+          onEdit={() => setIsEditOpen(true)}
+          onViewEvent={() => openEventBrandPreview(event, hostProfile)}
+          onPublicationStatusChange={handlePublicationStatusChange}
+          onDeleteEventRequest={onDeleteEventRequest}
+        />
 
-        <CardContent className="px-6 pb-5 pt-0 sm:px-8 sm:pb-6">
-          <div className="flex items-start justify-between gap-4 pt-4">
-            <div className="min-w-0 space-y-2">
-              <EventPublicationStatusTag
-                event={event}
-                onStatusChange={handlePublicationStatusChange}
-              />
-              <h1 className="type-display font-display font-black tracking-tight text-foreground">
-                {event.title}
-              </h1>
-            </div>
-            {!isPastEvent ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditOpen(true)}
-                className="shrink-0 gap-2 rounded-xl"
-              >
-                <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
-                Editar
-              </Button>
-            ) : (
-              <p className="type-small max-w-[8rem] text-right text-muted-foreground">
-                Evento finalizado — solo lectura
-              </p>
-            )}
-          </div>
-
-          <div className="mt-6 space-y-6 border-t border-border-subtle pt-6 sm:mt-7 sm:pt-7">
-            <EventFactsSheet event={event} />
-            <EventAboutSection event={event} />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className={cn(UANABI_PROFILE_CARD_CLASS, 'gap-0 py-0')}>
+      <Card className={cn(UANABI_PROFILE_CARD_CLASS, 'uanabi-sponsor-stroke gap-0 py-0')}>
         <CardContent className="p-6 sm:p-8">
-          <h2 className="type-heading font-display font-bold text-foreground">Patrocinio</h2>
-          <div className="mt-4 border-b border-border-subtle pb-4">
-            <SponsorTabs active={activeTab} onChange={setActiveTab} />
-          </div>
+          {!isPastEvent && (
+            <SponsorTabs
+              active={activeTab}
+              onChange={setActiveTab}
+              invitedCount={invitedBrands.length}
+              recommendedCount={suggestedBrands.length}
+            />
+          )}
 
-          <div className="pt-6">
-            {activeTab === 'invited' ? (
+          <div className={cn(!isPastEvent && 'pt-6')}>
+            {isPastEvent || activeTab === 'invited' ? (
               <section className="space-y-6">
-                <p className="type-small text-muted-foreground">
-                  Marcas contactadas para este evento — estados de invitación en tiempo real.
-                </p>
-                {pendingCasesForEvent.length > 0 && (
-                  <div className="rounded-2xl border border-orange-200/80 bg-orange-50/80 p-5">
-                    <p className="text-sm font-semibold text-orange-950">
-                      Evento finalizado: tenés {pendingCasesForEvent.length} patrocinio
-                      {pendingCasesForEvent.length !== 1 ? 's' : ''} por cerrar
-                    </p>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="mt-4 rounded-xl"
-                      onClick={() => onCloseCaseForBrand?.(pendingCasesForEvent[0].brandId)}
-                    >
-                      Cerrar Caso
-                    </Button>
-                  </div>
-                )}
                 <EventInvitedSponsors
                   sponsors={invitedBrands}
-                  onInformContact={() => onOpenChat?.()}
+                  event={event}
+                  unreadBrandNotifications={unreadBrandNotifications}
+                  onAcknowledgeBrandNotification={handleAcknowledgeBrandNotification}
+                  onCloseCaseForBrand={onCloseCaseForBrand}
                 />
               </section>
             ) : (
-              <section className="space-y-6">
-                <p className="type-small max-w-2xl leading-relaxed text-muted-foreground">
-                  Cruzamos tu evento con lo que cada marca declara buscar (tipo, audiencia, zona,
-                  formato). Las etiquetas verdes muestran por qué encajan.
-                </p>
+              <section className="space-y-3">
+                <RecommendedBrandsTagLegend />
                 {suggestedBrands.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-border-subtle bg-secondary/30 px-6 py-16 text-center">
                     <p className="type-body-muted">
@@ -162,9 +169,9 @@ export default function MatchesAndRequests({
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  <div className="space-y-2">
                     {suggestedBrands.map((brand) => (
-                      <SuggestedSponsorCard
+                      <HostRecommendedBrandCard
                         key={brand.id}
                         brand={brand}
                         event={event}
@@ -179,14 +186,16 @@ export default function MatchesAndRequests({
         </CardContent>
       </Card>
 
-      {!isPastEvent && (
-        <EventEditModal
-          event={event}
-          isOpen={isEditOpen}
-          onClose={() => setIsEditOpen(false)}
-          onSave={onEventUpdate}
-        />
-      )}
-    </UanabiProfilePage>
+        {!isPastEvent && (
+          <EventEditModal
+            event={event}
+            isOpen={isEditOpen}
+            onClose={() => setIsEditOpen(false)}
+            onSave={onEventUpdate}
+          />
+        )}
+      </UanabiProfilePage>
+      </div>
+    </div>
   )
 }

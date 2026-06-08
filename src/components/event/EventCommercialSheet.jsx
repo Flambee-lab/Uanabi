@@ -7,6 +7,7 @@ import {
   Users,
   X,
 } from 'lucide-react'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { buildWhatsAppUrl, WHATSAPP_PREFILL_MESSAGE } from '../../data/hostProfile'
 
 function formatEventDate(date, time) {
@@ -49,7 +50,13 @@ function DealList({ title, items }) {
   )
 }
 
-export default function EventCommercialSheet({ event, hostProfile, onBack, onOpenChat }) {
+export default function EventCommercialSheet({
+  event,
+  hostProfile,
+  onBack,
+  onOpenChat,
+  previewMode = false,
+}) {
   const [proposalOpen, setProposalOpen] = useState(false)
 
   if (!event) return null
@@ -75,17 +82,33 @@ export default function EventCommercialSheet({ event, hostProfile, onBack, onOpe
     <div className="min-h-full overflow-y-auto bg-white">
       <div className="border-b border-border-subtle">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-8 py-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-            Volver al perfil del Host
-          </button>
-          <p className="type-label ">
-            Ficha comercial · Solo lectura
-          </p>
+          {previewMode ? (
+            <p className="text-xs font-semibold text-muted-foreground">
+              Vista de marca — ficha comercial del evento
+            </p>
+          ) : (
+            <button
+              type="button"
+              onClick={onBack}
+              className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+              Volver al perfil del Host
+            </button>
+          )}
+          <div className="flex items-center gap-3">
+            <p className="type-label">Ficha comercial · Solo lectura</p>
+            {previewMode && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" strokeWidth={2} />
+                Cerrar
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -126,13 +149,15 @@ export default function EventCommercialSheet({ event, hostProfile, onBack, onOpe
         </div>
 
         <div className="mt-12 border-t border-border-subtle pt-10">
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="lg"
+            className="w-full sm:w-auto"
             onClick={() => setProposalOpen(true)}
-            className="w-full rounded-xl bg-primary py-4 text-sm font-bold text-white transition hover:bg-primary/90 sm:w-auto sm:px-12"
           >
             Proponer Patrocinio
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -166,34 +191,38 @@ export default function EventCommercialSheet({ event, hostProfile, onBack, onOpe
               se enviará al Host por el canal de mensajería de Uanabi o WhatsApp comercial.
             </p>
             <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="default"
+                className="flex-1"
                 onClick={() => setProposalOpen(false)}
-                className="flex-1 rounded-xl border border-border py-3 text-xs font-semibold text-muted-foreground hover:bg-secondary"
               >
                 Cancelar
-              </button>
+              </Button>
               {whatsappUrl && (
                 <a
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 text-xs font-bold text-white hover:bg-primary/90"
+                  className={buttonVariants({ variant: 'primary', size: 'default', className: 'flex-1' })}
                 >
                   <MessageCircle className="h-4 w-4" strokeWidth={2} />
                   WhatsApp
                 </a>
               )}
-              <button
+              <Button
                 type="button"
+                variant="match"
+                size="default"
+                className="flex-1"
                 onClick={() => {
                   onOpenChat?.()
                   setProposalOpen(false)
                 }}
-                className="flex-1 rounded-xl bg-match py-3 text-xs font-bold text-match-foreground hover:bg-[#e8ecd8]"
               >
                 Ir al chat
-              </button>
+              </Button>
             </div>
           </div>
         </div>

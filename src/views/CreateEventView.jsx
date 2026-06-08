@@ -7,6 +7,7 @@ import {
   Users,
   X,
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   buildEventFromForm,
   COVER_GRADIENTS,
@@ -321,19 +322,12 @@ export default function CreateEventView({ onClose, onSubmit }) {
 
         <div className="sticky bottom-0 shrink-0 border-t border-border-subtle bg-white/95 px-4 py-4 backdrop-blur-sm sm:px-6">
           <div className="mx-auto flex max-w-5xl justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-xl px-5 py-3 text-sm font-semibold text-muted-foreground transition hover:text-foreground"
-            >
+            <Button type="button" variant="tertiary" size="default" onClick={onClose}>
               Cancelar
-            </button>
-            <button
-              type="submit"
-              className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90"
-            >
+            </Button>
+            <Button type="submit" variant="primary" size="lg">
               Crear evento
-            </button>
+            </Button>
           </div>
         </div>
       </form>

@@ -64,7 +64,7 @@ export default function EventPickerRail({ events, selectedId, onSelect, onCreate
       </div>
 
       <div className="shrink-0 border-t border-border-subtle p-3">
-        <Button type="button" size="event" className="w-full text-xs" onClick={onCreateEvent}>
+        <Button type="button" variant="primary" size="lg" className="w-full" onClick={onCreateEvent}>
           <Plus className="h-4 w-4" strokeWidth={2.5} />
           Crear evento
         </Button>

@@ -94,7 +94,7 @@ export default function BrandDiscoverCard({ brand, onSelect }) {
             }
           : undefined
       }
-      className={`uanabi-card-hover group flex flex-col shadow-none ${
+      className={`uanabi-card-hover group flex w-full flex-col shadow-none ${
         onSelect ? 'cursor-pointer text-left' : ''
       }`}
     >

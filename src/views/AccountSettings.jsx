@@ -117,9 +117,9 @@ export default function AccountSettings({
                 )}
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
-                  className="shrink-0 rounded-xl"
+                  className="shrink-0"
                   onClick={() => {
                     if (emailEditMode) {
                       update({ email: draftEmail.trim() })
@@ -211,7 +211,7 @@ export default function AccountSettings({
         </section>
 
         <div className="flex justify-end">
-          <Button type="button" size="event" onClick={handleSave}>
+          <Button type="button" variant="primary" size="lg" onClick={handleSave}>
             Guardar cambios
           </Button>
         </div>

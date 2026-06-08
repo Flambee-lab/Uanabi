@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowUpRight, MessageCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 function BrandAvatar({ name, logo }) {
   const [failed, setFailed] = useState(false)
@@ -105,23 +106,15 @@ export default function InboundProposalCard({ proposal, onAccept, onReject, onOp
             )}
 
             {isAccepted ? (
-              <button
-                type="button"
-                onClick={() => onOpenChat?.(proposal.id)}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-match px-8 py-3.5 text-sm font-bold text-match-foreground transition-all hover:bg-[#e8ecd8] active:scale-[0.98]"
-              >
+              <Button type="button" variant="match" size="lg" onClick={() => onOpenChat?.(proposal.id)}>
                 <MessageCircle className="h-4 w-4" strokeWidth={2} />
                 Ir al Chat Directo
                 <ArrowUpRight className="h-4 w-4 opacity-60" strokeWidth={2} />
-              </button>
+              </Button>
             ) : (
-              <button
-                type="button"
-                onClick={() => onAccept?.(proposal.id)}
-                className="inline-flex items-center justify-center rounded-2xl bg-primary px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-primary/90 active:scale-[0.98]"
-              >
+              <Button type="button" variant="primary" size="lg" onClick={() => onAccept?.(proposal.id)}>
                 Aceptar Match
-              </button>
+              </Button>
             )}
           </div>
         </div>

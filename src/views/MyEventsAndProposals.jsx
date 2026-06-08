@@ -2,12 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import EventsTimelineSidebar from '../components/events/EventsTimelineSidebar'
-import HostPartnershipsView from '../components/events/HostPartnershipsView'
 import HostPastEventsView from '../components/events/HostPastEventsView'
 import SponsorshipCloseCaseModal from '../components/events/SponsorshipCloseCaseModal'
 import { availableBrands } from '../data/mockEvents'
 import {
-  getHostPartnerships,
+  countPastEventsWithPendingActions,
+  isUpcomingEvent,
   pickDefaultEventId,
   splitEventsByTimeline,
 } from '../utils/hostEventBuckets'
@@ -16,11 +16,14 @@ import {
   isEventPast,
   SPONSORSHIP_STATUS,
 } from '../utils/sponsorshipLifecycle'
+import { migrateLegacyApprovedBannerDismiss } from '../utils/eventInlineNotifications'
 import {
   getInvitedBrandsForEvent,
   getSuggestedBrands,
 } from '../utils/eventSponsorMatch'
+import DeleteEventConfirmModal from '../components/events/DeleteEventConfirmModal'
 import MatchesAndRequests from './MatchesAndRequests'
+import { withRuntimeDemoDates } from '../utils/myEventsRuntime'
 
 export default function MyEventsAndProposals({
   events,
@@ -35,21 +38,24 @@ export default function MyEventsAndProposals({
   onGoToProfile,
 }) {
   const [panelMode, setPanelMode] = useState('event')
+  const [detailSource, setDetailSource] = useState('active')
   const [selectedEventId, setSelectedEventId] = useState(() => pickDefaultEventId(events))
   const [closeCaseTarget, setCloseCaseTarget] = useState(null)
+  const [deleteEventTarget, setDeleteEventTarget] = useState(null)
+  const [notifRevision, setNotifRevision] = useState(0)
   const prevEventsLength = useRef(events.length)
 
-  const { upcoming, past } = useMemo(() => splitEventsByTimeline(events), [events])
-  const partnerships = useMemo(
-    () => getHostPartnerships(events, availableBrands),
-    [events],
+  const timelineEvents = useMemo(() => withRuntimeDemoDates(events), [events])
+  const { upcoming, past } = useMemo(() => splitEventsByTimeline(timelineEvents), [timelineEvents])
+  const pastPendingCount = useMemo(
+    () => countPastEventsWithPendingActions(timelineEvents),
+    [timelineEvents],
   )
-
-  const selectedEvent = events.find((e) => e.id === selectedEventId) ?? null
+  const selectedEvent = timelineEvents.find((e) => e.id === selectedEventId) ?? null
 
   const pendingCases = useMemo(
-    () => getPendingClosureCases(events, availableBrands),
-    [events],
+    () => getPendingClosureCases(timelineEvents, availableBrands),
+    [timelineEvents],
   )
 
   const invitedBrands = useMemo(
@@ -63,30 +69,53 @@ export default function MyEventsAndProposals({
   )
 
   useEffect(() => {
-    if (!selectedEventId || !events.find((e) => e.id === selectedEventId)) {
-      setSelectedEventId(pickDefaultEventId(events))
+    if (!selectedEventId || !timelineEvents.find((e) => e.id === selectedEventId)) {
+      setSelectedEventId(pickDefaultEventId(timelineEvents))
+      setDetailSource('active')
+      return
     }
-  }, [events, selectedEventId])
+
+    if (
+      detailSource === 'active' &&
+      panelMode === 'event' &&
+      !isUpcomingEvent(timelineEvents.find((e) => e.id === selectedEventId), timelineEvents)
+    ) {
+      setSelectedEventId(pickDefaultEventId(timelineEvents))
+    }
+  }, [timelineEvents, selectedEventId, detailSource, panelMode])
 
   useEffect(() => {
-    if (focusEventId && events.find((e) => e.id === focusEventId)) {
+    if (focusEventId && timelineEvents.find((e) => e.id === focusEventId)) {
+      const focused = timelineEvents.find((e) => e.id === focusEventId)
+      const fromPast = isEventPast(focused)
       setSelectedEventId(focusEventId)
+      setDetailSource(fromPast ? 'past' : 'active')
       setPanelMode('event')
+      setNotifRevision((revision) => revision + 1)
       onFocusEventConsumed?.()
     }
-  }, [focusEventId, events, onFocusEventConsumed])
+  }, [focusEventId, timelineEvents, onFocusEventConsumed])
 
   useEffect(() => {
-    if (events.length > prevEventsLength.current && events[0] && !focusEventId) {
-      const { upcoming: up } = splitEventsByTimeline(events)
-      setSelectedEventId(up[0]?.id ?? events[0].id)
+    events.forEach((event) => {
+      const invited = getInvitedBrandsForEvent(event, availableBrands)
+      migrateLegacyApprovedBannerDismiss(event.id, invited)
+    })
+    setNotifRevision((revision) => revision + 1)
+  }, [events])
+
+  useEffect(() => {
+    if (timelineEvents.length > prevEventsLength.current && !focusEventId) {
+      setSelectedEventId(pickDefaultEventId(timelineEvents))
+      setDetailSource('active')
       setPanelMode('event')
     }
-    prevEventsLength.current = events.length
-  }, [events, focusEventId])
+    prevEventsLength.current = timelineEvents.length
+  }, [timelineEvents, focusEventId])
 
   const handleSelectEvent = (eventId) => {
     setSelectedEventId(eventId)
+    setDetailSource('active')
     setPanelMode('event')
   }
 
@@ -132,13 +161,21 @@ export default function MyEventsAndProposals({
     )
   }
 
-  const handleSelectEventFromPartnership = (eventId) => {
+  const handleSelectEventFromPast = (eventId) => {
     setSelectedEventId(eventId)
+    setDetailSource('past')
     setPanelMode('event')
   }
 
-  const handleSelectEventFromPast = (eventId) => {
-    setSelectedEventId(eventId)
+  const handleDeleteEvent = (eventId) => {
+    onEventsChange((prev) => {
+      const remaining = prev.filter((event) => event.id !== eventId)
+      setSelectedEventId((current) =>
+        current === eventId ? pickDefaultEventId(remaining) : current,
+      )
+      return remaining
+    })
+    setDeleteEventTarget(null)
     setPanelMode('event')
   }
 
@@ -151,7 +188,7 @@ export default function MyEventsAndProposals({
         <p className="type-body-muted mx-auto mt-2 max-w-sm">
           Creá un evento en CABA para invitar marcas y gestionar patrocinios.
         </p>
-        <Button type="button" size="event" className="mt-8 gap-2 px-8" onClick={onCreateEvent}>
+        <Button type="button" variant="primary" size="lg" className="mt-8" onClick={onCreateEvent}>
           <Plus className="h-4 w-4" strokeWidth={2.5} />
           Crear evento
         </Button>
@@ -173,43 +210,50 @@ export default function MyEventsAndProposals({
       <EventsTimelineSidebar
         upcoming={upcoming}
         pastCount={past.length}
-        selectedId={selectedEvent?.id}
+        pastPendingCount={pastPendingCount}
+        selectedId={
+          detailSource === 'active' && isUpcomingEvent(selectedEvent, timelineEvents)
+            ? selectedEvent?.id
+            : null
+        }
         panelMode={panelMode}
-        partnershipCount={partnerships.length}
+        brandCatalog={availableBrands}
+        notifRevision={notifRevision}
         onSelectEvent={handleSelectEvent}
-        onShowPastEvents={() => setPanelMode('past')}
-        onShowPartnerships={() => setPanelMode('partnerships')}
+        onShowPastEvents={() => {
+          setPanelMode('past')
+          setDetailSource('active')
+        }}
         onCreateEvent={onCreateEvent}
       />
 
-      <div className="min-w-0 flex-1 overflow-y-auto">
-        {panelMode === 'partnerships' ? (
-          <HostPartnershipsView
-            partnerships={partnerships}
-            profile={hostProfile}
-            onGoToProfile={onGoToProfile}
-            onSelectEvent={handleSelectEventFromPartnership}
+      <div className="min-w-0 flex-1 overflow-hidden">
+        {panelMode === 'past' ? (
+          <HostPastEventsView
+            events={past}
+            pendingCount={pastPendingCount}
+            onSelectEvent={handleSelectEventFromPast}
           />
-        ) : panelMode === 'past' ? (
-          <HostPastEventsView events={past} onSelectEvent={handleSelectEventFromPast} />
-        ) : selectedEvent ? (
+        ) : selectedEvent &&
+          (detailSource === 'past' || isUpcomingEvent(selectedEvent, timelineEvents)) ? (
           <>
             <MatchesAndRequests
               event={selectedEvent}
               invitedBrands={invitedBrands}
               suggestedBrands={suggestedBrands}
+              hostProfile={hostProfile}
               onInvite={handleInvite}
               onOpenChat={handleOpenChat}
               onEventUpdate={handleEventUpdate}
-              pendingCasesForEvent={pendingCases.filter(
-                (c) => c.eventId === selectedEvent.id,
-              )}
+              notifRevision={notifRevision}
+              onNotificationsDismissed={() => setNotifRevision((revision) => revision + 1)}
               onCloseCaseForBrand={(brandId) => {
                 const match = pendingCases.find(
                   (c) => c.eventId === selectedEvent.id && c.brandId === brandId,
                 )
                 if (match) setCloseCaseTarget(match)
               }}
+              onDeleteEventRequest={setDeleteEventTarget}
             />
           </>
         ) : (
@@ -224,6 +268,13 @@ export default function MyEventsAndProposals({
         caseInfo={closeCaseTarget}
         onClose={() => setCloseCaseTarget(null)}
         onSubmit={handleCloseCaseSubmit}
+      />
+
+      <DeleteEventConfirmModal
+        isOpen={Boolean(deleteEventTarget)}
+        event={deleteEventTarget}
+        onClose={() => setDeleteEventTarget(null)}
+        onConfirm={handleDeleteEvent}
       />
     </div>
   )

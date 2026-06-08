@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Map } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { coordsToPercent, getPinLabel } from '../../utils/geoMap'
 
 function PinLogo({ logo, name }) {
@@ -89,13 +90,15 @@ export default function GeoMapCanvas({
             {popoverBrand.offers?.[0]}
           </p>
           {popoverBrand.applicationStatus === 'disponible' ? (
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
+              className="mt-3 w-full"
               onClick={() => onApply?.(popoverBrand.id)}
-              className="mt-3 w-full rounded-xl bg-primary py-2 text-xs font-bold text-white hover:bg-primary/90"
             >
               Postular mi Evento
-            </button>
+            </Button>
           ) : (
             <p className="mt-3 text-center text-xs font-medium text-muted-foreground">
               Postulación enviada

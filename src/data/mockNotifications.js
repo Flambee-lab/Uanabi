@@ -7,6 +7,9 @@ export const mockNotifications = [
     time: 'Hace 2 h',
     read: false,
     navTarget: 'matches',
+    eventId: 'evt-001',
+    brandId: 'brand-004',
+    invitationStatus: 'match_aceptado',
   },
   {
     id: 'notif-002',
@@ -16,6 +19,8 @@ export const mockNotifications = [
     time: 'Hace 5 h',
     read: false,
     navTarget: 'matches',
+    eventId: 'evt-004',
+    brandId: 'brand-001',
   },
   {
     id: 'notif-003',
@@ -25,6 +30,7 @@ export const mockNotifications = [
     time: 'Ayer',
     read: true,
     navTarget: 'matches',
+    eventId: 'evt-001',
   },
   {
     id: 'notif-004',
@@ -34,6 +40,7 @@ export const mockNotifications = [
     time: 'Ayer',
     read: true,
     navTarget: 'matches',
+    eventId: 'evt-001',
   },
   {
     id: 'notif-005',
@@ -43,5 +50,8 @@ export const mockNotifications = [
     time: 'Hace 3 d',
     read: true,
     navTarget: 'matches',
+    eventId: 'evt-001',
+    brandId: 'brand-012',
+    invitationStatus: 'declinado',
   },
 ]

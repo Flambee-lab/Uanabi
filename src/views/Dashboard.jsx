@@ -12,6 +12,7 @@ import {
   createApplicationFromSubmission,
 } from '../data/hostEvents'
 import { mockNotifications as initialNotifications } from '../data/mockNotifications'
+import { restoreInlineNotification } from '../utils/eventInlineNotifications'
 import { DEFAULT_HOST_PROFILE } from '../data/hostProfile'
 import {
   availableBrands,
@@ -19,6 +20,7 @@ import {
   myApplications as initialApplications,
   myEvents as initialMyEvents,
 } from '../data/mockEvents'
+import { withRuntimeDemoDates } from '../utils/myEventsRuntime'
 import CreateEventView from './CreateEventView'
 import ExploreHome from './ExploreHome'
 import MyEventsAndProposals from './MyEventsAndProposals'
@@ -28,7 +30,7 @@ import { DEFAULT_ACCOUNT_SETTINGS } from '../data/accountSettings'
 
 export default function Dashboard() {
   const [brands, setBrands] = useState(mockBrands)
-  const [myEvents, setMyEvents] = useState(initialMyEvents)
+  const [myEvents, setMyEvents] = useState(() => withRuntimeDemoDates(initialMyEvents))
   const [applications, setApplications] = useState(initialApplications)
   const [notifications, setNotifications] = useState(initialNotifications)
   const [activeNav, setActiveNav] = useState('explore')
@@ -180,6 +182,11 @@ export default function Dashboard() {
       prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n)),
     )
     setNotificationsOpen(false)
+
+    if (notif.eventId && notif.brandId && notif.invitationStatus) {
+      restoreInlineNotification(notif.eventId, notif.brandId, notif.invitationStatus)
+    }
+    if (notif.eventId) setFocusEventId(notif.eventId)
     if (notif.navTarget) handleNavChange(notif.navTarget)
   }
 

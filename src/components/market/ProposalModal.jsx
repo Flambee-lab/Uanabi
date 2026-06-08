@@ -171,13 +171,9 @@ export default function ProposalModal({
               <p className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-800">
                 {INVITATION_SENT_COPY}
               </p>
-              <button
-                type="button"
-                onClick={handleClose}
-                className="w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-white hover:bg-primary/90"
-              >
+              <Button type="button" variant="primary" size="lg" className="w-full" onClick={handleClose}>
                 Entendido
-              </button>
+              </Button>
             </div>
           ) : step === 1 ? (
             eventView === 'create' ? (
@@ -277,36 +273,33 @@ export default function ProposalModal({
 
         {!showSuccess && step === 1 && eventView === 'list' && (
           <div className="flex justify-end border-t border-border-subtle px-8 py-6">
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="default"
               disabled={!canContinueStep1}
               onClick={() => setStep(2)}
-              className="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white disabled:opacity-40 hover:bg-primary/90"
             >
               Continuar con este evento
-            </button>
+            </Button>
           </div>
         )}
 
         {!showSuccess && step === 2 && (
           <div className="flex items-center justify-between border-t border-border-subtle px-8 py-6">
             {!skipEventStep ? (
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="text-sm font-semibold text-muted-foreground hover:text-foreground/80"
-              >
+              <Button type="button" variant="tertiary" size="sm" className="text-muted-foreground hover:text-foreground/80" onClick={() => setStep(1)}>
                 Volver
-              </button>
+              </Button>
             ) : (
               <span />
             )}
             <Button
               type="submit"
               form="proposal-form"
-              size="event"
+              variant="primary"
+              size="lg"
               disabled={!canSubmit}
-              className="px-8"
             >
               Enviar propuesta de patrocinio
             </Button>

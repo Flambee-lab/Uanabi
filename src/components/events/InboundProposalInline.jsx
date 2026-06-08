@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowUpRight, MessageCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 function ProposalLogo({ name, logo }) {
   const [failed, setFailed] = useState(false)
@@ -60,31 +61,19 @@ export default function InboundProposalInline({
 
       <div className="flex shrink-0 flex-col items-stretch gap-2 sm:w-44">
         {isAccepted ? (
-          <button
-            type="button"
-            onClick={() => onOpenChat?.(proposal.brandId)}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-match px-4 py-3 text-sm font-bold text-match-foreground transition-all hover:bg-[#e8ecd8] active:scale-[0.98]"
-          >
+          <Button type="button" variant="match" size="default" className="w-full" onClick={() => onOpenChat?.(proposal.brandId)}>
             <MessageCircle className="h-4 w-4" strokeWidth={2} />
             Ir al Chat Directo
             <ArrowUpRight className="h-3.5 w-3.5 opacity-60" strokeWidth={2} />
-          </button>
+          </Button>
         ) : (
           <>
-            <button
-              type="button"
-              onClick={() => onReject?.(proposal.id)}
-              className="py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
+            <Button type="button" variant="tertiary" size="sm" className="text-muted-foreground" onClick={() => onReject?.(proposal.id)}>
               Rechazar
-            </button>
-            <button
-              type="button"
-              onClick={() => onAccept?.(proposal.id)}
-              className="rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition-all hover:bg-primary/90 active:scale-[0.98]"
-            >
+            </Button>
+            <Button type="button" variant="primary" size="lg" onClick={() => onAccept?.(proposal.id)}>
               Aceptar Match & Chat
-            </button>
+            </Button>
           </>
         )}
       </div>

@@ -1,12 +1,20 @@
 import { useEffect, useRef } from 'react'
 import { Bell, CheckCheck } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import {
+  getInlineNotificationBadgeClass,
+  getInlineNotificationDotClass,
+  getInlineNotificationRowClass,
+  getInlineNotificationTypeLabel,
+  resolveNotificationVisual,
+} from '../../utils/eventInlineNotifications'
 
-const TYPE_STYLES = {
-  match: 'bg-match text-match-foreground',
-  invite: 'bg-secondary text-foreground/80',
-  suggestion: 'bg-violet-50 text-violet-700',
-  event: 'bg-amber-50 text-amber-800',
-  declined: 'bg-secondary text-muted-foreground',
+const NAVBAR_LABEL_OVERRIDES = {
+  match: 'Match',
+  invite: 'Invitación',
+  suggestion: 'Nuevo',
+  event: 'Evento',
+  declined: 'Rechazada',
 }
 
 export default function NotificationsCenter({
@@ -85,50 +93,52 @@ export default function NotificationsCenter({
                 No tenés notificaciones
               </li>
             ) : (
-              notifications.map((notif) => (
-                <li key={notif.id}>
-                  <button
-                    type="button"
-                    onClick={() => onNotificationClick?.(notif)}
-                    className={`flex w-full gap-3 px-4 py-3.5 text-left transition hover:bg-secondary ${
-                      !notif.read ? 'bg-secondary/80' : ''
-                    }`}
-                  >
-                    <span
-                      className={`mt-0.5 flex h-2 w-2 shrink-0 rounded-full ${
-                        notif.read ? 'bg-transparent' : 'bg-primary'
-                      }`}
-                      aria-hidden
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="type-body font-bold leading-snug">
-                          {notif.title}
+              notifications.map((notif) => {
+                const visualType = resolveNotificationVisual(notif)
+
+                return (
+                  <li key={notif.id}>
+                    <button
+                      type="button"
+                      onClick={() => onNotificationClick?.(notif)}
+                      className={cn(
+                        'relative flex w-full gap-3 px-4 py-3.5 text-left transition',
+                        getInlineNotificationRowClass(visualType, notif.read),
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'mt-1.5 flex h-2 w-2 shrink-0 rounded-full',
+                          notif.read
+                            ? 'bg-transparent'
+                            : getInlineNotificationDotClass(visualType),
+                        )}
+                        aria-hidden
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="type-body font-bold leading-snug">{notif.title}</p>
+                          <span
+                            className={cn(
+                              'type-label shrink-0 rounded-full px-1.5 py-0.5 normal-case',
+                              getInlineNotificationBadgeClass(visualType),
+                            )}
+                          >
+                            {NAVBAR_LABEL_OVERRIDES[notif.type] ??
+                              getInlineNotificationTypeLabel(visualType)}
+                          </span>
+                        </div>
+                        <p className="mt-1 type-small leading-relaxed text-muted-foreground">
+                          {notif.body}
                         </p>
-                        <span
-                          className={`type-label shrink-0 rounded-full px-1.5 py-0.5 normal-case ${TYPE_STYLES[notif.type] ?? TYPE_STYLES.invite}`}
-                        >
-                          {notif.type === 'match'
-                            ? 'Match'
-                            : notif.type === 'suggestion'
-                              ? 'Nuevo'
-                              : notif.type === 'event'
-                                ? 'Evento'
-                                : notif.type === 'declined'
-                                  ? 'Info'
-                                  : 'Invitación'}
-                        </span>
+                        <p className="mt-1.5 type-small font-medium text-muted-foreground">
+                          {notif.time}
+                        </p>
                       </div>
-                      <p className="mt-1 type-small leading-relaxed text-muted-foreground">
-                        {notif.body}
-                      </p>
-                      <p className="mt-1.5 type-small font-medium text-muted-foreground">
-                        {notif.time}
-                      </p>
-                    </div>
-                  </button>
-                </li>
-              ))
+                    </button>
+                  </li>
+                )
+              })
             )}
           </ul>
         </div>

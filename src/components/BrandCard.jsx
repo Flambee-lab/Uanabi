@@ -1,4 +1,5 @@
 import { ArrowUpRight, MessageCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import BrandLogo from './BrandLogo'
 
 const BUDGET_LABELS = {
@@ -45,38 +46,26 @@ function InfoBlock({ label, items, highlight }) {
 function ApplicationButton({ status, onApply, onOpenChat }) {
   if (status === 'match_aceptado') {
     return (
-      <button
-        type="button"
-        onClick={onOpenChat}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-match px-5 py-3.5 text-sm font-bold text-match-foreground transition-all hover:bg-[#e8ecd8] active:scale-[0.98]"
-      >
+      <Button type="button" variant="match" size="lg" className="w-full" onClick={onOpenChat}>
         <MessageCircle className="h-4 w-4" strokeWidth={2} />
         Ir al Chat Directo
         <ArrowUpRight className="h-4 w-4 opacity-60" strokeWidth={2} />
-      </button>
+      </Button>
     )
   }
 
   if (status === 'enviada') {
     return (
-      <button
-        type="button"
-        disabled
-        className="w-full cursor-default rounded-2xl border border-border-subtle bg-secondary px-5 py-3.5 text-sm font-medium text-muted-foreground"
-      >
+      <Button type="button" variant="secondary" size="lg" className="w-full" disabled>
         Postulación Enviada
-      </button>
+      </Button>
     )
   }
 
   return (
-    <button
-      type="button"
-      onClick={onApply}
-      className="w-full rounded-2xl bg-primary px-5 py-3.5 text-sm font-bold text-white transition-all hover:bg-primary/90 active:scale-[0.98]"
-    >
+    <Button type="button" variant="primary" size="lg" className="w-full" onClick={onApply}>
       Postular mi Evento
-    </button>
+    </Button>
   )
 }
 

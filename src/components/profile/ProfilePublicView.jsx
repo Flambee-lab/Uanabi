@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import {
   AtSign,
   BadgeCheck,
@@ -314,7 +316,7 @@ export default function ProfilePublicView({
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-sm font-bold text-white hover:bg-primary/90"
+              className={cn(buttonVariants({ variant: 'primary', size: 'lg' }), 'mt-6')}
             >
               <MessageCircle className="h-5 w-5" strokeWidth={2} />
               WhatsApp comercial

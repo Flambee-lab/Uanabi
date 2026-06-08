@@ -67,10 +67,9 @@ export default function ExploreHome({ brands, hostEvents = [], onRequestPartners
           <div className="mb-5 flex justify-end">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={resetFilters}
-              className="gap-1.5 rounded-xl"
             >
               <RotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
               Restablecer
@@ -85,13 +84,13 @@ export default function ExploreHome({ brands, hostEvents = [], onRequestPartners
               <p className="uanabi-meta mt-2">
                 Probá otra categoría o ampliá la búsqueda en Capital Federal.
               </p>
-              <Button type="button" variant="default" size="event" className="mt-6" onClick={resetFilters}>
+              <Button type="button" variant="primary" size="lg" className="mt-6" onClick={resetFilters}>
                 Restablecer filtros
               </Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="uanabi-brand-grid">
             {filteredBrands.map((brand) => (
               <BrandDiscoverCard
                 key={brand.id}

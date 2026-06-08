@@ -106,6 +106,27 @@ export const BRAND_EVENT_SEEK_CRITERIA = {
     cities: ['CABA', 'Chacarita', 'Palermo'],
     format: ['Presencial', 'Activación con artistas'],
   },
+  'brand-015': {
+    eventTypes: ['Lanzamientos VIP', 'Fiestas privadas', 'Eventos lifestyle', 'Rooftops'],
+    audience: ['Público premium', 'Comunidad lifestyle'],
+    ageRange: ['21–40 años'],
+    cities: ['CABA', 'Palermo', 'Puerto Madero'],
+    format: ['Presencial', 'Barra de bebidas'],
+  },
+  'brand-016': {
+    eventTypes: ['Lanzamientos exclusivos', 'Eventos premium', 'Activaciones culturales'],
+    audience: ['Público VIP', 'Early adopters'],
+    ageRange: ['25–45 años'],
+    cities: ['CABA', 'Puerto Madero', 'Recoleta'],
+    format: ['Presencial', 'Cocktail / VIP'],
+  },
+  'brand-017': {
+    eventTypes: ['Cocktails en terraza', 'Eventos nocturnos', 'Lanzamientos lifestyle'],
+    audience: ['Público 25–40', 'Asistentes premium'],
+    ageRange: ['25–40 años'],
+    cities: ['CABA', 'Puerto Madero', 'Palermo'],
+    format: ['Presencial', 'Barra premium'],
+  },
 }
 
 /** Criterios por defecto si la marca no tiene pack propio */

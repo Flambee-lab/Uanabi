@@ -8,6 +8,7 @@
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
   --color-border-subtle: #eef0f2;
+  --color-navbar-border: #dddddd;
   --color-match: #f4f6e9;
   --color-match-foreground: #1d230d;
   --color-selection: var(--selection-surface);
@@ -145,8 +146,8 @@ body {
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  /* Base ~16px → rounded-2xl en botones/cards Uanabi */
-  --radius: 1rem;
+  /* Base ~10.4px (35% menos que 1rem) — cajas más rectas, pills siguen en rounded-full */
+  --radius: 0.65rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -252,6 +253,25 @@ body {
   .uanabi-panel {
     @apply rounded-2xl border border-border-subtle bg-card shadow-sm;
   }
+  /*
+   * Catálogo de marcas — flex centrado, ancho fijo por card (~288px).
+   * Sin flex-grow: filas incompletas no estiran; cada línea queda centrada.
+   */
+  .uanabi-brand-grid {
+    --brand-card-min: 17rem;
+    --brand-card-size: 18rem;
+    --brand-card-max: 19rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3rem 2rem;
+  }
+  .uanabi-brand-grid > * {
+    flex: 0 0 var(--brand-card-size);
+    width: var(--brand-card-size);
+    max-width: min(100%, var(--brand-card-max));
+    min-width: min(100%, var(--brand-card-min));
+  }
   .uanabi-card-hover {
     @apply shadow-none transition-opacity duration-200 hover:shadow-none;
   }
@@ -300,7 +320,7 @@ body {
 
   /* Barra principal de la app */
   .uanabi-navbar {
-    @apply grid h-14 shrink-0 grid-cols-[1fr_auto_1fr] items-center border-b border-border-subtle bg-background px-4 sm:px-6;
+    @apply grid h-14 shrink-0 grid-cols-[1fr_auto_1fr] items-center border-b border-navbar-border bg-background px-4 sm:px-6;
   }
   .uanabi-navbar-start {
     @apply flex min-w-0 items-center justify-start;
@@ -330,9 +350,42 @@ body {
     @apply relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-subtle bg-card text-muted-foreground transition-colors duration-150 hover:bg-selection hover:text-foreground;
   }
   .uanabi-navbar-user-trigger {
-    @apply flex max-w-[11rem] items-center gap-2 rounded-full border border-transparent py-0.5 pl-0.5 pr-2 transition-colors duration-150 hover:border-border-subtle hover:bg-selection/80 sm:max-w-[12.5rem] sm:pr-2.5;
+    @apply flex shrink-0 items-center gap-0.5 rounded-full border border-transparent py-0.5 pl-0.5 pr-1.5 transition-colors duration-150 hover:border-border-subtle hover:bg-selection/80;
   }
   .uanabi-navbar-user-trigger[aria-expanded='true'] {
     @apply border-border-subtle bg-selection;
+  }
+
+  /* Borde de contenedores en patrocinio (mismo gris que la barra de navegación) */
+  .uanabi-sponsor-stroke {
+    @apply border border-navbar-border;
+  }
+
+  /* Selector segmentado (tabs en grilla, pill activo) */
+  .uanabi-segmented-control {
+    @apply grid w-full grid-cols-2 gap-1 rounded-lg border border-neutral-200 bg-neutral-100 p-1;
+  }
+  .uanabi-segmented-control-tab {
+    @apply flex min-h-10 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors duration-150 hover:text-foreground;
+  }
+  .uanabi-segmented-control-tab-active {
+    @apply bg-white text-foreground shadow-sm;
+  }
+
+  /* Timeline vertical de marcas invitadas */
+  .uanabi-invite-timeline-marker {
+    @apply transition-colors duration-200;
+  }
+  .uanabi-invite-timeline-marker-future {
+    @apply bg-neutral-200;
+  }
+  .uanabi-invite-timeline-marker-done {
+    @apply bg-foreground/20;
+  }
+  .uanabi-invite-timeline-marker-active {
+    @apply bg-foreground;
+  }
+  .uanabi-invite-timeline-marker-declined {
+    @apply bg-muted-foreground/35;
   }
 }
