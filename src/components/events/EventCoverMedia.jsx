@@ -35,7 +35,7 @@ export default function EventCoverMedia({
     return (
       <div
         className={cn(
-          'relative overflow-hidden bg-muted',
+          'relative overflow-hidden bg-neutral-100',
           isHero && 'aspect-[2.2/1] max-h-52 w-full sm:max-h-56',
           isBrandHero && 'h-full w-full',
           isThumb && 'h-14 w-[4.75rem] shrink-0 rounded-lg',
@@ -45,7 +45,7 @@ export default function EventCoverMedia({
         <img
           src={event.coverImage}
           alt=""
-          className="h-full w-full object-cover"
+          className="absolute inset-0 block h-full w-full object-cover object-center"
         />
         {(isHero || isBrandHero) && (
           <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />

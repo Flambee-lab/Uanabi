@@ -9,6 +9,30 @@ export function FieldLabel({ className, children, htmlFor, ...props }) {
   )
 }
 
+export function FormField({
+  id,
+  label,
+  hint,
+  error,
+  required = false,
+  className,
+  children,
+}) {
+  return (
+    <div className={cn('space-y-2', className)}>
+      {label && (
+        <FieldLabel htmlFor={id} className="mb-0">
+          {label}
+          {required && <span className="text-destructive"> *</span>}
+        </FieldLabel>
+      )}
+      {hint && <p className="type-small -mt-0.5 text-muted-foreground">{hint}</p>}
+      {children}
+      {error && <p className="type-small font-medium text-destructive">{error}</p>}
+    </div>
+  )
+}
+
 export function FieldInput({ className, ...props }) {
   return (
     <Input

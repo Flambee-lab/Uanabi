@@ -28,6 +28,8 @@ function initDraft(profile) {
     whatsapp: profile.whatsapp ?? '',
     instagram: profile.instagram ?? '',
     tiktok: profile.tiktok ?? '',
+    twitter: profile.twitter ?? '',
+    facebook: profile.facebook ?? '',
     socialMetrics: {
       totalFollowers: profile.socialMetrics?.totalFollowers ?? '',
       engagementPercent: profile.socialMetrics?.engagementPercent ?? '',
@@ -36,7 +38,7 @@ function initDraft(profile) {
   }
 }
 
-export default function ProfileEditView({ profile, onSave, onPreview, onReopenWizard }) {
+export default function ProfileEditView({ profile, onSave, onBack }) {
   const [draft, setDraft] = useState(() => initDraft(profile))
   const [activeTab, setActiveTab] = useState(PROFILE_EDIT_SECTIONS[0].id)
   const sectionRefs = useRef({})
@@ -96,11 +98,6 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
     onSave?.(persistDraft())
   }
 
-  const handlePreview = () => {
-    onSave?.(persistDraft())
-    onPreview?.()
-  }
-
   const displayInitial = getProfileInitial({ ...profile, fullName: draft.fullName })
 
   return (
@@ -108,38 +105,31 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
       <div className="border-b border-border-subtle bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-10">
           <div>
-            <p className="text-xs font-medium text-muted-foreground">
-              <span className="text-muted-foreground">Home</span>
-              <span className="mx-1.5 text-neutral-300">›</span>
-              <span className="text-muted-foreground">Edit Profile</span>
-            </p>
+            <button
+              type="button"
+              onClick={onBack}
+              className="text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+            >
+              ← Volver al perfil
+            </button>
             <h1 className="mt-2 font-display text-2xl font-black tracking-tight text-foreground sm:text-3xl">
-              Edit Profile
+              Editar perfil
             </h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            {onReopenWizard && (
-              <button
-                type="button"
-                onClick={onReopenWizard}
-                className="text-xs font-semibold text-muted-foreground hover:text-foreground/80"
-              >
-                Wizard guiado
-              </button>
-            )}
             <button
               type="button"
-              onClick={handlePreview}
+              onClick={onBack}
               className="rounded-xl border border-border bg-white px-5 py-2.5 text-xs font-bold text-foreground transition hover:border-border"
             >
-              Preview Public Profile
+              Cancelar
             </button>
             <button
               type="button"
               onClick={handleSave}
               className="rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-white transition hover:bg-primary/90"
             >
-              Guardar cambios
+              Guardar y volver
             </button>
           </div>
         </div>
@@ -292,6 +282,22 @@ export default function ProfileEditView({ profile, onSave, onPreview, onReopenWi
                   value={draft.tiktok}
                   onChange={(e) => update({ tiktok: e.target.value })}
                   placeholder="@usuario o URL completa"
+                />
+              </ProfileField>
+              <ProfileField label="X (Twitter)">
+                <input
+                  className={profileEditInputClass}
+                  value={draft.twitter}
+                  onChange={(e) => update({ twitter: e.target.value })}
+                  placeholder="@usuario o URL completa"
+                />
+              </ProfileField>
+              <ProfileField label="Facebook">
+                <input
+                  className={profileEditInputClass}
+                  value={draft.facebook}
+                  onChange={(e) => update({ facebook: e.target.value })}
+                  placeholder="Página o perfil"
                 />
               </ProfileField>
               <div className="grid gap-6 sm:grid-cols-2">

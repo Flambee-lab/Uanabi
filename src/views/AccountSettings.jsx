@@ -47,6 +47,7 @@ export default function AccountSettings({
   settings: initialSettings = DEFAULT_ACCOUNT_SETTINGS,
   onSave,
   onDeleteAccount,
+  onRestartOnboarding,
 }) {
   const [settings, setSettings] = useState(initialSettings)
   const [passwords, setPasswords] = useState({
@@ -215,6 +216,18 @@ export default function AccountSettings({
             Guardar cambios
           </Button>
         </div>
+
+        {onRestartOnboarding && (
+          <section className="border-t border-border-subtle pt-6">
+            <h2 className="type-heading mb-2">Desarrollo</h2>
+            <p className="type-small mb-4">
+              Reiniciá el registro para volver a recorrer la bienvenida y los pasos del perfil.
+            </p>
+            <Button type="button" variant="outline" size="sm" onClick={onRestartOnboarding}>
+              Reiniciar onboarding
+            </Button>
+          </section>
+        )}
 
         <section className="border-t border-border-subtle pt-6">
           <h2 className="type-heading mb-2 text-destructive">Zona de peligro</h2>

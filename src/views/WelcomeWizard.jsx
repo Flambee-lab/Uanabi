@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowRight, Calendar, Compass, Sparkles } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 const TOTAL_STEPS = 3
 
@@ -20,7 +21,7 @@ const STEPS = [
     icon: Calendar,
     title: 'Gestioná tus eventos',
     body: 'En Mis Eventos organizás invitaciones, sponsors recomendados y el seguimiento post-evento desde un solo lugar.',
-    tip: 'Creá tu primer evento cuando quieras — no hace falta hacerlo ahora.',
+    tip: 'A continuación vas a armar tu perfil de Host. Es obligatorio, pero lleva solo unos minutos.',
   },
 ]
 
@@ -30,8 +31,8 @@ function ProgressBar({ step }) {
       {Array.from({ length: TOTAL_STEPS }, (_, i) => (
         <span
           key={i}
-          className={`h-1.5 w-16 rounded-full transition-colors duration-300 ${
-            i < step ? 'bg-neutral-900' : 'bg-neutral-200'
+          className={`h-1 w-12 rounded-full transition-colors duration-300 ${
+            i < step ? 'bg-primary' : 'bg-border'
           }`}
         />
       ))}
@@ -63,55 +64,49 @@ export default function WelcomeWizard({ onFinish, userName, isGuest = false }) {
       : 'Hola'
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto bg-white">
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-8 py-16">
+    <div className="flex h-full flex-col overflow-hidden bg-background">
+      <div className="mx-auto flex h-full w-full max-w-3xl flex-col justify-center px-6 py-6 sm:px-8">
         <ProgressBar step={step} />
 
-        <div className="mt-14">
-          <div className="flex items-start justify-between gap-4">
-            <p className="text-xs font-semibold text-neutral-400">{greeting}</p>
+        <div className="mt-8 flex min-h-0 flex-1 flex-col justify-center">
+          <div className="flex shrink-0 items-center justify-between gap-4">
+            <p className="text-xs font-semibold text-muted-foreground">{greeting}</p>
             <button
               type="button"
               onClick={finish}
-              className="text-xs font-semibold text-neutral-400 hover:text-neutral-900"
+              className="text-xs font-semibold text-muted-foreground hover:text-foreground"
             >
               [ Saltar introducción ]
             </button>
           </div>
 
-          <div className="mt-10 flex flex-col items-center text-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-50 text-neutral-900">
-              <Icon className="h-7 w-7" strokeWidth={1.5} />
+          <div className="mt-6 flex flex-col items-center text-center">
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-foreground">
+              <Icon className="h-6 w-6" strokeWidth={1.5} />
             </span>
-            <h1 className="mt-8 font-display text-3xl font-black tracking-tight text-neutral-900 sm:text-4xl">
+            <h1 className="mt-5 font-display text-2xl font-black tracking-tight text-foreground sm:text-3xl">
               {current.title}
             </h1>
-            <p className="mt-4 max-w-lg text-sm leading-relaxed text-neutral-500">{current.body}</p>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+              {current.body}
+            </p>
           </div>
 
-          <aside className="mx-auto mt-10 max-w-md rounded-2xl border border-neutral-100 bg-neutral-50 px-6 py-4 text-center">
-            <p className="text-xs leading-relaxed text-neutral-500">{current.tip}</p>
+          <aside className="mx-auto mt-6 max-w-md rounded-2xl border border-border-subtle bg-secondary/50 px-5 py-3 text-center">
+            <p className="text-xs leading-relaxed text-muted-foreground">{current.tip}</p>
           </aside>
 
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4 border-t border-neutral-100 pt-8">
-            <button
-              type="button"
-              onClick={handleSkipStep}
-              className="text-xs font-semibold text-neutral-400 hover:text-neutral-900"
-            >
+          <div className="mt-8 flex shrink-0 flex-wrap items-center justify-center gap-3 border-t border-border-subtle pt-6">
+            <Button type="button" variant="ghost" size="sm" onClick={handleSkipStep}>
               Omitir paso
-            </button>
-            <button
-              type="button"
-              onClick={handleNext}
-              className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-8 py-3.5 text-sm font-bold text-white hover:bg-neutral-800"
-            >
-              {step < TOTAL_STEPS ? 'Siguiente paso' : 'Ir al inicio'}
-              <ArrowRight className="h-4 w-4" strokeWidth={2} />
-            </button>
+            </Button>
+            <Button type="button" size="lg" onClick={handleNext}>
+              {step < TOTAL_STEPS ? 'Siguiente paso' : 'Crear mi perfil'}
+              <ArrowRight data-icon="inline-end" className="h-4 w-4" strokeWidth={2} />
+            </Button>
           </div>
 
-          <p className="mt-6 text-center text-[11px] text-neutral-400">
+          <p className="mt-4 shrink-0 text-center text-[11px] text-muted-foreground">
             Paso {step} de {TOTAL_STEPS} — Nada de esto es obligatorio.
           </p>
         </div>

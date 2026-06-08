@@ -1,7 +1,7 @@
 import { Minus, Plus } from 'lucide-react'
 import { HOST_IDENTITY_TAGS } from '../../data/hostProfile'
 
-export default function IdentityTagPills({ selected = [], onChange }) {
+export default function IdentityTagPills({ selected = [], onChange, compact = false }) {
   const toggle = (tag) => {
     if (selected.includes(tag)) {
       onChange(selected.filter((t) => t !== tag))
@@ -19,7 +19,9 @@ export default function IdentityTagPills({ selected = [], onChange }) {
             key={tag}
             type="button"
             onClick={() => toggle(tag)}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-semibold transition ${
+            className={`inline-flex items-center gap-1.5 rounded-full border font-semibold transition ${
+              compact ? 'px-2.5 py-1.5 text-[11px]' : 'px-3.5 py-2 text-xs'
+            } ${
               active
                 ? 'border-primary bg-primary text-white'
                 : 'border-border bg-white text-foreground hover:border-muted-foreground/40'
