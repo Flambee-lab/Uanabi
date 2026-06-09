@@ -289,6 +289,27 @@ body {
   .uanabi-search-bar-open {
     @apply border-foreground/15 shadow-[0_8px_28px_rgba(0,0,0,0.12)];
   }
+  .uanabi-search-bar-compact {
+    @apply h-11 shadow-[0_2px_12px_rgba(0,0,0,0.08)];
+  }
+  .uanabi-search-bar-compact .uanabi-search-segment-label {
+    @apply sr-only;
+  }
+  .uanabi-search-bar-compact .uanabi-search-segment-value {
+    @apply mt-0 text-xs font-semibold;
+  }
+  .uanabi-search-bar-compact .uanabi-search-segment {
+    @apply px-3 py-1.5 sm:px-3.5;
+  }
+  .uanabi-navbar-search-dock {
+    @apply pointer-events-none absolute top-1/2 left-1/2 z-20 w-full max-w-4xl px-6 sm:px-10;
+  }
+  .uanabi-navbar-search-dock-active {
+    @apply pointer-events-auto;
+  }
+  .uanabi-navbar-docked {
+    @apply shadow-[0_2px_12px_rgba(0,0,0,0.06)];
+  }
   .uanabi-search-segment {
     @apply flex flex-col justify-center bg-transparent text-left transition-colors duration-150 hover:bg-selection;
   }
@@ -320,7 +341,7 @@ body {
 
   /* Barra principal de la app */
   .uanabi-navbar {
-    @apply grid h-14 shrink-0 grid-cols-[1fr_auto_1fr] items-center border-b border-navbar-border bg-background px-4 sm:px-6;
+    @apply relative grid h-14 shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center border-b border-navbar-border bg-background px-4 sm:px-6;
   }
   .uanabi-navbar-start {
     @apply flex min-w-0 items-center justify-start;

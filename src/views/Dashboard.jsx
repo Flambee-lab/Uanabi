@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import ExploreSearchCapsule from '../components/explore/ExploreSearchCapsule'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthProvider'
 import AppNavbar from '../components/layout/AppNavbar'
@@ -57,6 +58,16 @@ export default function Dashboard({
   const [proposalModal, setProposalModal] = useState(null)
   const [toast, setToast] = useState(null)
   const [accountSettings, setAccountSettings] = useState(DEFAULT_ACCOUNT_SETTINGS)
+  const [exploreSearchQuery, setExploreSearchQuery] = useState('')
+  const [exploreRubro, setExploreRubro] = useState(null)
+  const [exploreSearchDockProgress, setExploreSearchDockProgress] = useState(0)
+  const mainScrollRef = useRef(null)
+
+  useEffect(() => {
+    if (activeNav !== 'explore') {
+      setExploreSearchDockProgress(0)
+    }
+  }, [activeNav])
 
   useEffect(() => {
     if (!isAuthenticated || !user) return
@@ -262,6 +273,22 @@ export default function Dashboard({
           onNotificationClick={handleNotificationClick}
           hostProfile={hostProfile}
           isGuest={isGuest}
+          exploreSearchDocked={
+            activeNav === 'explore'
+              ? {
+                  progress: exploreSearchDockProgress,
+                  search: (
+                    <ExploreSearchCapsule
+                      variant="compact"
+                      searchQuery={exploreSearchQuery}
+                      onSearchChange={setExploreSearchQuery}
+                      selectedRubro={exploreRubro}
+                      onSelectRubro={setExploreRubro}
+                    />
+                  ),
+                }
+              : null
+          }
           onUserMenuAction={(action) => {
             if (action === 'profile-settings') handleNavChange('settings')
             else if (action === 'event-manager') handleNavChange('matches')
@@ -272,6 +299,7 @@ export default function Dashboard({
       )}
 
       <main
+        ref={mainScrollRef}
         className={`flex min-h-0 flex-1 flex-col overflow-hidden bg-white ${
           mainScrolls ? 'overflow-y-auto' : ''
         }`}
@@ -281,6 +309,12 @@ export default function Dashboard({
             brands={brands}
             hostEvents={myEvents}
             onRequestPartnership={handleRequestPartnership}
+            scrollRootRef={mainScrollRef}
+            onSearchDockProgress={setExploreSearchDockProgress}
+            searchQuery={exploreSearchQuery}
+            onSearchChange={setExploreSearchQuery}
+            selectedRubro={exploreRubro}
+            onSelectRubro={setExploreRubro}
           />
         )}
 

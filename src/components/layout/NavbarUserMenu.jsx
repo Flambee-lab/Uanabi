@@ -1,15 +1,15 @@
 ﻿import { useEffect, useRef, useState } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { getProfileDisplayName, getProfileInitial } from '../../data/hostProfile'
+import { getProfileDisplayName } from '../../data/hostProfile'
 
 const MENU_SECTIONS = [
   [
-    { id: 'profile-settings', label: 'Configuraci├│n de perfil' },
+    { id: 'profile-settings', label: 'Configuración de perfil' },
     { id: 'event-manager', label: 'Mis eventos' },
     { id: 'privacy', label: 'Privacidad' },
   ],
-  [{ id: 'logout', label: 'Cerrar sesi├│n', danger: true }],
+  [{ id: 'logout', label: 'Cerrar sesión', danger: true }],
 ]
 
 export default function NavbarUserMenu({ profile, onMenuAction, isGuest = false }) {
@@ -17,8 +17,6 @@ export default function NavbarUserMenu({ profile, onMenuAction, isGuest = false 
   const rootRef = useRef(null)
 
   const fullName = isGuest ? 'Invitado' : getProfileDisplayName(profile)
-  const role = isGuest ? 'Sin cuenta' : (profile?.role ?? 'Host')
-  const initial = isGuest ? '?' : getProfileInitial(profile)
 
   useEffect(() => {
     if (!open) return
@@ -49,34 +47,18 @@ export default function NavbarUserMenu({ profile, onMenuAction, isGuest = false 
         className="uanabi-navbar-user-trigger"
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-label={`Configuración — ${fullName}`}
       >
-        {!isGuest && profile?.avatarUrl ? (
-          <img
-            src={profile.avatarUrl}
-            alt=""
-            className="h-8 w-8 shrink-0 rounded-full object-cover ring-2 ring-background"
-          />
-        ) : (
-          <span
-            className={cn(
-              'flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-display text-xs font-bold',
-              isGuest
-                ? 'bg-neutral-300 text-neutral-700'
-                : 'bg-primary text-primary-foreground',
-            )}
-          >
-            {initial}
-          </span>
-        )}
-        <span className="hidden min-w-0 truncate text-left md:block">
-          <span className="block truncate text-xs font-bold text-foreground">{fullName}</span>
-          <span className="block truncate type-small font-medium text-muted-foreground">
-            {role}
-          </span>
+        <span className="uanabi-navbar-icon-btn pointer-events-none" aria-hidden>
+          <Settings className="h-4 w-4" strokeWidth={1.75} />
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-muted-foreground transition ${open ? 'rotate-180' : ''}`}
+          className={cn(
+            'h-4 w-4 shrink-0 text-muted-foreground transition-transform',
+            open && 'rotate-180',
+          )}
           strokeWidth={2}
+          aria-hidden
         />
       </button>
 

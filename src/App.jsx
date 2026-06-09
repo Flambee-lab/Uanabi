@@ -10,6 +10,8 @@ import LoginPage from './app/auth/login/page'
 import SignupPage from './app/auth/signup/page'
 import Dashboard from './views/Dashboard'
 import HostRegistrationWizard from './views/HostRegistrationWizard'
+import EventBrandPreviewView from './views/EventBrandPreviewView'
+import { getEventPreviewIdFromUrl } from './utils/eventBrandPreview'
 
 function SupabaseSetupNotice() {
   const handleDevMode = () => {
@@ -176,10 +178,14 @@ function ProtectedRoutes() {
   }, [isReady, session, location.search, restartOnboarding, navigate])
 
   if (!isReady) {
-    return <div className="h-full bg-white" aria-hidden />
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#fafafa]">
+        <p className="text-sm text-neutral-500">Cargando…</p>
+      </div>
+    )
   }
 
-  if (!isSupabaseConfigured && !isDevAuth) {
+  if (!isSupabaseConfigured && !isDevAuth && !import.meta.env.DEV) {
     return <SupabaseSetupNotice />
   }
 

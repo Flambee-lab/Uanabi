@@ -27,9 +27,17 @@ export default function AppNavbar({
   hostProfile,
   onUserMenuAction,
   isGuest = false,
+  exploreSearchDocked = null,
 }) {
+  const dockProgress =
+    activeNav === 'explore' && exploreSearchDocked ? exploreSearchDocked.progress : 0
+  const dockedSearch = activeNav === 'explore' ? exploreSearchDocked?.search : null
+  const navHidden = dockProgress > 0.55
+
   return (
-    <header className="uanabi-navbar">
+    <header
+      className={cn('uanabi-navbar', dockProgress > 0.85 && 'uanabi-navbar-docked')}
+    >
       <div className="uanabi-navbar-start">
         <button
           type="button"
@@ -41,7 +49,17 @@ export default function AppNavbar({
       </div>
 
       <nav className="uanabi-navbar-center" aria-label="Navegación principal">
-        <div className="uanabi-nav-rail">
+        <div
+          className={cn(
+            'uanabi-nav-rail transition-[opacity,transform] duration-200 ease-out',
+            navHidden && 'pointer-events-none',
+          )}
+          style={{
+            opacity: 1 - Math.min(dockProgress * 1.15, 1),
+            transform: `scale(${1 - dockProgress * 0.04})`,
+          }}
+          aria-hidden={navHidden}
+        >
           {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
             const isActive = activeNav === id
 
@@ -51,6 +69,7 @@ export default function AppNavbar({
                 type="button"
                 onClick={() => onNavChange(id)}
                 aria-current={isActive ? 'page' : undefined}
+                tabIndex={navHidden ? -1 : undefined}
                 className={cn('uanabi-nav-item', isActive && 'uanabi-nav-item-active')}
               >
                 <Icon
@@ -66,7 +85,23 @@ export default function AppNavbar({
             )
           })}
         </div>
+
       </nav>
+
+      {dockedSearch && (
+        <div
+          className={cn(
+            'uanabi-navbar-search-dock',
+            dockProgress > 0.35 && 'uanabi-navbar-search-dock-active',
+          )}
+          style={{
+            opacity: dockProgress,
+            transform: `translate(-50%, -50%) scale(${0.94 + dockProgress * 0.06})`,
+          }}
+        >
+          {dockedSearch}
+        </div>
+      )}
 
       <div className="uanabi-navbar-actions">
         <NotificationsCenter

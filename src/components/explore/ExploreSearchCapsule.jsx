@@ -54,7 +54,10 @@ export default function ExploreSearchCapsule({
   onSearchChange,
   selectedRubro,
   onSelectRubro,
+  variant = 'hero',
+  className,
 }) {
+  const isCompact = variant === 'compact'
   const rootRef = useRef(null)
   const [locationOpen, setLocationOpen] = useState(false)
   const [categoryOpen, setCategoryOpen] = useState(false)
@@ -94,10 +97,14 @@ export default function ExploreSearchCapsule({
   }
 
   return (
-    <div ref={rootRef} className="relative mx-auto w-full max-w-4xl">
+    <div
+      ref={rootRef}
+      className={cn('relative mx-auto w-full', isCompact ? 'max-w-none' : 'max-w-4xl', className)}
+    >
       <div
         className={cn(
-          'uanabi-search-bar h-[4.25rem] hover:shadow-[0_8px_28px_rgba(0,0,0,0.1)]',
+          'uanabi-search-bar hover:shadow-[0_8px_28px_rgba(0,0,0,0.1)]',
+          isCompact ? 'uanabi-search-bar-compact' : 'h-[4.25rem]',
           panelOpen && 'uanabi-search-bar-open',
         )}
       >
@@ -105,7 +112,10 @@ export default function ExploreSearchCapsule({
         <div className="relative shrink-0">
           <SearchSegment
             active={locationOpen}
-            className="uanabi-search-segment-first min-w-[6.5rem] sm:min-w-[9.5rem]"
+            className={cn(
+              'uanabi-search-segment-first',
+              isCompact ? 'min-w-[5.5rem] sm:min-w-[6.5rem]' : 'min-w-[6.5rem] sm:min-w-[9.5rem]',
+            )}
             onClick={() => {
               setLocationOpen((o) => !o)
               setCategoryOpen(false)
@@ -169,7 +179,12 @@ export default function ExploreSearchCapsule({
         <div className="my-3 w-px shrink-0 bg-border" aria-hidden />
 
         {/* Categoría */}
-        <div className="relative min-w-0 shrink-0 sm:min-w-[8.5rem]">
+        <div
+          className={cn(
+            'relative min-w-0 shrink-0',
+            isCompact ? 'sm:min-w-[6.5rem]' : 'sm:min-w-[8.5rem]',
+          )}
+        >
           <SearchSegment
             active={categoryOpen}
             className="w-full min-w-[5.5rem]"
@@ -278,11 +293,14 @@ export default function ExploreSearchCapsule({
           />
         </label>
 
-        <div className="flex shrink-0 items-center pr-2 sm:pr-3">
+        <div className={cn('flex shrink-0 items-center', isCompact ? 'pr-1.5' : 'pr-2 sm:pr-3')}>
           <Button
             type="button"
             size="icon"
-            className="h-11 w-11 shrink-0 rounded-full shadow-sm"
+            className={cn(
+              'shrink-0 rounded-full shadow-sm',
+              isCompact ? 'h-8 w-8' : 'h-11 w-11',
+            )}
             aria-label="Buscar marcas"
             onClick={() => document.getElementById('explore-brand-search')?.focus()}
           >

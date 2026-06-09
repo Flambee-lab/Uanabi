@@ -13,6 +13,7 @@ import {
 } from '../data/auth'
 import {
   createFreshHostProfile,
+  markOnboardingSkipped,
   resetOnboardingFlow,
 } from '../data/appSession'
 import {
@@ -27,6 +28,7 @@ import {
 } from '../lib/profiles'
 import {
   disableDevAuth,
+  enableDevAuth,
   getAuthRedirectUrl,
   isDevAuthEnabled,
   isSupabaseConfigured,
@@ -36,6 +38,7 @@ import {
 const AuthContext = createContext(null)
 
 const DEV_SESSION_KEY = 'onbrand_dev_session'
+const DEV_AUTO_DASHBOARD = import.meta.env.DEV
 
 function mapSupabaseUser(user) {
   if (!user) return null
@@ -87,8 +90,32 @@ function createDevMockSession({ email, provider = AUTH_PROVIDERS.EMAIL, fullName
   }
 }
 
+function ensureDevDemoSession() {
+  let devSession = loadDevSession()
+  if (!devSession) {
+    devSession = createDevMockSession({
+      email: DEFAULT_AUTH_USER.email,
+      provider: DEFAULT_AUTH_USER.provider,
+      fullName: DEFAULT_AUTH_USER.fullName,
+    })
+    saveDevSession(devSession)
+    markOnboardingSkipped()
+    const stored = loadStoredHostProfile()
+    if (!stored?.isConfigured) {
+      saveStoredHostProfile({ ...DEFAULT_HOST_PROFILE, isConfigured: true })
+    }
+  }
+  return devSession
+}
+
 export function AuthProvider({ children }) {
-  const [isDevAuth, setIsDevAuth] = useState(() => isDevAuthEnabled())
+  const [isDevAuth, setIsDevAuth] = useState(() => {
+    if (DEV_AUTO_DASHBOARD && !isSupabaseConfigured) {
+      enableDevAuth()
+      return true
+    }
+    return isDevAuthEnabled()
+  })
   const [session, setSession] = useState(null)
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
@@ -130,7 +157,15 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (useMockAuth) {
-      const devSession = loadDevSession()
+      const devSession =
+        DEV_AUTO_DASHBOARD ? ensureDevDemoSession() : loadDevSession()
+      if (DEV_AUTO_DASHBOARD) {
+        markOnboardingSkipped()
+        const stored = loadStoredHostProfile()
+        if (!stored?.isConfigured) {
+          saveStoredHostProfile({ ...DEFAULT_HOST_PROFILE, isConfigured: true })
+        }
+      }
       setSession(devSession)
       setUser(devSession?.user ?? null)
       if (devSession?.user?.id) {
