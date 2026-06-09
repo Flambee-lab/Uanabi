@@ -28,7 +28,6 @@ export default function AppNavbar({
   onUserMenuAction,
   isGuest = false,
   exploreSearchDocked = null,
-  glowBackdrop = false,
 }) {
   const dockProgress =
     activeNav === 'explore' && exploreSearchDocked ? exploreSearchDocked.progress : 0
@@ -37,11 +36,7 @@ export default function AppNavbar({
 
   return (
     <header
-      className={cn(
-        'uanabi-navbar',
-        glowBackdrop && 'uanabi-navbar-glow',
-        dockProgress > 0.85 && 'uanabi-navbar-docked',
-      )}
+      className={cn('uanabi-navbar', dockProgress > 0.85 && 'uanabi-navbar-docked')}
     >
       <div className="uanabi-navbar-start">
         <button

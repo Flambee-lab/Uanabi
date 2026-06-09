@@ -1,0 +1,43 @@
+---
+description: Contexto de producto Uanabi — actores, superficies, flujos y estado del MVP
+alwaysApply: true
+---
+
+# Uanabi — Contexto de producto
+
+**Documento completo:** `docs/PRODUCT.md`
+
+## Qué es
+
+Conecta **marcas (sponsors)** con **hosts de eventos** (presencial u online). Host pide **producto**; marca puede pedir **redes** a cambio o nada. **Solo CABA** por ahora.
+
+## Roadmap de superficies
+
+1. **App Host** (ahora) → 2. **Panel Marca** → 3. **Panel Admin** → 4. **Landing**
+
+## Actores y acceso
+
+- **Host:** signup abierto en plataforma
+- **Marca:** alta **solo por Uanabi** (verificación manual). Claim/solicitud futura, siempre con evaluación del equipo
+- **Visitante:** sin cuenta **solo en landing**; **no** en la plataforma logueada
+- **Admin:** operaciones + logística (hoy manual por WhatsApp)
+
+## Pipeline de solicitud
+
+**En espera → Aprobado ó Rechazado**. Contraofertas hoy **offline** (equipo media). Si aprueba: Uanabi coordina entrega (WhatsApp hoy; warehouse/logística propia a futuro).
+
+## Link personal de marca
+
+Todos lo usan: “¿Tenés evento?” → datos del evento → **signup host** → solicitud a marca (ya tiene cuenta Uanabi).
+
+## Negocio
+
+Marcas: **1 año gratis**, después **fee anual**. Prioridad inicial: muchas marcas.
+
+## Código hoy
+
+React + Vite + Tailwind. **Todo demo** en datos de negocio (`src/data/`). Supabase auth/perfiles en wiring; **nada en prod aún**. No asumir estados extra del mock como pipeline oficial sin confirmar.
+
+## Terminología UI
+
+Copy actual: **“marcas”** (nombre final del concepto en catálogo TBD).

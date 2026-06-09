@@ -213,29 +213,6 @@ body {
   .uanabi-page {
     @apply min-h-full bg-background;
   }
-  /* Glow circular amarillo–rosa solo en el tope de Marcas (corte limpio; abajo blanco) */
-  .uanabi-explore-top-glow {
-    position: absolute;
-    top: -3rem;
-    left: 50%;
-    z-index: 1;
-    width: min(108vw, 54rem);
-    height: 28rem;
-    transform: translateX(-50%);
-    pointer-events: none;
-    background: radial-gradient(
-      circle at 50% 18%,
-      rgba(255, 247, 214, 0.52) 0%,
-      rgba(255, 232, 241, 0.34) 42%,
-      rgba(255, 255, 255, 0) 72%
-    );
-  }
-  .uanabi-page--glow {
-    @apply bg-transparent;
-  }
-  .uanabi-page--glow .uanabi-page-hero {
-    @apply border-border-subtle/30 bg-transparent;
-  }
   .uanabi-page-hero {
     @apply relative z-10 border-b border-border-subtle bg-background px-6 py-10 sm:px-10 sm:py-12;
   }
@@ -365,9 +342,6 @@ body {
   /* Barra principal de la app */
   .uanabi-navbar {
     @apply relative z-30 grid h-14 shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center border-b border-navbar-border bg-background px-4 sm:px-6;
-  }
-  .uanabi-navbar-glow {
-    @apply border-navbar-border/50 bg-background/70 backdrop-blur-[10px];
   }
   .uanabi-navbar-start {
     @apply flex min-w-0 items-center justify-start;

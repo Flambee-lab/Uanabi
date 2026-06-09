@@ -1,6 +1,8 @@
 # Uanabi
 
-Plataforma MVP para creadores de eventos (Hosts): explorar Uanabis, gestionar eventos estilo Luma e invitar sponsors.
+Plataforma que conecta marcas (sponsors) con hosts de eventos. El MVP actual es la **app Host**: explorar marcas, gestionar eventos e invitar sponsors.
+
+**Base de conocimiento del producto (todo el equipo):** [`docs/PRODUCT.md`](docs/PRODUCT.md)
 
 ## Stack
 
