@@ -256,7 +256,10 @@ export default function Dashboard({
   const showGuestBanner = isGuest && !guestBannerDismissed && !isCreateEventOpen
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-[#fafafa]">
+    <div className="relative flex h-full flex-col overflow-hidden bg-background">
+      {!isCreateEventOpen && activeNav === 'explore' && (
+        <div className="uanabi-explore-top-glow" aria-hidden />
+      )}
       {showGuestBanner && (
         <GuestBanner onLogin={handleRequestLogin} onDismiss={dismissGuestBanner} />
       )}
@@ -264,6 +267,7 @@ export default function Dashboard({
       {!isCreateEventOpen && (
         <AppNavbar
           activeNav={activeNav}
+          glowBackdrop={activeNav === 'explore'}
           onNavChange={handleNavChange}
           notifications={notifications}
           notificationsOpen={notificationsOpen}
