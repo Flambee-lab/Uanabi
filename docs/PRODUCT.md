@@ -184,7 +184,7 @@ Hosts: sin detalle de monetización definido en esta conversación.
 
 **Datos:** mocks en `src/data/`. Supabase preparado para auth/perfiles de host; sin fuente de verdad de negocio en producción.
 
-**Deploy:** Vercel (`Flambee-lab/Uanabi`).
+**Deploy:** Vercel — producción en https://uanabi.vercel.app (`guilletorri-gmailcoms-projects/uanabi`). Detalle: [`docs/DEPLOY.md`](DEPLOY.md).
 
 ---
 
@@ -204,7 +204,8 @@ Hosts: sin detalle de monetización definido en esta conversación.
 
 ## Equipo y ramas
 
-- Repo: `Flambee-lab/Uanabi`
+- Repo: https://github.com/Flambee-lab/Uanabi
+- Producción: https://uanabi.vercel.app — ver [`docs/DEPLOY.md`](DEPLOY.md)
 - Integración principal en **`main`**
 - Guillermo: producto host, Mis Eventos, exploración de marcas
 - Mile: diseño, auth, onboarding, perfil público (integrado en `main`)

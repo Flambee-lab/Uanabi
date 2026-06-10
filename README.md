@@ -2,7 +2,10 @@
 
 Plataforma que conecta marcas (sponsors) con hosts de eventos. El MVP actual es la **app Host**: explorar marcas, gestionar eventos e invitar sponsors.
 
-**Base de conocimiento del producto (todo el equipo):** [`docs/PRODUCT.md`](docs/PRODUCT.md)
+**Documentación del equipo:**
+
+- Producto: [`docs/PRODUCT.md`](docs/PRODUCT.md)
+- Deploy / Vercel: [`docs/DEPLOY.md`](docs/DEPLOY.md)
 
 ## Stack
 
@@ -25,9 +28,8 @@ npm run build
 
 Salida en `dist/`.
 
-## Deploy en Vercel
+## Deploy
 
-Conectar el repo `Flambee-lab/Uanabi`. Vercel detecta Vite automáticamente (`vercel.json` incluido).
+**Producción:** https://uanabi.vercel.app
 
-- **Build command:** `npm run build`
-- **Output directory:** `dist`
+Detalle completo (proyecto Vercel, variables, `vercel link`): [`docs/DEPLOY.md`](docs/DEPLOY.md).
