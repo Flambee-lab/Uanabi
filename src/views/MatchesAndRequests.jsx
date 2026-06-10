@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+import SponsorshipCloseCaseModal from '../components/events/SponsorshipCloseCaseModal'
+import { useAuth } from '../context/AuthProvider'
+import { submitPatrocinioEvidencias } from '../lib/patrociniosEvidencias'
+import { isSupabaseConfigured } from '../lib/supabase'
 import {
   dismissInlineNotification,
   getDismissedInlineNotificationIds,
@@ -8,7 +12,7 @@ import {
   migrateLegacyApprovedBannerDismiss,
 } from '../utils/eventInlineNotifications'
 import { openEventBrandPreview } from '../utils/eventBrandPreview'
-import { isEventPast } from '../utils/sponsorshipLifecycle'
+import { isEventPast, SPONSORSHIP_STATUS } from '../utils/sponsorshipLifecycle'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { UANABI_PROFILE_CARD_CLASS, UanabiProfilePage } from '../components/layout/UanabiProfileLayout'
@@ -69,14 +73,16 @@ export default function MatchesAndRequests({
   onInvite,
   onOpenChat,
   onEventUpdate,
-  onCloseCaseForBrand,
+  onEventsChange,
   onNotificationsDismissed,
   onDeleteEventRequest,
   notifRevision = 0,
   hostProfile,
 }) {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('invited')
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const [closeCaseTarget, setCloseCaseTarget] = useState(null)
   const [dismissedNotifIds, setDismissedNotifIds] = useState(() => new Set())
   const isPastEvent = isEventPast(event)
 
@@ -124,6 +130,57 @@ export default function MatchesAndRequests({
     onNotificationsDismissed?.()
   }
 
+  const handleCloseCaseForBrand = (brandId) => {
+    const brand = invitedBrands.find((b) => b.id === brandId)
+    if (!brand || !event) return
+    setCloseCaseTarget({
+      eventId: event.id,
+      eventTitle: event.title,
+      brandId,
+      brandName: brand.name,
+    })
+  }
+
+  const handleCloseCaseSubmit = async (submission) => {
+    if (!closeCaseTarget) return
+
+    const { eventId, brandId } = closeCaseTarget
+
+    if (isSupabaseConfigured && user?.id) {
+      await submitPatrocinioEvidencias({
+        userId: user.id,
+        eventId,
+        brandId,
+        delivered: submission.delivered,
+        rating: submission.rating,
+        review: submission.review,
+        photoFiles: submission.photoFiles ?? [],
+      })
+    }
+
+    onEventsChange?.((prev) =>
+      prev.map((ev) => {
+        if (ev.id !== eventId) return ev
+        return {
+          ...ev,
+          invitedBrands: (ev.invitedBrands ?? []).map((inv) =>
+            inv.brandId === brandId
+              ? {
+                  ...inv,
+                  status: SPONSORSHIP_STATUS.EN_VERIFICACION,
+                  closureSubmission: submission,
+                }
+              : inv,
+          ),
+        }
+      }),
+    )
+  }
+
+  const handleExploreSimilarBrands = () => {
+    setActiveTab('recommended')
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
@@ -156,7 +213,8 @@ export default function MatchesAndRequests({
                   event={event}
                   unreadBrandNotifications={unreadBrandNotifications}
                   onAcknowledgeBrandNotification={handleAcknowledgeBrandNotification}
-                  onCloseCaseForBrand={onCloseCaseForBrand}
+                  onCloseCaseForBrand={handleCloseCaseForBrand}
+                  onExploreSimilarBrands={handleExploreSimilarBrands}
                 />
               </section>
             ) : (
@@ -196,6 +254,13 @@ export default function MatchesAndRequests({
         )}
       </UanabiProfilePage>
       </div>
+
+      <SponsorshipCloseCaseModal
+        isOpen={Boolean(closeCaseTarget)}
+        caseInfo={closeCaseTarget}
+        onClose={() => setCloseCaseTarget(null)}
+        onSubmit={handleCloseCaseSubmit}
+      />
     </div>
   )
 }

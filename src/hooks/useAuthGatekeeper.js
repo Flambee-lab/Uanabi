@@ -13,6 +13,8 @@ export function useAuthGatekeeper({ isReady, session, profile, profileLoading })
     if (!isReady) return
 
     const path = location.pathname
+    const search = new URLSearchParams(location.search)
+    const isSocialOAuthCallback = search.get('callback') === 'true'
     const isAuthPath = AUTH_PATHS.some((p) => path.startsWith(p))
     const isCallback = path === '/auth/callback'
 
@@ -41,12 +43,12 @@ export function useAuthGatekeeper({ isReady, session, profile, profileLoading })
     }
 
     if (path === '/') {
-      navigate('/dashboard', { replace: true })
+      navigate(profileComplete ? '/dashboard' : '/profile', { replace: true })
       return
     }
 
-    if (path === '/profile' && profileComplete) {
+    if (path === '/profile' && profileComplete && !isSocialOAuthCallback) {
       navigate('/dashboard', { replace: true })
     }
-  }, [isReady, session, profile, profileLoading, location.pathname, navigate])
+  }, [isReady, session, profile, profileLoading, location.pathname, location.search, navigate])
 }

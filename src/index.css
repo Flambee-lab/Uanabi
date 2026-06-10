@@ -32,6 +32,44 @@ body {
   font-family: var(--font-display);
 }
 
+@keyframes wizard-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--wizard-shift, 12px));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.wizard-step-enter {
+  animation: wizard-step-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.wizard-step-forward {
+  --wizard-shift: 16px;
+}
+
+.wizard-step-back {
+  --wizard-shift: -16px;
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.animate-toast-enter {
+  animation: toast-enter 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @keyframes modal-enter {
   from {
     opacity: 0;

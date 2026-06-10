@@ -1,9 +1,17 @@
 ﻿import { useCallback, useEffect, useRef } from 'react'
-import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
+import { buildCallbackRedirectPath } from './lib/authCallback'
 import { AuthProvider, useAuth } from './context/AuthProvider'
 import { useAuthGatekeeper } from './hooks/useAuthGatekeeper'
-import { markOnboardingSkipped } from './data/appSession'
-import { DEFAULT_HOST_PROFILE, seedProfileFromAuth } from './data/hostProfile'
+import { useSocialOAuthCallback } from './hooks/useSocialOAuthCallback'
+import { DEFAULT_HOST_PROFILE } from './data/hostProfile'
 import { enableDevAuth } from './lib/supabase'
 import AuthCallbackPage from './app/auth/callback/page'
 import LoginPage from './app/auth/login/page'
@@ -11,6 +19,7 @@ import SignupPage from './app/auth/signup/page'
 import Dashboard from './views/Dashboard'
 import HostRegistrationWizard from './views/HostRegistrationWizard'
 import EventBrandPreviewView from './views/EventBrandPreviewView'
+import { isProfileConfigured } from './lib/profiles'
 import { getEventPreviewIdFromUrl } from './utils/eventBrandPreview'
 
 function SupabaseSetupNotice() {
@@ -104,29 +113,18 @@ function OnboardingRoute() {
   const { user, profile, saveProfile } = useAuth()
 
   const handleComplete = useCallback(
-    async (nextProfile, options = {}) => {
-      const merged = seedProfileFromAuth(nextProfile, user)
-      await saveProfile(merged)
-      navigate(options.openCreateEvent ? '/dashboard?createEvent=1' : '/dashboard', {
-        replace: true,
-      })
+    async (nextProfile, { openCreateEvent = false } = {}) => {
+      await saveProfile({ ...nextProfile, isConfigured: true })
+      const qs = openCreateEvent ? '?createEvent=1' : ''
+      navigate(`/dashboard${qs}`, { replace: true })
     },
-    [saveProfile, user, navigate],
+    [navigate, saveProfile],
   )
 
-  const handleSkipToDashboard = useCallback(() => {
-    markOnboardingSkipped()
-    navigate('/dashboard', { replace: true })
-  }, [navigate])
-
   return (
-    <HostRegistrationWizard
-      profile={profile ?? DEFAULT_HOST_PROFILE}
-      authUser={user}
-      isGuest={false}
-      onComplete={handleComplete}
-      onSkipToDashboard={handleSkipToDashboard}
-    />
+    <div className="h-dvh min-h-dvh overflow-hidden">
+      <HostRegistrationWizard profile={profile} authUser={user} onComplete={handleComplete} />
+    </div>
   )
 }
 
@@ -147,6 +145,21 @@ function DashboardRoute() {
   )
 }
 
+/** Captura enlaces de email/OAuth que aterrizan en `/` u otra ruta con tokens. */
+function AuthCallbackCapture() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    const target = buildCallbackRedirectPath(window.location)
+    if (target) {
+      navigate(target, { replace: true })
+    }
+  }, [location.pathname, location.search, location.hash, navigate])
+
+  return null
+}
+
 function ProtectedRoutes() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -159,9 +172,12 @@ function ProtectedRoutes() {
     isSupabaseConfigured,
     isDevAuth,
     restartOnboarding,
+    saveProfile,
+    refreshProfile,
   } = useAuth()
 
   useAuthGatekeeper({ isReady, session, profile, profileLoading })
+  useSocialOAuthCallback({ profile, saveProfile, refreshProfile })
 
   useEffect(() => {
     if (!isReady || !session || restartHandled.current) return
@@ -190,7 +206,9 @@ function ProtectedRoutes() {
   }
 
   return (
-    <Routes>
+    <>
+      <AuthCallbackCapture />
+      <Routes>
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/signup" element={<SignupPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
@@ -202,9 +220,24 @@ function ProtectedRoutes() {
         path="/dashboard"
         element={session ? <DashboardRoute /> : <Navigate to="/auth/login" replace />}
       />
-      <Route path="/" element={<Navigate to={session ? '/dashboard' : '/auth/login'} replace />} />
+      <Route
+        path="/"
+        element={
+          <Navigate
+            to={
+              session
+                ? isProfileConfigured(profile)
+                  ? '/dashboard'
+                  : '/profile'
+                : '/auth/login'
+            }
+            replace
+          />
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   )
 }
 

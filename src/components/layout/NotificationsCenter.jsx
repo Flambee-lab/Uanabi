@@ -8,13 +8,14 @@ import {
   getInlineNotificationTypeLabel,
   resolveNotificationVisual,
 } from '../../utils/eventInlineNotifications'
+import { DECLINED_STATUS_LABEL } from '../../utils/sponsorshipLifecycle'
 
 const NAVBAR_LABEL_OVERRIDES = {
   match: 'Match',
   invite: 'Invitación',
   suggestion: 'Nuevo',
   event: 'Evento',
-  declined: 'Rechazada',
+  declined: DECLINED_STATUS_LABEL,
 }
 
 export default function NotificationsCenter({

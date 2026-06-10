@@ -1,6 +1,8 @@
 import {
   APPROVED_BANNER_DISMISS_KEY_PREFIX,
+  DECLINED_STATUS_LABEL,
   getProductDeliveryByLabel,
+  isDeclinedStatus,
   SPONSORSHIP_STATUS,
 } from './sponsorshipLifecycle'
 
@@ -9,6 +11,7 @@ export const INLINE_NOTIF_DISMISS_KEY_PREFIX = 'uanabi-event-inline-notif-v2-'
 const NOTIFIABLE_STATUSES = new Set([
   SPONSORSHIP_STATUS.MATCH_ACEPTADO,
   SPONSORSHIP_STATUS.DECLINADO,
+  SPONSORSHIP_STATUS.RECHAZADO,
   SPONSORSHIP_STATUS.EN_VERIFICACION,
   SPONSORSHIP_STATUS.CASO_ABIERTO,
 ])
@@ -16,13 +19,14 @@ const NOTIFIABLE_STATUSES = new Set([
 const TYPE_BY_STATUS = {
   [SPONSORSHIP_STATUS.MATCH_ACEPTADO]: 'approved',
   [SPONSORSHIP_STATUS.DECLINADO]: 'declined',
+  [SPONSORSHIP_STATUS.RECHAZADO]: 'declined',
   [SPONSORSHIP_STATUS.EN_VERIFICACION]: 'verifying',
   [SPONSORSHIP_STATUS.CASO_ABIERTO]: 'case_open',
 }
 
 export const INLINE_NOTIFICATION_TYPE_LABELS = {
   approved: 'Aprobación',
-  declined: 'Rechazada',
+  declined: DECLINED_STATUS_LABEL,
   verifying: 'Verificación',
   case_open: 'Acción',
   in_review: 'Invitación',
@@ -30,7 +34,7 @@ export const INLINE_NOTIFICATION_TYPE_LABELS = {
 
 export const INLINE_NOTIFICATION_ACCENT_CLASS = {
   approved: 'bg-emerald-500',
-  declined: 'bg-red-500',
+  declined: 'bg-orange-400',
   verifying: 'bg-violet-500',
   case_open: 'bg-orange-500',
   in_review: 'bg-amber-500',
@@ -38,7 +42,7 @@ export const INLINE_NOTIFICATION_ACCENT_CLASS = {
 
 export const INLINE_NOTIFICATION_BADGE_CLASS = {
   approved: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/90',
-  declined: 'bg-red-50 text-red-700 ring-1 ring-red-200/90',
+  declined: 'bg-orange-50 text-orange-800/90 ring-1 ring-orange-200/90',
   verifying: 'bg-violet-50 text-violet-700 ring-1 ring-violet-200/90',
   case_open: 'bg-orange-50 text-orange-700 ring-1 ring-orange-200/90',
   in_review: 'bg-amber-50 text-amber-900 ring-1 ring-amber-200/90',
@@ -46,7 +50,7 @@ export const INLINE_NOTIFICATION_BADGE_CLASS = {
 
 export const INLINE_NOTIFICATION_ROW_CLASS = {
   approved: 'bg-emerald-50/40 hover:bg-emerald-50/70',
-  declined: 'bg-red-50/35 hover:bg-red-50/60',
+  declined: 'bg-orange-50/35 hover:bg-orange-50/55',
   verifying: 'bg-violet-50/40 hover:bg-violet-50/65',
   case_open: 'bg-orange-50/45 hover:bg-orange-50/70',
   in_review: 'bg-amber-50/40 hover:bg-amber-50/65',
@@ -55,6 +59,7 @@ export const INLINE_NOTIFICATION_ROW_CLASS = {
 const STATUS_TO_VISUAL = {
   match_aceptado: 'approved',
   declinado: 'declined',
+  rechazado: 'declined',
   en_verificacion: 'verifying',
   caso_abierto: 'case_open',
   en_revision: 'in_review',
@@ -176,10 +181,11 @@ function buildNotificationContent(brand, status, event) {
           : 'Te contactamos para coordinar el envío de productos.',
       }
     case SPONSORSHIP_STATUS.DECLINADO:
+    case SPONSORSHIP_STATUS.RECHAZADO:
       return {
         type: 'declined',
-        title: `${name} rechazó tu invitación`,
-        body: 'Podés invitar otra marca desde la pestaña Recomendadas.',
+        title: `${name} no está disponible esta vez`,
+        body: 'Explorá marcas similares en la pestaña Recomendadas para seguir buscando patrocinio.',
       }
     case SPONSORSHIP_STATUS.EN_VERIFICACION:
       return {
@@ -207,7 +213,7 @@ export function getEventInlineNotifications(event, invitedBrands = [], dismissed
   return invitedBrands
     .filter(
       (brand) =>
-        NOTIFIABLE_STATUSES.has(brand.invitationStatus) &&
+        (NOTIFIABLE_STATUSES.has(brand.invitationStatus) || isDeclinedStatus(brand.invitationStatus)) &&
         (brand.statusChangedAt || brand.invitedAt),
     )
     .map((brand) => {

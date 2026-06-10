@@ -1,25 +1,42 @@
 import { useEffect } from 'react'
 import { CheckCircle2, X } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-export default function Toast({ message, onClose }) {
+export default function Toast({ message, title, onClose }) {
   useEffect(() => {
-    const timer = setTimeout(onClose, 4200)
+    const timer = setTimeout(onClose, title ? 5500 : 4200)
     return () => clearTimeout(timer)
-  }, [onClose])
+  }, [onClose, title])
 
   return (
-    <div className="animate-modal-enter fixed bottom-6 left-1/2 z-[60] flex -translate-x-1/2 items-center gap-3 rounded-2xl border border-border-subtle bg-white px-5 py-4 shadow-xl shadow-black/8">
-      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-match">
-        <CheckCircle2 className="h-4 w-4 text-match-foreground" strokeWidth={2} />
+    <div
+      role="status"
+      aria-live="polite"
+      className="animate-toast-enter fixed top-5 left-1/2 z-[70] flex w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 items-start gap-3.5 rounded-2xl border border-white/10 bg-slate-900 px-5 py-4 shadow-2xl shadow-black/40 ring-1 ring-white/5"
+    >
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-400 shadow-lg shadow-sky-400/25">
+        <CheckCircle2 className="h-5 w-5 text-slate-900" strokeWidth={2.5} />
       </div>
-      <p className="text-sm font-semibold text-foreground">{message}</p>
+      <div className="min-w-0 flex-1 pt-0.5">
+        {title ? (
+          <>
+            <p className="font-display text-base font-black tracking-tight text-white">{title}</p>
+            <p className="mt-1 text-sm leading-snug text-slate-300">{message}</p>
+          </>
+        ) : (
+          <p className="text-sm font-semibold leading-snug text-white">{message}</p>
+        )}
+      </div>
       <button
         type="button"
         onClick={onClose}
-        className="ml-2 rounded-lg p-1 text-muted-foreground transition-colors hover:text-foreground"
+        className={cn(
+          'shrink-0 rounded-lg p-1.5 text-slate-400 transition-colors',
+          'hover:bg-white/10 hover:text-white',
+        )}
         aria-label="Cerrar notificación"
       >
-        <X className="h-4 w-4" strokeWidth={1.75} />
+        <X className="h-4 w-4" strokeWidth={2} />
       </button>
     </div>
   )

@@ -5,8 +5,15 @@ export const SPONSORSHIP_STATUS = {
   INVITACION_ENVIADA: 'invitacion_enviada',
   MATCH_ACEPTADO: 'match_aceptado',
   DECLINADO: 'declinado',
+  RECHAZADO: 'rechazado',
   CASO_ABIERTO: 'caso_abierto',
   EN_VERIFICACION: 'en_verificacion_admin',
+}
+
+export const DECLINED_STATUS_LABEL = 'No disponible esta vez'
+
+export function isDeclinedStatus(status) {
+  return status === SPONSORSHIP_STATUS.DECLINADO || status === SPONSORSHIP_STATUS.RECHAZADO
 }
 
 /** Pasos del recorrido host → marca (labels cortos para el timeline) */
@@ -52,6 +59,7 @@ const INVITE_SORT_ORDER = {
   [SPONSORSHIP_STATUS.MATCH_ACEPTADO]: 3,
   [SPONSORSHIP_STATUS.EN_VERIFICACION]: 4,
   [SPONSORSHIP_STATUS.DECLINADO]: 5,
+  [SPONSORSHIP_STATUS.RECHAZADO]: 5,
 }
 
 export const APPROVED_BANNER_DISMISS_KEY_PREFIX = 'uanabi-approved-banner-dismissed-'
@@ -70,7 +78,8 @@ export const INVITATION_STATUS_BADGE_LABELS = {
   [SPONSORSHIP_STATUS.INVITACION_ENVIADA]: 'En revisión',
   invitada: 'En revisión',
   [SPONSORSHIP_STATUS.MATCH_ACEPTADO]: 'Aprobada',
-  [SPONSORSHIP_STATUS.DECLINADO]: 'Rechazada',
+  [SPONSORSHIP_STATUS.DECLINADO]: DECLINED_STATUS_LABEL,
+  [SPONSORSHIP_STATUS.RECHAZADO]: DECLINED_STATUS_LABEL,
   [SPONSORSHIP_STATUS.CASO_ABIERTO]: 'Por validar',
   [SPONSORSHIP_STATUS.EN_VERIFICACION]: 'En verificación',
 }
@@ -167,7 +176,7 @@ export function getInvitedBrandsSummary(brands = []) {
       summary.toClose += 1
     } else if (status === SPONSORSHIP_STATUS.EN_VERIFICACION) {
       summary.verifying += 1
-    } else if (status === SPONSORSHIP_STATUS.DECLINADO) {
+    } else if (isDeclinedStatus(status)) {
       summary.declined += 1
     }
   }
@@ -179,7 +188,7 @@ export function getInvitedBrandsSummary(brands = []) {
  * @returns {{ variant: 'active' | 'declined' | 'complete', activeIndex: number, completedThrough: number, substate?: string }}
  */
 export function getInvitationTimelineProgress(status, { isPastEvent = false } = {}) {
-  if (status === SPONSORSHIP_STATUS.DECLINADO) {
+  if (isDeclinedStatus(status)) {
     return { variant: 'declined', activeIndex: 1, completedThrough: 0 }
   }
 
@@ -213,7 +222,7 @@ export function getInvitationTimelineStepLabel(stepIndex, status) {
   if (!step) return ''
 
   if (stepIndex === 1) {
-    if (status === SPONSORSHIP_STATUS.DECLINADO) return 'Rechazada'
+    if (isDeclinedStatus(status)) return DECLINED_STATUS_LABEL
     if (APPROVED_STATUSES.has(status)) return 'Aprobada'
     return 'Respuesta'
   }
@@ -275,15 +284,11 @@ export function getInvitationStepPanelContent(
     ? `Invitación: ${formatEventDateShort(invitedAt)}.`
     : null
 
-  if (status === SPONSORSHIP_STATUS.DECLINADO) {
+  if (isDeclinedStatus(status)) {
     return {
       tone: 'declined',
-      title: 'Rechazada',
-      body: joinPanelSentences([
-        'Rechazada por la marca.',
-        'Podés invitar otras desde Recomendadas.',
-        invitedLine,
-      ]),
+      title: DECLINED_STATUS_LABEL,
+      body: 'La marca no puede patrocinar en estas fechas. Podés explorar otras opciones similares para tu evento.',
     }
   }
 
@@ -377,8 +382,8 @@ export function getInvitationBadgeClass(status) {
   if (status === SPONSORSHIP_STATUS.MATCH_ACEPTADO) {
     return 'bg-emerald-50 text-emerald-700 border-emerald-200'
   }
-  if (status === SPONSORSHIP_STATUS.DECLINADO) {
-    return 'bg-secondary text-muted-foreground border-border-subtle'
+  if (isDeclinedStatus(status)) {
+    return 'bg-orange-50/90 text-orange-800/90 border-orange-100'
   }
   return 'bg-secondary text-muted-foreground border-border-subtle'
 }

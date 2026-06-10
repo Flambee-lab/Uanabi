@@ -31,9 +31,13 @@ export function createInvitationRecord(brandId, proposal) {
     status: SPONSORSHIP_STATUS.INVITACION_ENVIADA,
     invitedAt: new Date().toISOString().slice(0, 10),
     proposal: {
-      materialRequest: proposal.materialRequest.trim(),
+      materialRequest: proposal.materialRequest?.trim?.() ?? '',
       leadTimeDays: proposal.leadTimeDays,
       commercialSnapshot: proposal.commercialSnapshot,
+      productosSolicitados: proposal.productosSolicitados ?? [],
+      entregablesOfrecidos: proposal.entregablesOfrecidos ?? [],
+      fechaLimiteEntrega: proposal.fechaLimiteEntrega ?? null,
+      mensajeExtra: proposal.mensajeExtra?.trim?.() ?? '',
       submittedAt: new Date().toISOString(),
     },
   }

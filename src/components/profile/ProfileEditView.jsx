@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { MapPin, MessageCircle, Pencil } from 'lucide-react'
+import { Loader2, MapPin, MessageCircle, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   createEmptyCollaboration,
@@ -13,6 +13,7 @@ import {
 import IdentityTagPills from './IdentityTagPills'
 import ProfileAnchorTabs from './ProfileAnchorTabs'
 import ProfileEditCollaborations from './ProfileEditCollaborations'
+import ProfileSocialVerifyButton from './ProfileSocialVerifyButton'
 import ProfileSuggestionsSidebar from './ProfileSuggestionsSidebar'
 import { ProfileField, profileEditInputClass } from './wizard/ProfileField'
 
@@ -39,7 +40,7 @@ function initDraft(profile) {
   }
 }
 
-export default function ProfileEditView({ profile, onSave, onBack }) {
+export default function ProfileEditView({ profile, onSave, onBack, saving = false }) {
   const [draft, setDraft] = useState(() => initDraft(profile))
   const [activeTab, setActiveTab] = useState(PROFILE_EDIT_SECTIONS[0].id)
   const sectionRefs = useRef({})
@@ -121,8 +122,8 @@ export default function ProfileEditView({ profile, onSave, onBack }) {
             <Button type="button" variant="secondary" size="sm" onClick={onBack}>
               Cancelar
             </Button>
-            <Button type="button" variant="primary" size="sm" onClick={handleSave}>
-              Guardar y volver
+            <Button type="button" variant="primary" size="sm" disabled={saving} onClick={handleSave}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Guardar y volver'}
             </Button>
           </div>
         </div>
@@ -262,28 +263,52 @@ export default function ProfileEditView({ profile, onSave, onBack }) {
             </h2>
             <div className="space-y-6 rounded-2xl border border-border-subtle bg-white p-6 sm:p-8">
               <ProfileField label="Instagram">
-                <input
-                  className={profileEditInputClass}
-                  value={draft.instagram}
-                  onChange={(e) => update({ instagram: e.target.value })}
-                  placeholder="@usuario o URL completa"
-                />
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <input
+                    className={`${profileEditInputClass} flex-1`}
+                    value={draft.instagram}
+                    onChange={(e) => update({ instagram: e.target.value })}
+                    placeholder="@usuario o URL completa"
+                    disabled={saving}
+                  />
+                  <ProfileSocialVerifyButton
+                    network="instagram"
+                    verified={profile.validatedLinks?.instagram}
+                    disabled={saving}
+                  />
+                </div>
               </ProfileField>
               <ProfileField label="TikTok">
-                <input
-                  className={profileEditInputClass}
-                  value={draft.tiktok}
-                  onChange={(e) => update({ tiktok: e.target.value })}
-                  placeholder="@usuario o URL completa"
-                />
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <input
+                    className={`${profileEditInputClass} flex-1`}
+                    value={draft.tiktok}
+                    onChange={(e) => update({ tiktok: e.target.value })}
+                    placeholder="@usuario o URL completa"
+                    disabled={saving}
+                  />
+                  <ProfileSocialVerifyButton
+                    network="tiktok"
+                    verified={profile.validatedLinks?.tiktok}
+                    disabled={saving}
+                  />
+                </div>
               </ProfileField>
               <ProfileField label="X (Twitter)">
-                <input
-                  className={profileEditInputClass}
-                  value={draft.twitter}
-                  onChange={(e) => update({ twitter: e.target.value })}
-                  placeholder="@usuario o URL completa"
-                />
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <input
+                    className={`${profileEditInputClass} flex-1`}
+                    value={draft.twitter}
+                    onChange={(e) => update({ twitter: e.target.value })}
+                    placeholder="@usuario o URL completa"
+                    disabled={saving}
+                  />
+                  <ProfileSocialVerifyButton
+                    network="twitter"
+                    verified={profile.validatedLinks?.twitter}
+                    disabled={saving}
+                  />
+                </div>
               </ProfileField>
               <ProfileField label="Facebook">
                 <input

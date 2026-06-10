@@ -338,6 +338,25 @@ export const mockBrands = [
     sponsorScale: 'micro',
     categories: ['Estilo de Vida', 'Gastronomía'],
   },
+  {
+    id: 'brand-vitalsport',
+    name: 'VitalSport',
+    logo: simpleIconsLogo('myprotein', '0066CC'),
+    logoFallback: brandLogoFavicon('myprotein.com'),
+    industry: 'Suplementos y Bebidas Deportivas',
+    budgetType: 'Híbrido',
+    zone: 'Capital Federal - Belgrano',
+    coordinates: { lat: -34.562, lng: -58.458 },
+    coverGradient: 'from-cyan-900/40 to-emerald-800/35',
+    seeks: ['Torneos amateur', 'Carreras urbanas', 'Eventos fitness'],
+    offers: ['Bebidas isotónicas', 'Barras proteicas', 'Shakers con logo', 'Sponsoreo cash'],
+    applicationStatus: 'disponible',
+    matchScore: 4.9,
+    participations: 17,
+    activeHosts: 17,
+    sponsorScale: 'main',
+    categories: ['Estilo de Vida', 'Gastronomía'],
+  },
 ]
 
 export const ADMISSION_RUBROS = ['Bebidas', 'Gaming & Tech', 'Moda & Diseño']
@@ -529,6 +548,7 @@ export const myEvents = [
         status: 'declinado',
         invitedAt: '2026-05-20',
         statusChangedAt: '2026-05-25',
+        mensajeRespuesta: '',
       },
     ],
   },
@@ -587,6 +607,8 @@ export const myEvents = [
         status: 'declinado',
         invitedAt: '2026-05-12',
         statusChangedAt: '2026-05-18',
+        mensajeRespuesta:
+          '¡Gracias por pensar en nosotros! Este mes cerramos cupos para eventos en CABA, pero nos encantaría reconectar para tu próxima fecha.',
       },
       {
         brandId: 'brand-012',

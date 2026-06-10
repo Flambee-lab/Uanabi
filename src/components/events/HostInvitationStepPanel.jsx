@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 const TONE_STYLES = {
   review: 'border-l-amber-500 bg-amber-50/45',
   approved: 'border-l-emerald-500 bg-emerald-50/40',
-  declined: 'border-l-neutral-400 bg-neutral-50/80',
+  declined: 'border-l-orange-300/80 bg-orange-50/35',
   close: 'border-l-orange-500 bg-orange-50/40',
   verification: 'border-l-sky-500 bg-sky-50/40',
 }

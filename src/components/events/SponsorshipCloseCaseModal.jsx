@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ImagePlus, Star, X } from 'lucide-react'
+import { ImagePlus, Loader2, Star, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const MAX_PHOTOS = 3
@@ -16,6 +16,8 @@ export default function SponsorshipCloseCaseModal({
   const [rating, setRating] = useState(0)
   const [review, setReview] = useState('')
   const [success, setSuccess] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   if (!isOpen || !caseInfo) return null
 
@@ -26,6 +28,8 @@ export default function SponsorshipCloseCaseModal({
     setRating(0)
     setReview('')
     setSuccess(false)
+    setSubmitting(false)
+    setError('')
   }
 
   const handleClose = () => {
@@ -40,21 +44,33 @@ export default function SponsorshipCloseCaseModal({
       ...next.map((file) => ({
         id: `ph-${Date.now()}-${file.name}`,
         name: file.name,
+        file,
         previewUrl: URL.createObjectURL(file),
       })),
     ])
   }
 
-  const handleFinalSubmit = () => {
-    onSubmit?.({
-      delivered,
-      photos,
-      rating,
-      review,
-      submittedAt: new Date().toISOString(),
-    })
-    setSuccess(true)
+  const handleFinalSubmit = async () => {
+    setError('')
+    setSubmitting(true)
+    try {
+      await onSubmit?.({
+        delivered,
+        photos,
+        photoFiles: photos.map((p) => p.file).filter(Boolean),
+        rating,
+        review,
+        submittedAt: new Date().toISOString(),
+      })
+      setSuccess(true)
+    } catch (err) {
+      setError(err?.message ?? 'No pudimos enviar las evidencias. Intentá de nuevo.')
+    } finally {
+      setSubmitting(false)
+    }
   }
+
+  const busy = submitting
 
   return (
     <div
@@ -82,7 +98,8 @@ export default function SponsorshipCloseCaseModal({
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg p-1 text-muted-foreground hover:bg-secondary"
+            disabled={busy}
+            className="rounded-lg p-1 text-muted-foreground hover:bg-secondary disabled:opacity-50"
             aria-label="Cerrar"
           >
             <X className="h-5 w-5" strokeWidth={2} />
@@ -110,8 +127,9 @@ export default function SponsorshipCloseCaseModal({
                   <button
                     key={label}
                     type="button"
+                    disabled={busy}
                     onClick={() => setDelivered(label === 'Sí')}
-                    className={`rounded-2xl border py-4 text-sm font-bold transition ${
+                    className={`rounded-2xl border py-4 text-sm font-bold transition disabled:opacity-60 ${
                       delivered === (label === 'Sí')
                         ? 'border-primary bg-primary text-white'
                         : 'border-border bg-white text-foreground/80 hover:border-muted-foreground/40'
@@ -133,7 +151,7 @@ export default function SponsorshipCloseCaseModal({
                   accept="image/*"
                   multiple
                   className="hidden"
-                  disabled={photos.length >= MAX_PHOTOS}
+                  disabled={busy || photos.length >= MAX_PHOTOS}
                   onChange={(e) => {
                     addPhotos(e.target.files)
                     e.target.value = ''
@@ -170,8 +188,9 @@ export default function SponsorshipCloseCaseModal({
                   <button
                     key={n}
                     type="button"
+                    disabled={busy}
                     onClick={() => setRating(n)}
-                    className="rounded-lg p-1 transition hover:bg-secondary"
+                    className="rounded-lg p-1 transition hover:bg-secondary disabled:opacity-60"
                     aria-label={`${n} estrellas`}
                   >
                     <Star
@@ -186,13 +205,20 @@ export default function SponsorshipCloseCaseModal({
                 ))}
               </div>
               <textarea
-                className="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-xs text-foreground focus:border-primary focus:bg-white focus:outline-none"
+                className="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-xs text-foreground focus:border-primary focus:bg-white focus:outline-none disabled:opacity-60"
                 rows={3}
                 placeholder="Reseña interna sobre la marca (opcional)"
                 value={review}
+                disabled={busy}
                 onChange={(e) => setReview(e.target.value)}
               />
             </div>
+          )}
+
+          {error && (
+            <p className="mt-4 text-xs font-medium text-red-600" role="alert">
+              {error}
+            </p>
           )}
         </div>
 
@@ -202,6 +228,7 @@ export default function SponsorshipCloseCaseModal({
               type="button"
               variant="tertiary"
               size="sm"
+              disabled={busy}
               className="text-muted-foreground hover:text-foreground/80"
               onClick={() => (step > 1 ? setStep((s) => s - 1) : handleClose())}
             >
@@ -212,14 +239,27 @@ export default function SponsorshipCloseCaseModal({
                 type="button"
                 variant="primary"
                 size="default"
-                disabled={step === 1 && delivered === null}
+                disabled={busy || (step === 1 && delivered === null)}
                 onClick={() => setStep((s) => s + 1)}
               >
                 Continuar
               </Button>
             ) : (
-              <Button type="button" variant="primary" size="default" onClick={handleFinalSubmit}>
-                Enviar pruebas a revisión
+              <Button
+                type="button"
+                variant="primary"
+                size="default"
+                disabled={busy}
+                onClick={handleFinalSubmit}
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Subiendo evidencias…
+                  </>
+                ) : (
+                  'Enviar pruebas a revisión'
+                )}
               </Button>
             )}
           </div>

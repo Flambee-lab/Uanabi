@@ -54,9 +54,11 @@ export function getInvitedBrandsForEvent(event, catalog, { searchQuery = '' } = 
       if (!brand) return null
       return {
         ...brand,
-        invitationStatus: invite.status,
+        invitationStatus: invite.status === 'rechazado' ? 'declinado' : invite.status,
         invitedAt: invite.invitedAt,
         statusChangedAt: invite.statusChangedAt,
+        mensajeRespuesta: invite.mensajeRespuesta,
+        invitacionId: invite.invitacionId,
       }
     })
     .filter(Boolean)
@@ -86,7 +88,8 @@ export const INVITATION_STATUS_LABELS = {
   invitacion_enviada: 'Invitación enviada',
   invitada: 'Invitada',
   match_aceptado: 'Match concretado',
-  declinado: 'Declinado',
+  declinado: 'No disponible esta vez',
+  rechazado: 'No disponible esta vez',
   caso_abierto: 'Caso abierto',
   en_verificacion_admin: 'En verificación',
 }

@@ -1,5 +1,5 @@
 import HostInvitedBrandTimeline from '../events/HostInvitedBrandTimeline'
-import { isEventPast, SPONSORSHIP_STATUS } from '../../utils/sponsorshipLifecycle'
+import { isDeclinedStatus, isEventPast, SPONSORSHIP_STATUS } from '../../utils/sponsorshipLifecycle'
 
 const INVITE_GROUPS = [
   {
@@ -26,7 +26,7 @@ const INVITE_GROUPS = [
   {
     id: 'declined',
     title: 'Rechazadas',
-    match: (status) => status === SPONSORSHIP_STATUS.DECLINADO,
+    match: (status) => isDeclinedStatus(status),
   },
 ]
 
@@ -50,6 +50,7 @@ export default function EventInvitedSponsors({
   unreadBrandNotifications = new Map(),
   onAcknowledgeBrandNotification,
   onCloseCaseForBrand,
+  onExploreSimilarBrands,
 }) {
   if (!sponsors.length) {
     return (
@@ -79,6 +80,7 @@ export default function EventInvitedSponsors({
                 unreadNotificationType={unreadBrandNotifications.get(sponsor.id) ?? null}
                 onAcknowledgeNotification={onAcknowledgeBrandNotification}
                 onCloseCase={onCloseCaseForBrand}
+                onExploreSimilarBrands={onExploreSimilarBrands}
               />
             ))}
           </div>

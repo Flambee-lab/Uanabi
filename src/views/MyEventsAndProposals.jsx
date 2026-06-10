@@ -3,7 +3,6 @@ import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import EventsTimelineSidebar from '../components/events/EventsTimelineSidebar'
 import HostPastEventsView from '../components/events/HostPastEventsView'
-import SponsorshipCloseCaseModal from '../components/events/SponsorshipCloseCaseModal'
 import { availableBrands } from '../data/mockEvents'
 import {
   countPastEventsWithPendingActions,
@@ -12,9 +11,7 @@ import {
   splitEventsByTimeline,
 } from '../utils/hostEventBuckets'
 import {
-  getPendingClosureCases,
   isEventPast,
-  SPONSORSHIP_STATUS,
 } from '../utils/sponsorshipLifecycle'
 import { migrateLegacyApprovedBannerDismiss } from '../utils/eventInlineNotifications'
 import {
@@ -40,7 +37,6 @@ export default function MyEventsAndProposals({
   const [panelMode, setPanelMode] = useState('event')
   const [detailSource, setDetailSource] = useState('active')
   const [selectedEventId, setSelectedEventId] = useState(() => pickDefaultEventId(events))
-  const [closeCaseTarget, setCloseCaseTarget] = useState(null)
   const [deleteEventTarget, setDeleteEventTarget] = useState(null)
   const [notifRevision, setNotifRevision] = useState(0)
   const prevEventsLength = useRef(events.length)
@@ -52,11 +48,6 @@ export default function MyEventsAndProposals({
     [timelineEvents],
   )
   const selectedEvent = timelineEvents.find((e) => e.id === selectedEventId) ?? null
-
-  const pendingCases = useMemo(
-    () => getPendingClosureCases(timelineEvents, availableBrands),
-    [timelineEvents],
-  )
 
   const invitedBrands = useMemo(
     () => getInvitedBrandsForEvent(selectedEvent, availableBrands),
@@ -137,28 +128,6 @@ export default function MyEventsAndProposals({
   const handleOpenChat = (brandId) => {
     onBrandsMatch?.(brandId)
     onOpenChat?.(brandId)
-  }
-
-  const handleCloseCaseSubmit = (submission) => {
-    if (!closeCaseTarget) return
-    const { eventId, brandId } = closeCaseTarget
-    onEventsChange((prev) =>
-      prev.map((event) => {
-        if (event.id !== eventId) return event
-        return {
-          ...event,
-          invitedBrands: (event.invitedBrands ?? []).map((inv) =>
-            inv.brandId === brandId
-              ? {
-                  ...inv,
-                  status: SPONSORSHIP_STATUS.EN_VERIFICACION,
-                  closureSubmission: submission,
-                }
-              : inv,
-          ),
-        }
-      }),
-    )
   }
 
   const handleSelectEventFromPast = (eventId) => {
@@ -247,12 +216,7 @@ export default function MyEventsAndProposals({
               onEventUpdate={handleEventUpdate}
               notifRevision={notifRevision}
               onNotificationsDismissed={() => setNotifRevision((revision) => revision + 1)}
-              onCloseCaseForBrand={(brandId) => {
-                const match = pendingCases.find(
-                  (c) => c.eventId === selectedEvent.id && c.brandId === brandId,
-                )
-                if (match) setCloseCaseTarget(match)
-              }}
+              onEventsChange={onEventsChange}
               onDeleteEventRequest={setDeleteEventTarget}
             />
           </>
@@ -262,13 +226,6 @@ export default function MyEventsAndProposals({
           </div>
         )}
       </div>
-
-      <SponsorshipCloseCaseModal
-        isOpen={Boolean(closeCaseTarget)}
-        caseInfo={closeCaseTarget}
-        onClose={() => setCloseCaseTarget(null)}
-        onSubmit={handleCloseCaseSubmit}
-      />
 
       <DeleteEventConfirmModal
         isOpen={Boolean(deleteEventTarget)}

@@ -1,18 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ExploreSearchCapsule from '../components/explore/ExploreSearchCapsule'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthProvider'
 import AppNavbar from '../components/layout/AppNavbar'
 import GuestBanner from '../components/layout/GuestBanner'
 import ApplyToBrandModal from '../components/apply/ApplyToBrandModal'
-import ProposalModal from '../components/market/ProposalModal'
+import InvitationWizard from './InvitationWizard'
+import { saveInvitacionMarca, fetchInvitacionesMarcasForEvents, mergeInvitacionesMarcasIntoEvents } from '../lib/invitacionesMarcas'
 import {
   appendInvitationToEvent,
+  buildCommercialSnapshot,
   createInvitationRecord,
 } from '../utils/sponsorshipProposal'
 import Toast from '../components/ui/Toast'
 import {
-  buildHostEventFromQuickForm,
   createApplicationFromSubmission,
 } from '../data/hostEvents'
 import { mockNotifications as initialNotifications } from '../data/mockNotifications'
@@ -40,7 +41,9 @@ export default function Dashboard({
   onProfilePersist,
 }) {
   const navigate = useNavigate()
-  const { isGuest, isAuthenticated, user, logout, restartOnboarding } = useAuth()
+  const [searchParams] = useSearchParams()
+  const { isGuest, isAuthenticated, user, profile: authProfile, logout, restartOnboarding } =
+    useAuth()
   const [guestBannerDismissed, setGuestBannerDismissed] = useState(
     () => localStorage.getItem(GUEST_BANNER_KEY) === '1',
   )
@@ -55,7 +58,8 @@ export default function Dashboard({
   const [focusEventId, setFocusEventId] = useState(null)
   const [hostProfile, setHostProfile] = useState(initialProfile)
   const [applyTarget, setApplyTarget] = useState(null)
-  const [proposalModal, setProposalModal] = useState(null)
+  const [invitationWizard, setInvitationWizard] = useState(null)
+  const [invitationSaving, setInvitationSaving] = useState(false)
   const [toast, setToast] = useState(null)
   const [accountSettings, setAccountSettings] = useState(DEFAULT_ACCOUNT_SETTINGS)
   const [exploreSearchQuery, setExploreSearchQuery] = useState('')
@@ -70,6 +74,18 @@ export default function Dashboard({
   }, [activeNav])
 
   useEffect(() => {
+    if (searchParams.get('callback') === 'true') {
+      setActiveNav('profile')
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    if (authProfile) {
+      setHostProfile((prev) => ({ ...prev, ...authProfile }))
+    }
+  }, [authProfile])
+
+  useEffect(() => {
     if (!isAuthenticated || !user) return
     setHostProfile((prev) => ({
       ...prev,
@@ -81,6 +97,22 @@ export default function Dashboard({
       authProvider: user.provider === 'google' ? 'google' : 'email',
     }))
   }, [isAuthenticated, user])
+
+  useEffect(() => {
+    if (!isAuthenticated || myEvents.length === 0) return
+
+    let cancelled = false
+    const eventIds = myEvents.map((event) => event.id)
+
+    fetchInvitacionesMarcasForEvents(eventIds).then(({ data, error }) => {
+      if (cancelled || error || !data?.length) return
+      setMyEvents((prev) => mergeInvitacionesMarcasIntoEvents(prev, data, availableBrands))
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [isAuthenticated, myEvents.length])
 
   const hostEventsForModal = useMemo(
     () =>
@@ -150,45 +182,91 @@ export default function Dashboard({
     setToast('La mensajería estará disponible pronto')
   }
 
-  const openProposalModal = (brandId, activeEvent = null) => {
+  const openInvitationWizard = (brandId, activeEvent = null) => {
     const brand =
       brands.find((b) => b.id === brandId) ?? availableBrands.find((b) => b.id === brandId)
     if (!brand) return
-    setProposalModal({ brand, activeEvent })
+    setInvitationWizard({ brand, activeEvent })
   }
 
   const handleRequestPartnership = (brandId) => {
-    openProposalModal(brandId, null)
+    openInvitationWizard(brandId, null)
   }
 
-  const handleProposalEventCreated = (quickEvent) => {
-    const fullEvent = buildHostEventFromQuickForm(quickEvent)
-    setMyEvents((prev) => [fullEvent, ...prev])
-    if (proposalModal?.brand) {
-      setProposalModal({ brand: proposalModal.brand, activeEvent: fullEvent })
+  const handleSubmitInvitation = async ({
+    event,
+    brand,
+    productosSolicitados,
+    entregablesOfrecidos,
+    fechaLimiteEntrega,
+    mensajeExtra,
+    cantidadEstimada,
+    direccionEntrega,
+    whatsapp,
+  }) => {
+    if (!invitationWizard?.brand || !event?.id) return
+
+    setInvitationSaving(true)
+    try {
+      if (whatsapp?.trim()) {
+        const nextProfile = mergeProfileForSave(hostProfile, { whatsapp: whatsapp.trim() })
+        setHostProfile(nextProfile)
+        onProfilePersist?.(nextProfile)
+      }
+
+      const { error: dbError, persisted } = await saveInvitacionMarca({
+        eventoId: event.id,
+        marcaNombre: brand?.name ?? invitationWizard.brand.name,
+        productosSolicitados,
+        entregablesOfrecidos,
+        fechaLimiteEntrega,
+        mensajeExtra,
+        cantidadEstimada,
+        direccionEntrega,
+        whatsapp,
+      })
+
+      const logisticsLines = [
+        direccionEntrega ? `Entrega: ${direccionEntrega}` : '',
+        whatsapp ? `WhatsApp: ${whatsapp}` : '',
+      ].filter(Boolean)
+
+      const invitation = createInvitationRecord(invitationWizard.brand.id, {
+        productosSolicitados,
+        entregablesOfrecidos,
+        fechaLimiteEntrega,
+        mensajeExtra,
+        materialRequest: [
+          ...productosSolicitados.map((p) => `• ${p}`),
+          ...entregablesOfrecidos.map((e) => `✓ ${e}`),
+          ...logisticsLines,
+          mensajeExtra ? `Nota: ${mensajeExtra}` : '',
+        ]
+          .filter(Boolean)
+          .join('\n'),
+        leadTimeDays: '7',
+        commercialSnapshot: buildCommercialSnapshot(event),
+      })
+
+      setMyEvents((prev) =>
+        prev.map((ev) => (ev.id === event.id ? appendInvitationToEvent(ev, invitation) : ev)),
+      )
+
+      const brandName = brand?.name ?? invitationWizard.brand.name
+      setToast({
+        title: '¡Invitación enviada!',
+        message: persisted
+          ? `${brandName} recibió tu propuesta y quedó registrada en la plataforma.`
+          : `${brandName} recibió tu propuesta. Tiene 7 días hábiles para contactarte por WhatsApp.`,
+      })
+
+      if (dbError && import.meta.env.DEV) {
+        console.warn('[invitaciones_marcas]', dbError.message)
+      }
+    } finally {
+      setInvitationSaving(false)
+      setInvitationWizard(null)
     }
-  }
-
-  const handleSubmitProposal = ({ event, proposal, whatsapp }) => {
-    if (!proposalModal?.brand || !event?.id) return
-
-    if (whatsapp?.trim()) {
-      const nextProfile = mergeProfileForSave(hostProfile, { whatsapp: whatsapp.trim() })
-      setHostProfile(nextProfile)
-      onProfilePersist?.(nextProfile)
-    }
-
-    const invitation = createInvitationRecord(proposalModal.brand.id, proposal)
-
-    setMyEvents((prev) =>
-      prev.map((ev) =>
-        ev.id === event.id ? appendInvitationToEvent(ev, invitation) : ev,
-      ),
-    )
-
-    setToast(
-      `Propuesta enviada a ${proposalModal.brand.name}. La marca tiene 7 días hábiles para contactarte.`,
-    )
   }
 
   const handleBrandsMatch = (brandId) => {
@@ -330,7 +408,7 @@ export default function Dashboard({
             onBrandsMatch={handleBrandsMatch}
             onGoToProfile={() => handleNavChange('profile')}
             onProposeToBrand={(brandId, activeEvent) =>
-              openProposalModal(brandId, activeEvent)
+              openInvitationWizard(brandId, activeEvent)
             }
           />
         )}
@@ -391,18 +469,24 @@ export default function Dashboard({
         onSubmit={handleSubmitApplication}
       />
 
-      <ProposalModal
-        isOpen={Boolean(proposalModal)}
-        brand={proposalModal?.brand}
+      <InvitationWizard
+        isOpen={Boolean(invitationWizard)}
+        brand={invitationWizard?.brand}
         hostEvents={myEvents}
-        activeEvent={proposalModal?.activeEvent ?? null}
+        activeEvent={invitationWizard?.activeEvent ?? null}
         hostProfile={hostProfile}
-        onClose={() => setProposalModal(null)}
-        onSubmit={handleSubmitProposal}
-        onEventCreated={handleProposalEventCreated}
+        onClose={() => setInvitationWizard(null)}
+        onSubmit={handleSubmitInvitation}
+        saving={invitationSaving}
       />
 
-      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
+      {toast && (
+        <Toast
+          title={typeof toast === 'object' ? toast.title : undefined}
+          message={typeof toast === 'object' ? toast.message : toast}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   )
 }
