@@ -232,7 +232,7 @@ export default function AccountSettings({
         <section className="border-t border-border-subtle pt-6">
           <h2 className="type-heading mb-2 text-destructive">Zona de peligro</h2>
           <p className="type-small mb-4">
-            Eliminá tu cuenta y todos los datos asociados en Onbrand de forma permanente.
+            Eliminá tu cuenta y todos los datos asociados en Uanabi de forma permanente.
           </p>
           <Button
             type="button"

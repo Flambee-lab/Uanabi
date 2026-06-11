@@ -3,10 +3,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import EventCommercialSheet from '../components/event/EventCommercialSheet'
 import ProfileEditView from '../components/profile/ProfileEditView'
-import ProfilePublicView from '../components/profile/ProfilePublicView'
+import ProfileInternalView from '../components/profile/ProfileInternalView'
 import ProfileWizard from '../components/profile/wizard/ProfileWizard'
 import { useAuth } from '../context/AuthProvider'
-import { DEFAULT_HOST_PROFILE, seedProfileFromAuth } from '../data/hostProfile'
+import { DEFAULT_HOST_PROFILE, seedProfileFromAuth, loadStoredHostProfile } from '../data/hostProfile'
 import {
   fetchUserProfile,
   mapSupabaseProfileToHost,
@@ -16,7 +16,6 @@ import {
 import { isLocalAuthMode } from '../lib/devLogin'
 import { reconcileSocialOAuthFromSession } from '../lib/socialOAuth'
 import { supabase } from '../lib/supabase'
-import { loadStoredHostProfile } from '../data/hostProfile'
 
 export default function Profile({
   profile: externalProfile,
@@ -37,6 +36,7 @@ export default function Profile({
   const [saving, setSaving] = useState(false)
   const [loadError, setLoadError] = useState('')
   const [isEditing, setIsEditing] = useState(false)
+  const [editSection, setEditSection] = useState(null)
   const [commercialEventId, setCommercialEventId] = useState(null)
   const [oauthReconciling, setOauthReconciling] = useState(false)
 
@@ -180,6 +180,17 @@ export default function Profile({
   const handleSave = async (data) => {
     await persistProfile(data, { markConfigured: true })
     setIsEditing(false)
+    setEditSection(null)
+  }
+
+  const handleEdit = (section = 'basic') => {
+    setEditSection(section)
+    setIsEditing(true)
+  }
+
+  const handleBackFromEdit = () => {
+    setIsEditing(false)
+    setEditSection(null)
   }
 
   if (loading || oauthReconciling) {
@@ -240,18 +251,19 @@ export default function Profile({
         profile={profile}
         saving={saving}
         onSave={handleSave}
-        onBack={() => setIsEditing(false)}
+        onBack={handleBackFromEdit}
+        initialSection={editSection}
       />
     )
   }
 
   return (
-    <ProfilePublicView
+    <ProfileInternalView
       profile={profile}
       events={events}
       brands={brands}
-      onEdit={() => setIsEditing(true)}
-      onSelectEvent={(event) => setCommercialEventId(event.id)}
+      onEdit={handleEdit}
+      onSelectEvent={(eventId) => setCommercialEventId(eventId)}
     />
   )
 }

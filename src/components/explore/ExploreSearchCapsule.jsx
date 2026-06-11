@@ -99,7 +99,12 @@ export default function ExploreSearchCapsule({
   return (
     <div
       ref={rootRef}
-      className={cn('relative mx-auto w-full', isCompact ? 'max-w-none' : 'max-w-4xl', className)}
+      className={cn(
+        'relative mx-auto w-full',
+        isCompact ? 'max-w-none' : 'max-w-4xl',
+        panelOpen && 'z-50',
+        className,
+      )}
     >
       <div
         className={cn(
@@ -109,7 +114,7 @@ export default function ExploreSearchCapsule({
         )}
       >
         {/* Ubicación */}
-        <div className="relative shrink-0">
+        <div className={cn('relative shrink-0', locationOpen && 'z-50')}>
           <SearchSegment
             active={locationOpen}
             className={cn(
@@ -183,6 +188,7 @@ export default function ExploreSearchCapsule({
           className={cn(
             'relative min-w-0 shrink-0',
             isCompact ? 'sm:min-w-[6.5rem]' : 'sm:min-w-[8.5rem]',
+            categoryOpen && 'z-50',
           )}
         >
           <SearchSegment

@@ -219,7 +219,7 @@ export default function ProfilePublicView({
 
   const handleShareProfile = async () => {
     const url = window.location.href
-    const title = `Perfil de ${fullName} en Onbrand`
+    const title = `Perfil de ${fullName} en Uanabi`
 
     if (navigator.share) {
       try {

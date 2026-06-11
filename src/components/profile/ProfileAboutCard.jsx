@@ -5,7 +5,6 @@ export default function ProfileAboutCard({ profile }) {
   const location = profile.location?.trim() || HOST_LOCATION
   const bio =
     profile.bio?.trim() ||
-    profile.tagline?.trim() ||
     'Host en Capital Federal con experiencias presenciales y conexión directa con marcas.'
 
   return (
@@ -24,7 +23,7 @@ export default function ProfileAboutCard({ profile }) {
 
       <div className="mt-4 flex items-center gap-2 border-t border-neutral-100 pt-3 text-[11px] text-neutral-500">
         <Calendar className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
-        En Onbrand desde {formatJoinedDate(profile.joinedAt)}
+        En Uanabi desde {formatJoinedDate(profile.joinedAt)}
       </div>
     </div>
   )

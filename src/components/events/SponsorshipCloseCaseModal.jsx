@@ -110,7 +110,7 @@ export default function SponsorshipCloseCaseModal({
           {success ? (
             <div className="space-y-4 text-center">
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Recibimos tus pruebas. Onbrand verificará el caso en las próximas 24 horas para
+                Recibimos tus pruebas. Uanabi verificará el caso en las próximas 24 horas para
                 impactar las marcas en tu perfil público.
               </p>
               <Button type="button" variant="primary" size="lg" onClick={handleClose}>

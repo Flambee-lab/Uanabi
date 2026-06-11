@@ -5,7 +5,8 @@ import { getProfileDisplayName } from '../../data/hostProfile'
 
 const MENU_SECTIONS = [
   [
-    { id: 'profile-settings', label: 'Configuración de perfil' },
+    { id: 'my-profile', label: 'Mi perfil' },
+    { id: 'profile-settings', label: 'Configuración de cuenta' },
     { id: 'event-manager', label: 'Mis eventos' },
     { id: 'privacy', label: 'Privacidad' },
   ],

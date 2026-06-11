@@ -5,7 +5,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
 
-export const DEV_AUTH_STORAGE_KEY = 'onbrand_dev_auth'
+export const DEV_AUTH_STORAGE_KEY = 'uanabi_dev_auth'
 
 export function isDevAuthEnabled() {
   try {

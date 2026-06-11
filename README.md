@@ -1,6 +1,11 @@
 # Uanabi
 
-Plataforma MVP para creadores de eventos (Hosts): explorar Uanabis, gestionar eventos estilo Luma e invitar sponsors.
+Plataforma que conecta marcas (sponsors) con hosts de eventos. El MVP actual es la **app Host**: explorar marcas, gestionar eventos e invitar sponsors.
+
+**Documentación del equipo:**
+
+- Producto: [`docs/PRODUCT.md`](docs/PRODUCT.md)
+- Deploy / Vercel: [`docs/DEPLOY.md`](docs/DEPLOY.md)
 
 ## Stack
 
@@ -23,9 +28,8 @@ npm run build
 
 Salida en `dist/`.
 
-## Deploy en Vercel
+## Deploy
 
-Conectar el repo `Flambee-lab/Uanabi`. Vercel detecta Vite automáticamente (`vercel.json` incluido).
+**Producción:** https://uanabi.vercel.app
 
-- **Build command:** `npm run build`
-- **Output directory:** `dist`
+Detalle completo (proyecto Vercel, variables, `vercel link`): [`docs/DEPLOY.md`](docs/DEPLOY.md).

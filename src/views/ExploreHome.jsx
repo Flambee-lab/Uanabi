@@ -107,9 +107,8 @@ export default function ExploreHome({
       <div className="uanabi-page-hero px-6 pb-6 pt-8 sm:px-10 sm:pb-8 sm:pt-10">
         <div className="mx-auto mb-8 w-full max-w-4xl text-center sm:mb-10">
           <h1 className="type-display">Encontrá un sponsor para tu próximo evento.</h1>
-          <p className="mx-auto mt-2 max-w-2xl type-body-muted">
-            Estas son las marcas que quieren estar con vos en tu próximo evento. Encontrá la que
-            mejor encaje.
+          <p className="mx-auto mt-2 max-w-xl type-body-muted">
+            Estas son las marcas que quieren estar con vos en tu próximo evento.
           </p>
         </div>
         <div

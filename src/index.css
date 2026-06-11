@@ -245,20 +245,23 @@ body {
 
 /*
  * Escala tipográfica Uanabi (4 saltos — no usar type-small, type-small, type-body, type-body)
- * Display 28px · Heading 18px · Body 14px · Small 12px
+ * Display 28px · Title 24px · Heading 18px · Body 14px · Small 12px
  */
 @layer components {
   .uanabi-page {
     @apply min-h-full bg-background;
   }
   .uanabi-page-hero {
-    @apply border-b border-border-subtle bg-background px-6 py-10 sm:px-10 sm:py-12;
+    @apply relative z-10 border-b border-border-subtle bg-background px-6 py-10 sm:px-10 sm:py-12;
   }
   .uanabi-section {
-    @apply bg-background px-6 py-10 sm:px-10 sm:py-12;
+    @apply relative z-0 bg-background px-6 py-10 sm:px-10 sm:py-12;
   }
   .type-display {
     @apply font-display text-[1.75rem] leading-tight font-extrabold tracking-tight text-foreground;
+  }
+  .type-title {
+    @apply font-display text-[1.5rem] leading-snug font-bold tracking-tight text-foreground;
   }
   .type-heading {
     @apply font-display text-lg leading-snug font-bold tracking-tight text-foreground;
@@ -319,7 +322,7 @@ body {
 
   /* Barra de búsqueda segmentada (Home + internas) */
   .uanabi-search-bar {
-    @apply flex items-stretch rounded-full border border-border bg-card shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-[border-color,box-shadow] duration-150;
+    @apply flex items-stretch overflow-visible rounded-full border border-border bg-card shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-[border-color,box-shadow] duration-150;
   }
   .uanabi-search-bar:focus-within {
     @apply border-foreground/15 shadow-[0_8px_28px_rgba(0,0,0,0.12)];
@@ -379,7 +382,7 @@ body {
 
   /* Barra principal de la app */
   .uanabi-navbar {
-    @apply relative grid h-14 shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center border-b border-navbar-border bg-background px-4 sm:px-6;
+    @apply relative z-30 grid h-14 shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center border-b border-navbar-border bg-background px-4 sm:px-6;
   }
   .uanabi-navbar-start {
     @apply flex min-w-0 items-center justify-start;

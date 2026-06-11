@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Loader2, MapPin, MessageCircle, Pencil } from 'lucide-react'
+import { Loader2, MapPin, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   createEmptyCollaboration,
@@ -9,7 +9,9 @@ import {
   HOST_LOCATION_HINT,
   mergeProfileForSave,
   PROFILE_EDIT_SECTIONS,
+  SOCIAL_PLATFORMS,
 } from '../../data/hostProfile'
+import ProfileAvatar from './ProfileAvatar'
 import IdentityTagPills from './IdentityTagPills'
 import ProfileAnchorTabs from './ProfileAnchorTabs'
 import ProfileEditCollaborations from './ProfileEditCollaborations'
@@ -22,7 +24,6 @@ function initDraft(profile) {
   return {
     fullName: profile.fullName ?? getProfileDisplayName(profile),
     displayName: profile.displayName ?? '',
-    tagline: profile.tagline ?? '',
     bio: profile.bio ?? '',
     avatarUrl: profile.avatarUrl ?? null,
     location: profile.location ?? HOST_LOCATION,
@@ -30,17 +31,27 @@ function initDraft(profile) {
     whatsapp: profile.whatsapp ?? '',
     instagram: profile.instagram ?? '',
     tiktok: profile.tiktok ?? '',
+    youtube: profile.youtube ?? '',
+    twitch: profile.twitch ?? '',
     twitter: profile.twitter ?? '',
     facebook: profile.facebook ?? '',
     socialMetrics: {
       totalFollowers: profile.socialMetrics?.totalFollowers ?? '',
       engagementPercent: profile.socialMetrics?.engagementPercent ?? '',
+      platformFollowers: {
+        instagram: profile.socialMetrics?.platformFollowers?.instagram ?? '',
+        tiktok: profile.socialMetrics?.platformFollowers?.tiktok ?? '',
+        twitter: profile.socialMetrics?.platformFollowers?.twitter ?? '',
+        facebook: profile.socialMetrics?.platformFollowers?.facebook ?? '',
+        youtube: profile.socialMetrics?.platformFollowers?.youtube ?? '',
+        twitch: profile.socialMetrics?.platformFollowers?.twitch ?? '',
+      },
     },
     successStories: stories.length > 0 ? stories : [createEmptyCollaboration()],
   }
 }
 
-export default function ProfileEditView({ profile, onSave, onBack, saving = false }) {
+export default function ProfileEditView({ profile, onSave, onBack, saving = false, initialSection }) {
   const [draft, setDraft] = useState(() => initDraft(profile))
   const [activeTab, setActiveTab] = useState(PROFILE_EDIT_SECTIONS[0].id)
   const sectionRefs = useRef({})
@@ -57,11 +68,28 @@ export default function ProfileEditView({ profile, onSave, onBack, saving = fals
       ...prev,
       socialMetrics: { ...prev.socialMetrics, ...patch },
     }))
+  const updatePlatformFollowers = (platform, value) =>
+    setDraft((prev) => ({
+      ...prev,
+      socialMetrics: {
+        ...prev.socialMetrics,
+        platformFollowers: {
+          ...prev.socialMetrics.platformFollowers,
+          [platform]: value,
+        },
+      },
+    }))
 
   const scrollToSection = useCallback((id) => {
     setActiveTab(id)
     sectionRefs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [])
+
+  useEffect(() => {
+    if (!initialSection) return
+    const frame = requestAnimationFrame(() => scrollToSection(initialSection))
+    return () => cancelAnimationFrame(frame)
+  }, [initialSection, scrollToSection])
 
   useEffect(() => {
     const root = scrollRootRef.current
@@ -103,7 +131,7 @@ export default function ProfileEditView({ profile, onSave, onBack, saving = fals
   const displayInitial = getProfileInitial({ ...profile, fullName: draft.fullName })
 
   return (
-    <div ref={scrollRootRef} className="min-h-full overflow-y-auto bg-[#fafafa]">
+    <div ref={scrollRootRef} className="uanabi-page overflow-y-auto">
       <div className="border-b border-border-subtle bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-10">
           <div>
@@ -142,7 +170,7 @@ export default function ProfileEditView({ profile, onSave, onBack, saving = fals
             className="scroll-mt-28"
           >
             <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-start">
-              <div className="relative shrink-0">
+              <div className="shrink-0">
                 <input
                   ref={avatarInputRef}
                   type="file"
@@ -150,25 +178,11 @@ export default function ProfileEditView({ profile, onSave, onBack, saving = fals
                   className="hidden"
                   onChange={(e) => handleAvatar(e.target.files?.[0])}
                 />
-                {draft.avatarUrl ? (
-                  <img
-                    src={draft.avatarUrl}
-                    alt=""
-                    className="h-28 w-28 rounded-2xl object-cover shadow-sm ring-1 ring-neutral-100"
-                  />
-                ) : (
-                  <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-primary font-display text-3xl font-black text-white shadow-sm">
-                    {displayInitial}
-                  </div>
-                )}
-                <button
-                  type="button"
-                  onClick={() => avatarInputRef.current?.click()}
-                  className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white text-muted-foreground shadow-sm hover:text-foreground"
-                  aria-label="Editar foto"
-                >
-                  <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
-                </button>
+                <ProfileAvatar
+                  src={draft.avatarUrl}
+                  initial={displayInitial}
+                  onEdit={() => avatarInputRef.current?.click()}
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <h2 className="font-display text-lg font-bold text-foreground">Basic Information</h2>
@@ -187,7 +201,7 @@ export default function ProfileEditView({ profile, onSave, onBack, saving = fals
                   className={profileEditInputClass}
                   value={draft.fullName}
                   onChange={(e) => update({ fullName: e.target.value })}
-                  placeholder="Milena Belén Miranda"
+                  placeholder="Celeste Rojas"
                 />
               </ProfileField>
               <ProfileField
@@ -240,14 +254,6 @@ export default function ProfileEditView({ profile, onSave, onBack, saving = fals
                 />
                 <p className="type-small text-muted-foreground">{draft.bio.length} caracteres</p>
               </ProfileField>
-              <ProfileField label="Tagline">
-                <input
-                  className={profileEditInputClass}
-                  value={draft.tagline}
-                  onChange={(e) => update({ tagline: e.target.value })}
-                  placeholder="Experiencias gaming y cultura digital en CABA"
-                />
-              </ProfileField>
             </div>
           </section>
 
@@ -262,81 +268,50 @@ export default function ProfileEditView({ profile, onSave, onBack, saving = fals
               Channels & Metrics
             </h2>
             <div className="space-y-6 rounded-2xl border border-border-subtle bg-white p-6 sm:p-8">
-              <ProfileField label="Instagram">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <input
-                    className={`${profileEditInputClass} flex-1`}
-                    value={draft.instagram}
-                    onChange={(e) => update({ instagram: e.target.value })}
-                    placeholder="@usuario o URL completa"
-                    disabled={saving}
-                  />
-                  <ProfileSocialVerifyButton
-                    network="instagram"
-                    verified={profile.validatedLinks?.instagram}
-                    disabled={saving}
-                  />
+              {SOCIAL_PLATFORMS.map((platform) => (
+                <div key={platform.key} className="space-y-4 border-b border-border-subtle/80 pb-6 last:border-0 last:pb-0">
+                  <ProfileField label={platform.label}>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <input
+                        className={`${profileEditInputClass} flex-1`}
+                        value={draft[platform.field] ?? ''}
+                        onChange={(e) => update({ [platform.field]: e.target.value })}
+                        placeholder="@usuario o URL completa"
+                        disabled={saving}
+                      />
+                      {['instagram', 'tiktok', 'twitter'].includes(platform.key) && (
+                        <ProfileSocialVerifyButton
+                          network={platform.key}
+                          verified={profile.validatedLinks?.[platform.key]}
+                          disabled={saving}
+                        />
+                      )}
+                    </div>
+                  </ProfileField>
+                  {draft[platform.field]?.trim() && (
+                    <ProfileField
+                      label={`Seguidores en ${platform.label}`}
+                      hint="Estimado por ahora — se verificará con la API de cada red"
+                    >
+                      <input
+                        className={profileEditInputClass}
+                        value={draft.socialMetrics.platformFollowers?.[platform.key] ?? ''}
+                        onChange={(e) => updatePlatformFollowers(platform.key, e.target.value)}
+                        placeholder="18.2k"
+                        inputMode="text"
+                      />
+                    </ProfileField>
+                  )}
                 </div>
-              </ProfileField>
-              <ProfileField label="TikTok">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <input
-                    className={`${profileEditInputClass} flex-1`}
-                    value={draft.tiktok}
-                    onChange={(e) => update({ tiktok: e.target.value })}
-                    placeholder="@usuario o URL completa"
-                    disabled={saving}
-                  />
-                  <ProfileSocialVerifyButton
-                    network="tiktok"
-                    verified={profile.validatedLinks?.tiktok}
-                    disabled={saving}
-                  />
-                </div>
-              </ProfileField>
-              <ProfileField label="X (Twitter)">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <input
-                    className={`${profileEditInputClass} flex-1`}
-                    value={draft.twitter}
-                    onChange={(e) => update({ twitter: e.target.value })}
-                    placeholder="@usuario o URL completa"
-                    disabled={saving}
-                  />
-                  <ProfileSocialVerifyButton
-                    network="twitter"
-                    verified={profile.validatedLinks?.twitter}
-                    disabled={saving}
-                  />
-                </div>
-              </ProfileField>
-              <ProfileField label="Facebook">
+              ))}
+              <ProfileField label="% Engagement aprox.">
                 <input
                   className={profileEditInputClass}
-                  value={draft.facebook}
-                  onChange={(e) => update({ facebook: e.target.value })}
-                  placeholder="Página o perfil"
+                  value={draft.socialMetrics.engagementPercent}
+                  onChange={(e) => updateMetrics({ engagementPercent: e.target.value })}
+                  placeholder="4.2%"
                 />
               </ProfileField>
-              <div className="grid gap-6 sm:grid-cols-2">
-                <ProfileField label="Alcance estimado (seguidores)" required>
-                  <input
-                    className={profileEditInputClass}
-                    value={draft.socialMetrics.totalFollowers}
-                    onChange={(e) => updateMetrics({ totalFollowers: e.target.value })}
-                    placeholder="24500"
-                    inputMode="numeric"
-                  />
-                </ProfileField>
-                <ProfileField label="% Engagement aprox.">
-                  <input
-                    className={profileEditInputClass}
-                    value={draft.socialMetrics.engagementPercent}
-                    onChange={(e) => updateMetrics({ engagementPercent: e.target.value })}
-                    placeholder="4.2%"
-                  />
-                </ProfileField>
-              </div>
             </div>
           </section>
 
