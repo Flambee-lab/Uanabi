@@ -37,11 +37,13 @@ export function createLocalSession({ email, fullName = 'Milena Belén Miranda' }
   return {
     mock: true,
     local: true,
+    role: 'host',
     user: {
       id: 'local-milena-1',
       email: authSession.user.email,
       fullName: authSession.user.fullName || fullName,
       provider: authSession.user.provider,
+      role: 'host',
     },
   }
 }

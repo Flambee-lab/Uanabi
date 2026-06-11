@@ -10,6 +10,7 @@ import {
 import { buildCallbackRedirectPath } from './lib/authCallback'
 import { AuthProvider, useAuth } from './context/AuthProvider'
 import { useAuthGatekeeper } from './hooks/useAuthGatekeeper'
+import { useBrandGatekeeper } from './hooks/useBrandGatekeeper'
 import { useSocialOAuthCallback } from './hooks/useSocialOAuthCallback'
 import { DEFAULT_HOST_PROFILE } from './data/hostProfile'
 import { enableDevAuth } from './lib/supabase'
@@ -18,6 +19,10 @@ import LoginPage from './app/auth/login/page'
 import SignupPage from './app/auth/signup/page'
 import Dashboard from './views/Dashboard'
 import HostRegistrationWizard from './views/HostRegistrationWizard'
+import BrandLogin from './views/brands/BrandLogin'
+import BrandVerification from './views/brands/BrandVerification'
+import BrandDashboard from './views/brands/BrandDashboard'
+import BrandSettings from './views/brands/BrandSettings'
 import EventBrandPreviewView from './views/EventBrandPreviewView'
 import { isProfileConfigured } from './lib/profiles'
 import { getEventPreviewIdFromUrl } from './utils/eventBrandPreview'
@@ -168,6 +173,8 @@ function ProtectedRoutes() {
     isReady,
     session,
     profile,
+    brandProfile,
+    role,
     profileLoading,
     isSupabaseConfigured,
     isDevAuth,
@@ -176,7 +183,8 @@ function ProtectedRoutes() {
     refreshProfile,
   } = useAuth()
 
-  useAuthGatekeeper({ isReady, session, profile, profileLoading })
+  useAuthGatekeeper({ isReady, session, profile, profileLoading, role })
+  useBrandGatekeeper({ isReady, session, role, brandProfile })
   useSocialOAuthCallback({ profile, saveProfile, refreshProfile })
 
   useEffect(() => {
@@ -212,6 +220,20 @@ function ProtectedRoutes() {
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/signup" element={<SignupPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
+      <Route path="/brands/login" element={<BrandLogin />} />
+      <Route
+        path="/brands/verification"
+        element={session && role === 'brand' ? <BrandVerification /> : <Navigate to="/brands/login" replace />}
+      />
+      <Route
+        path="/brands/dashboard"
+        element={session && role === 'brand' ? <BrandDashboard /> : <Navigate to="/brands/login" replace />}
+      />
+      <Route
+        path="/brands/settings"
+        element={session && role === 'brand' ? <BrandSettings /> : <Navigate to="/brands/login" replace />}
+      />
+      <Route path="/brands" element={<Navigate to="/brands/dashboard" replace />} />
       <Route
         path="/profile"
         element={session ? <OnboardingRoute /> : <Navigate to="/auth/login" replace />}

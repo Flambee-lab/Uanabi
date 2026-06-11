@@ -1,5 +1,10 @@
 import { supabase, isSupabaseConfigured } from './supabase'
 import { SPONSORSHIP_STATUS } from '../utils/sponsorshipLifecycle'
+import {
+  loadLocalBrandInvitaciones,
+  mapInvitacionRow,
+  saveLocalBrandInvitaciones,
+} from '../data/mockBrandInvitaciones'
 
 export const DEFAULT_BRAND_DECLINE_MESSAGE =
   '¡Hola! Muchas gracias por la propuesta para tu evento. En este momento tenemos la agenda de patrocinios completa para estas fechas y no podemos asistir, pero nos encantaría que nos tengas en cuenta para tus próximos proyectos. ¡Gracias por hacernos parte de la comunidad UANABI!'
@@ -90,6 +95,59 @@ export async function fetchInvitacionesMarcasForEvents(eventoIds = []) {
     .in('evento_id', ids)
 
   return { data: data ?? [], error }
+}
+
+export async function fetchInvitacionesForMarca(marcaNombre, eventsById = {}) {
+  const normalized = (marcaNombre ?? '').trim().toLowerCase()
+  if (!normalized) return { data: [], error: null }
+
+  if (!isSupabaseConfigured || !supabase) {
+    const local = loadLocalBrandInvitaciones()
+      .filter((row) => row.marca_nombre?.toLowerCase() === normalized)
+      .map((row) => mapInvitacionRow(row, eventsById))
+    return { data: local, error: null, persisted: false }
+  }
+
+  const { data, error } = await supabase
+    .from('invitaciones_marcas')
+    .select('*')
+    .ilike('marca_nombre', marcaNombre.trim())
+    .order('created_at', { ascending: false })
+
+  if (error) return { data: [], error, persisted: true }
+
+  const mapped = (data ?? []).map((row) => mapInvitacionRow(row, eventsById))
+  return { data: mapped, error: null, persisted: true }
+}
+
+export async function updateInvitacionEstado(id, { estado, mensajeRespuesta = null } = {}) {
+  const patch = {
+    estado,
+    ...(mensajeRespuesta != null ? { mensaje_respuesta: mensajeRespuesta } : {}),
+  }
+
+  if (!isSupabaseConfigured || !supabase) {
+    const rows = loadLocalBrandInvitaciones()
+    const next = rows.map((row) =>
+      row.id === id ? { ...row, estado, mensaje_respuesta: mensajeRespuesta } : row,
+    )
+    saveLocalBrandInvitaciones(next)
+    const updated = next.find((r) => r.id === id)
+    return { data: updated ? mapInvitacionRow(updated) : null, error: null, persisted: false }
+  }
+
+  const { data, error } = await supabase
+    .from('invitaciones_marcas')
+    .update(patch)
+    .eq('id', id)
+    .select()
+    .single()
+
+  return {
+    data: data ? mapInvitacionRow(data) : null,
+    error,
+    persisted: true,
+  }
 }
 
 /** Enriquece invitedBrands con estado y mensaje_respuesta desde Supabase. */

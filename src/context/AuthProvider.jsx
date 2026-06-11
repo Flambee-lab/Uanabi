@@ -13,10 +13,22 @@ import {
   saveStoredHostProfile,
 } from '../data/hostProfile'
 import {
+  DEFAULT_BRAND_PROFILE,
+  loadStoredBrandProfile,
+  saveStoredBrandProfile,
+} from '../data/brandProfile'
+import {
   getDevLoginCredentials,
   isLocalAuthMode,
   validateLocalCredentials,
 } from '../lib/devLogin'
+import {
+  bootstrapBrandAuthSession,
+  createBrandSession,
+  loadBrandSession,
+  saveBrandSession,
+  validateBrandCredentials,
+} from '../lib/brandAuth'
 import {
   bootstrapLocalAuthSession,
   createLocalSession,
@@ -47,6 +59,8 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
+  const [brandProfile, setBrandProfile] = useState(null)
+  const [role, setRole] = useState(null)
   const [isReady, setIsReady] = useState(false)
   const [profileLoading] = useState(false)
 
@@ -67,18 +81,63 @@ export function AuthProvider({ children }) {
       return
     }
 
-    // Restaurar sesión solo en la misma pestaña (sessionStorage) — abrir localhost siempre empieza sin sesión
+    const brandExisting = loadBrandSession()
+    if (brandExisting) {
+      enableDevAuth()
+      setIsDevAuth(true)
+      setSession(brandExisting)
+      setUser(brandExisting.user)
+      setRole('brand')
+      setBrandProfile(loadStoredBrandProfile())
+      setIsReady(true)
+      return
+    }
+
+    // Restaurar sesión host solo en la misma pestaña (sessionStorage)
     const existing = loadDevSession()
     if (existing) {
       enableDevAuth()
       setIsDevAuth(true)
       setSession(existing)
       setUser(existing.user)
+      setRole('host')
       setProfile(loadStoredHostProfile())
     }
 
     setIsReady(true)
   }, [localAuth])
+
+  const signInAsBrand = useCallback(
+    async ({ email, password } = {}) => {
+      const creds = getDevLoginCredentials()
+      const resolvedEmail = email?.trim() || creds.email
+      const resolvedPassword = password ?? creds.password
+
+      if (!validateBrandCredentials(resolvedEmail, resolvedPassword)) {
+        throw new Error('Correo o contraseña incorrectos.')
+      }
+
+      saveDevSession(null)
+      enableDevAuth()
+      clearOnboardingSkip()
+
+      const session = createBrandSession({ email: resolvedEmail })
+      saveBrandSession(session)
+
+      const stored = loadStoredBrandProfile()
+      const profileForWizard = { ...stored, isVerified: stored.isVerified ?? false }
+      saveStoredBrandProfile(profileForWizard)
+
+      setIsDevAuth(true)
+      setSession(session)
+      setUser(session.user)
+      setRole('brand')
+      setBrandProfile(profileForWizard)
+      setProfile(null)
+      setIsReady(true)
+    },
+    [],
+  )
 
   const signInWithLocalCredentials = useCallback(
     async ({ email, password } = {}) => {
@@ -90,6 +149,7 @@ export function AuthProvider({ children }) {
         throw new Error('Correo o contraseña incorrectos.')
       }
 
+      saveBrandSession(null)
       enableDevAuth()
       clearOnboardingSkip()
 
@@ -106,6 +166,8 @@ export function AuthProvider({ children }) {
         user: session.user,
         profile: profileForWizard,
       })
+      setRole('host')
+      setBrandProfile(null)
     },
     [setters],
   )
@@ -115,8 +177,11 @@ export function AuthProvider({ children }) {
   }, [signInWithLocalCredentials])
 
   const enterAsGuest = useCallback(async () => {
+    saveBrandSession(null)
     const boot = bootstrapLocalAuthSession({ freshProfile: true })
     applyLocalSession(setters, boot)
+    setRole('host')
+    setBrandProfile(null)
   }, [setters])
 
   const signInWithPassword = useCallback(
@@ -142,12 +207,26 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     saveDevSession(null)
+    saveBrandSession(null)
     disableDevAuth()
     setIsDevAuth(false)
     setSession(null)
     setUser(null)
     setProfile(null)
+    setBrandProfile(null)
+    setRole(null)
   }, [])
+
+  const saveBrandProfile = useCallback(
+    async (nextProfile) => {
+      if (!user?.id || role !== 'brand') return { error: new Error('Sin sesión de marca') }
+      const saved = { ...nextProfile, role: 'brand' }
+      saveStoredBrandProfile(saved)
+      setBrandProfile(saved)
+      return { data: saved, error: null }
+    },
+    [user?.id, role],
+  )
 
   const saveProfile = useCallback(
     async (nextProfile) => {
@@ -178,6 +257,8 @@ export function AuthProvider({ children }) {
       session,
       user,
       profile: profile ?? DEFAULT_HOST_PROFILE,
+      brandProfile: brandProfile ?? DEFAULT_BRAND_PROFILE,
+      role,
       profileLoading,
       isReady,
       isSupabaseConfigured,
@@ -187,6 +268,10 @@ export function AuthProvider({ children }) {
       isLoggedIn: Boolean(session),
       isAuthenticated: Boolean(session),
       isGuest: false,
+      isBrand: role === 'brand',
+      isHost: role === 'host' || (!role && Boolean(session)),
+      signInAsBrand,
+      saveBrandProfile,
       signInWithPassword,
       signUpWithPassword,
       signInWithMagicLink,
@@ -203,16 +288,21 @@ export function AuthProvider({ children }) {
       disableDevAuth: () => {
         disableDevAuth()
         saveDevSession(null)
+        saveBrandSession(null)
         setIsDevAuth(false)
         setSession(null)
         setUser(null)
         setProfile(null)
+        setBrandProfile(null)
+        setRole(null)
       },
     }),
     [
       session,
       user,
       profile,
+      brandProfile,
+      role,
       profileLoading,
       isReady,
       localAuth,
@@ -228,6 +318,8 @@ export function AuthProvider({ children }) {
       enterAsGuest,
       signInWithDevCredentials,
       signInWithLocalCredentials,
+      signInAsBrand,
+      saveBrandProfile,
     ],
   )
 
