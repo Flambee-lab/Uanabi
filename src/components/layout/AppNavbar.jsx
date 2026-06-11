@@ -1,4 +1,5 @@
-import { Compass, Inbox, User } from 'lucide-react'
+import { Compass, Inbox, Pencil, User } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import NavbarUserMenu from './NavbarUserMenu'
 import NotificationsCenter from './NotificationsCenter'
@@ -28,6 +29,8 @@ export default function AppNavbar({
   onUserMenuAction,
   isGuest = false,
   exploreSearchDocked = null,
+  onProfileEdit,
+  profileEditing = false,
 }) {
   const dockProgress =
     activeNav === 'explore' && exploreSearchDocked ? exploreSearchDocked.progress : 0
@@ -104,6 +107,13 @@ export default function AppNavbar({
       )}
 
       <div className="uanabi-navbar-actions">
+        {activeNav === 'profile' && !profileEditing && onProfileEdit && (
+          <Button type="button" variant="secondary" size="sm" onClick={onProfileEdit}>
+            <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
+            <span className="hidden sm:inline">Editar perfil</span>
+          </Button>
+        )}
+
         <NotificationsCenter
           notifications={notifications}
           isOpen={notificationsOpen}

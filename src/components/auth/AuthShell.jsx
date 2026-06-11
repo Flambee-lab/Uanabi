@@ -6,7 +6,7 @@ export default function AuthShell({ children, footer }) {
     <div className="flex min-h-full flex-col overflow-y-auto bg-[#fafafa]">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 py-16">
         <p className="mb-8 text-center font-display text-sm font-black tracking-tight text-neutral-900">
-          Onbrand
+          Uanabi
         </p>
         <div className={AUTH_CARD_CLASS}>{children}</div>
         {footer}

@@ -2,7 +2,7 @@ import { PROFILE_EDIT_SECTIONS } from '../../data/hostProfile'
 
 export default function ProfileAnchorTabs({ activeId, onSelect }) {
   return (
-    <nav className="sticky top-0 z-10 -mx-1 border-b border-border-subtle bg-[#fafafa]/95 px-1 backdrop-blur-sm">
+    <nav className="sticky top-0 z-10 -mx-1 border-b border-border-subtle bg-background/95 px-1 backdrop-blur-sm">
       <div className="flex gap-6 overflow-x-auto scrollbar-none">
         {PROFILE_EDIT_SECTIONS.map((section) => (
           <button

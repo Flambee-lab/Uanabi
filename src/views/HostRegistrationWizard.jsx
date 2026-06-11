@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/card'
 import { FormField } from '@/components/ui/form-field'
 import { cn } from '@/lib/utils'
+import ProfileAvatar from '../components/profile/ProfileAvatar'
 import { WizardInput } from '../components/profile/wizard/WizardInputGroup'
 import {
   getProfileInitial,
@@ -66,13 +67,13 @@ const SOCIAL_FIELDS = [
     id: 'instagram',
     label: 'Instagram',
     placeholder: '@tuusuario',
-    hint: 'Usuario o link — ej: @milena.onbrand o instagram.com/milena.onbrand',
+    hint: 'Usuario o link — ej: @celeste.uanabi o instagram.com/celeste.uanabi',
   },
   {
     id: 'tiktok',
     label: 'TikTok',
     placeholder: '@tuusuario',
-    hint: 'Usuario o link — ej: @milenaonbrand o tiktok.com/@milenaonbrand',
+    hint: 'Usuario o link — ej: @celeste.uanabi o tiktok.com/@celeste.uanabi',
   },
   {
     id: 'youtube',
@@ -90,7 +91,7 @@ const SOCIAL_FIELDS = [
     id: 'twitter',
     label: 'X',
     placeholder: '@tuusuario',
-    hint: 'Usuario o link — ej: @milenaonbrand o x.com/milenaonbrand',
+    hint: 'Usuario o link — ej: @celeste.uanabi o x.com/celeste.uanabi',
   },
 ]
 
@@ -397,26 +398,13 @@ export default function HostRegistrationWizard({
                           className="hidden"
                           onChange={(e) => handleAvatar(e.target.files?.[0])}
                         />
-                        <button
-                          type="button"
-                          onClick={() => avatarInputRef.current?.click()}
-                          className="group relative shrink-0"
-                        >
-                          {form.avatarUrl ? (
-                            <img
-                              src={form.avatarUrl}
-                              alt=""
-                              className="h-24 w-24 rounded-2xl object-cover shadow-sm ring-1 ring-border-subtle"
-                            />
-                          ) : (
-                            <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-primary font-display text-2xl font-black text-white shadow-sm">
-                              {profileInitial}
-                            </div>
-                          )}
-                          <span className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border border-border-subtle bg-card text-muted-foreground shadow-sm transition group-hover:text-foreground">
-                            <Camera className="h-3.5 w-3.5" strokeWidth={2} />
-                          </span>
-                        </button>
+                        <ProfileAvatar
+                          src={form.avatarUrl}
+                          initial={profileInitial}
+                          size="sm"
+                          editIcon={Camera}
+                          onEdit={() => avatarInputRef.current?.click()}
+                        />
                         <div className="text-center sm:text-left">
                           <p className="text-sm font-bold text-foreground">Foto de perfil</p>
                           <p className="mt-1 text-xs text-muted-foreground">Opcional — podés cambiarla después</p>
@@ -433,7 +421,7 @@ export default function HostRegistrationWizard({
                           id="host-firstName"
                           value={form.firstName}
                           onChange={(e) => updateForm({ firstName: e.target.value })}
-                          placeholder="Ej: Milena"
+                          placeholder="Ej: Celeste"
                           autoFocus
                         />
                       </FormField>

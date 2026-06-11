@@ -3,7 +3,7 @@ import { DEFAULT_HOST_PROFILE, HOST_PROFILE_STORAGE_KEY } from './hostProfile'
 import { ONBOARDING_STORAGE_KEY } from './onboarding'
 
 export const GUEST_BANNER_KEY = 'uanabi_guest_banner_dismissed'
-export const ONBOARDING_SKIP_KEY = 'onbrand_skip_onboarding'
+export const ONBOARDING_SKIP_KEY = 'uanabi_skip_onboarding'
 
 export function markOnboardingSkipped() {
   try {
@@ -34,7 +34,6 @@ export function createFreshHostProfile() {
     ...DEFAULT_HOST_PROFILE,
     fullName: '',
     displayName: '',
-    tagline: '',
     bio: '',
     avatarUrl: null,
     location: DEFAULT_HOST_PROFILE.location,

@@ -1,5 +1,10 @@
 import { ArrowUpRight, BadgeCheck } from 'lucide-react'
-import { buildWhatsAppUrl, normalizeSocialUrl, WHATSAPP_PREFILL_MESSAGE } from '../../data/hostProfile'
+import {
+  buildWhatsAppUrl,
+  getPlatformFollowers,
+  normalizeSocialUrl,
+  WHATSAPP_PREFILL_MESSAGE,
+} from '../../data/hostProfile'
 
 function InstagramIcon({ className }) {
   return (
@@ -49,7 +54,7 @@ const SOCIAL_CHANNELS = [
     icon: InstagramIcon,
     iconWrapClass: 'bg-gradient-to-br from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]',
     accentClass: 'text-[#E1306C]',
-    metric: (profile) => profile.socialMetrics?.totalFollowers?.trim(),
+    metric: (profile) => getPlatformFollowers(profile, 'instagram'),
     metricLabel: 'seguidores',
   },
   {
@@ -59,11 +64,8 @@ const SOCIAL_CHANNELS = [
     icon: TikTokIcon,
     iconWrapClass: 'bg-neutral-900',
     accentClass: 'text-neutral-800',
-    metric: (profile) => {
-      const e = profile.socialMetrics?.engagementPercent?.trim()
-      return e ? `${e}%` : null
-    },
-    metricLabel: 'engagement',
+    metric: (profile) => getPlatformFollowers(profile, 'tiktok'),
+    metricLabel: 'seguidores',
   },
   {
     key: 'twitter',
@@ -72,6 +74,8 @@ const SOCIAL_CHANNELS = [
     icon: TwitterIcon,
     iconWrapClass: 'bg-neutral-900',
     accentClass: 'text-neutral-700',
+    metric: (profile) => getPlatformFollowers(profile, 'twitter'),
+    metricLabel: 'seguidores',
   },
   {
     key: 'facebook',
@@ -80,6 +84,8 @@ const SOCIAL_CHANNELS = [
     icon: FacebookIcon,
     iconWrapClass: 'bg-[#1877F2]',
     accentClass: 'text-[#1877F2]',
+    metric: (profile) => getPlatformFollowers(profile, 'facebook'),
+    metricLabel: 'seguidores',
   },
 ]
 

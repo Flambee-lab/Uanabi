@@ -131,7 +131,7 @@ export default function SignupPage() {
       }
     >
       <div className="space-y-2">
-        <h1 className={AUTH_TITLE_CLASS}>Crear tu cuenta en Onbrand</h1>
+        <h1 className={AUTH_TITLE_CLASS}>Crear tu cuenta en Uanabi</h1>
         <p className="text-center text-xs leading-relaxed text-neutral-500">
           Registrate para publicar eventos y conectar con marcas en Capital Federal.
         </p>

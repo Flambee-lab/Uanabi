@@ -37,7 +37,7 @@ import {
 
 const AuthContext = createContext(null)
 
-const DEV_SESSION_KEY = 'onbrand_dev_session'
+const DEV_SESSION_KEY = 'uanabi_dev_session'
 const DEV_AUTO_DASHBOARD = import.meta.env.DEV
 
 function mapSupabaseUser(user) {

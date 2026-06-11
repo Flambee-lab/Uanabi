@@ -54,7 +54,7 @@ export default function InboundProposalInline({
           <p className="text-sm leading-relaxed text-foreground/80">{proposal.textProposal}</p>
 
           <p className="mt-2 text-xs text-muted-foreground">
-            Quiere patrocinar tu evento y cerrar el trato directo en Onbrand.
+            Quiere patrocinar tu evento y cerrar el trato directo en Uanabi.
           </p>
         </div>
       </div>

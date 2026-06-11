@@ -210,11 +210,6 @@ export default function ProfilePublicMeetup({
             <h1 className="font-display text-3xl font-black tracking-tight text-foreground sm:text-4xl">
               {profile.displayName}
             </h1>
-            {profile.tagline && (
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                {profile.tagline}
-              </p>
-            )}
             <p className="mt-2 text-xs font-medium text-muted-foreground">
               {profile.socialMetrics?.totalFollowers} seguidores ·{' '}
               {profile.socialMetrics?.engagementPercent} engagement

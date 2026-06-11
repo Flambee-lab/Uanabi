@@ -46,7 +46,7 @@ function resolveProductPacks(brand) {
 
 
 
-/** Packs visibles en fila (estilo Onbrand) + contador overflow */
+/** Packs visibles en fila + contador overflow */
 
 export function getBrandProductPacks(brand) {
 

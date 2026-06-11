@@ -11,8 +11,8 @@ export const AUTH_PROVIDERS = {
 }
 
 export const DEFAULT_AUTH_USER = {
-  email: 'milena.belén@onbrand.app',
-  fullName: 'Milena Belén Miranda',
+  email: 'celeste@uanabi.app',
+  fullName: 'Celeste Rojas',
   provider: AUTH_PROVIDERS.GOOGLE,
 }
 

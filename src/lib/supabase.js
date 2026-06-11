@@ -15,7 +15,7 @@ export const isSupabaseConfigured = Boolean(
   supabaseUrl && supabaseAnonKey && !looksLikePlaceholder(supabaseUrl) && !looksLikePlaceholder(supabaseAnonKey),
 )
 
-export const DEV_AUTH_STORAGE_KEY = 'onbrand_dev_auth'
+export const DEV_AUTH_STORAGE_KEY = 'uanabi_dev_auth'
 
 export function isDevAuthEnabled() {
   try {

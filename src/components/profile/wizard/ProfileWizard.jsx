@@ -96,7 +96,6 @@ function initForm(profile) {
   return {
     fullName: profile.fullName ?? '',
     displayName: profile.displayName ?? '',
-    tagline: profile.tagline ?? '',
     bio: profile.bio ?? '',
     location: profile.location ?? HOST_LOCATION,
     categories: profile.categories?.length ? [...profile.categories] : [],
@@ -246,7 +245,7 @@ export default function ProfileWizard({
           id="wizard-fullName"
           value={form.fullName}
           onChange={(e) => update({ fullName: e.target.value })}
-          placeholder="Milena Belén Miranda"
+          placeholder="Celeste Rojas"
           autoFocus
         />
       </FormField>
@@ -315,7 +314,7 @@ export default function ProfileWizard({
         {renderInput({
           value: form.fullName,
           onChange: (e) => update({ fullName: e.target.value }),
-          placeholder: 'Milena Belén Miranda',
+          placeholder: 'Celeste Rojas',
           autoFocus: true,
         })}
       </ProfileField>

@@ -22,7 +22,7 @@ function SupabaseSetupNotice() {
   return (
     <div className="flex min-h-full flex-col items-center justify-center bg-[#fafafa] px-6 py-12">
       <div className="w-full max-w-md rounded-3xl border border-neutral-100 bg-white p-8 shadow-sm">
-        <p className="text-center font-display text-lg font-black text-neutral-900">Onbrand</p>
+        <p className="text-center font-display text-lg font-black text-neutral-900">Uanabi</p>
         <h1 className="mt-4 text-center text-sm font-bold text-neutral-800">
           Falta conectar Supabase
         </h1>

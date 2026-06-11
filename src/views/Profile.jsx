@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import EventCommercialSheet from '../components/event/EventCommercialSheet'
 import ProfileEditView from '../components/profile/ProfileEditView'
-import ProfilePublicView from '../components/profile/ProfilePublicView'
+import ProfileInternalView from '../components/profile/ProfileInternalView'
 
 export default function Profile({
   profile,
@@ -11,6 +11,7 @@ export default function Profile({
   onOpenChat,
 }) {
   const [isEditing, setIsEditing] = useState(false)
+  const [editSection, setEditSection] = useState(null)
   const [commercialEventId, setCommercialEventId] = useState(null)
 
   const commercialEvent = events.find((e) => e.id === commercialEventId)
@@ -18,6 +19,17 @@ export default function Profile({
   const handleSave = (data) => {
     onProfileChange?.(data)
     setIsEditing(false)
+    setEditSection(null)
+  }
+
+  const handleEdit = (section = 'basic') => {
+    setEditSection(section)
+    setIsEditing(true)
+  }
+
+  const handleBackFromEdit = () => {
+    setIsEditing(false)
+    setEditSection(null)
   }
 
   if (commercialEventId && commercialEvent) {
@@ -36,18 +48,19 @@ export default function Profile({
       <ProfileEditView
         profile={profile}
         onSave={handleSave}
-        onBack={() => setIsEditing(false)}
+        onBack={handleBackFromEdit}
+        initialSection={editSection}
       />
     )
   }
 
   return (
-    <ProfilePublicView
+    <ProfileInternalView
       profile={profile}
       events={events}
       brands={brands}
-      onEdit={() => setIsEditing(true)}
-      onSelectEvent={(event) => setCommercialEventId(event.id)}
+      onEdit={handleEdit}
+      onSelectEvent={(eventId) => setCommercialEventId(eventId)}
     />
   )
 }

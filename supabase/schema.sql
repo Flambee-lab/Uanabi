@@ -1,4 +1,4 @@
--- Onbrand: tabla de perfiles vinculada a Supabase Auth
+-- Uanabi: tabla de perfiles vinculada a Supabase Auth
 -- Ejecutar en el SQL Editor de tu proyecto Supabase
 
 create table if not exists public.profiles (

@@ -5,7 +5,7 @@ export const AUTH_PROVIDERS = {
 }
 
 export const DEFAULT_ACCOUNT_SETTINGS = {
-  email: 'milena.belén@onbrand.app',
+  email: 'celeste@uanabi.app',
   authProvider: AUTH_PROVIDERS.GOOGLE,
   commercialContactEnabled: true,
   emailNotifications: {

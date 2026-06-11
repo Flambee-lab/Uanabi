@@ -207,7 +207,7 @@ body {
 
 /*
  * Escala tipográfica Uanabi (4 saltos — no usar type-small, type-small, type-body, type-body)
- * Display 28px · Heading 18px · Body 14px · Small 12px
+ * Display 28px · Title 24px · Heading 18px · Body 14px · Small 12px
  */
 @layer components {
   .uanabi-page {
@@ -221,6 +221,9 @@ body {
   }
   .type-display {
     @apply font-display text-[1.75rem] leading-tight font-extrabold tracking-tight text-foreground;
+  }
+  .type-title {
+    @apply font-display text-[1.5rem] leading-snug font-bold tracking-tight text-foreground;
   }
   .type-heading {
     @apply font-display text-lg leading-snug font-bold tracking-tight text-foreground;
