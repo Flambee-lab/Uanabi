@@ -5,7 +5,7 @@ import { isProfileConfigured } from '../lib/profiles'
 
 const AUTH_PATHS = ['/auth/login', '/auth/signup', '/auth/callback']
 
-export function useAuthGatekeeper({ isReady, session, profile, profileLoading }) {
+export function useAuthGatekeeper({ isReady, session, profile, profileLoading, role }) {
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -13,8 +13,13 @@ export function useAuthGatekeeper({ isReady, session, profile, profileLoading })
     if (!isReady) return
 
     const path = location.pathname
+    const search = new URLSearchParams(location.search)
+    const isSocialOAuthCallback = search.get('callback') === 'true'
     const isAuthPath = AUTH_PATHS.some((p) => path.startsWith(p))
     const isCallback = path === '/auth/callback'
+
+    if (path.startsWith('/brands')) return
+    if (role === 'brand') return
 
     if (!session) {
       if (!isAuthPath) {
@@ -41,12 +46,12 @@ export function useAuthGatekeeper({ isReady, session, profile, profileLoading })
     }
 
     if (path === '/') {
-      navigate('/dashboard', { replace: true })
+      navigate(profileComplete ? '/dashboard' : '/profile', { replace: true })
       return
     }
 
-    if (path === '/profile' && profileComplete) {
+    if (path === '/profile' && profileComplete && !isSocialOAuthCallback) {
       navigate('/dashboard', { replace: true })
     }
-  }, [isReady, session, profile, profileLoading, location.pathname, navigate])
+  }, [isReady, session, profile, profileLoading, role, location.pathname, location.search, navigate])
 }

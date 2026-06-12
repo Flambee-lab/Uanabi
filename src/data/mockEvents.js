@@ -338,6 +338,25 @@ export const mockBrands = [
     sponsorScale: 'micro',
     categories: ['Estilo de Vida', 'Gastronomía'],
   },
+  {
+    id: 'brand-vitalsport',
+    name: 'VitalSport',
+    logo: simpleIconsLogo('myprotein', '0066CC'),
+    logoFallback: brandLogoFavicon('myprotein.com'),
+    industry: 'Suplementos y Bebidas Deportivas',
+    budgetType: 'Híbrido',
+    zone: 'Capital Federal - Belgrano',
+    coordinates: { lat: -34.562, lng: -58.458 },
+    coverGradient: 'from-cyan-900/40 to-emerald-800/35',
+    seeks: ['Torneos amateur', 'Carreras urbanas', 'Eventos fitness'],
+    offers: ['Bebidas isotónicas', 'Barras proteicas', 'Shakers con logo', 'Sponsoreo cash'],
+    applicationStatus: 'disponible',
+    matchScore: 4.9,
+    participations: 17,
+    activeHosts: 17,
+    sponsorScale: 'main',
+    categories: ['Estilo de Vida', 'Gastronomía'],
+  },
 ]
 
 export const ADMISSION_RUBROS = ['Bebidas', 'Gaming & Tech', 'Moda & Diseño']
@@ -538,6 +557,7 @@ export const myEvents = [
         status: 'declinado',
         invitedAt: '2026-05-20',
         statusChangedAt: '2026-05-25',
+        mensajeRespuesta: '',
       },
     ],
   },
@@ -597,32 +617,8 @@ export const myEvents = [
         statusChangedAt: '2026-05-18',
         declineReason:
           'El evento no encaja con nuestro calendario de activaciones este trimestre.',
-      },
-      {
-        brandId: 'brand-008',
-        status: 'declinado',
-        invitedAt: '2026-05-11',
-        statusChangedAt: '2026-05-17',
-      },
-      {
-        brandId: 'brand-001',
-        status: 'declinado',
-        invitedAt: '2026-05-10',
-        statusChangedAt: '2026-05-16',
-        declineReason: 'Buscamos eventos con mayor alcance presencial.',
-      },
-      {
-        brandId: 'brand-002',
-        status: 'declinado',
-        invitedAt: '2026-05-09',
-        statusChangedAt: '2026-05-15',
-      },
-      {
-        brandId: 'brand-006',
-        status: 'declinado',
-        invitedAt: '2026-05-08',
-        statusChangedAt: '2026-05-14',
-        declineReason: 'No tenemos presupuesto asignado para este tipo de activación.',
+        mensajeRespuesta:
+          '¡Gracias por pensar en nosotros! Este mes cerramos cupos para eventos en CABA, pero nos encantaría reconectar para tu próxima fecha.',
       },
       {
         brandId: 'brand-012',

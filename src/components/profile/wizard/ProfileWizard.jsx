@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MapPin, MessageCircle } from 'lucide-react'
+import { Loader2, MapPin, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -145,10 +145,13 @@ export default function ProfileWizard({
   isEdit,
   mandatory = false,
   fitViewport = false,
+  onPersistStep,
+  saving = false,
 }) {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState(() => initForm(profile))
   const [errors, setErrors] = useState({})
+  const [stepSaving, setStepSaving] = useState(false)
 
   const compact = mandatory && fitViewport
   const update = (patch) => setForm((prev) => ({ ...prev, ...patch }))
@@ -164,29 +167,53 @@ export default function ProfileWizard({
     return Object.keys(next).length === 0
   }
 
-  const saveProfile = ({ skipValidation = !mandatory } = {}) => {
+  const persistCurrentStep = async () => {
+    if (!onPersistStep) return
+    setStepSaving(true)
+    try {
+      await onPersistStep(form, step)
+    } finally {
+      setStepSaving(false)
+    }
+  }
+
+  const saveProfile = async ({ skipValidation = !mandatory } = {}) => {
     if (mandatory && !validateStep1()) {
       setStep(1)
       return
     }
     const cleaned = form.successStories.filter((s) => s.title?.trim())
-    onSave?.(
-      mergeProfileForSave(
-        profile,
-        {
-          ...form,
-          successStories: cleaned.length > 0 ? cleaned : form.successStories,
-        },
-        { skipValidation },
-      ),
+    const payload = mergeProfileForSave(
+      profile,
+      {
+        ...form,
+        successStories: cleaned.length > 0 ? cleaned : form.successStories,
+      },
+      { skipValidation },
     )
+
+    if (onPersistStep) {
+      setStepSaving(true)
+      try {
+        await onPersistStep(form, step)
+      } finally {
+        setStepSaving(false)
+      }
+    }
+
+    await onSave?.(payload)
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (mandatory && step === 1 && !validateStep1()) return
     if (step < TOTAL_STEPS) {
-      setStep((s) => s + 1)
-      setErrors({})
+      try {
+        await persistCurrentStep()
+        setStep((s) => s + 1)
+        setErrors({})
+      } catch {
+        setErrors({ form: 'No pudimos guardar el paso. Intentá de nuevo.' })
+      }
     }
   }
 
@@ -208,10 +235,16 @@ export default function ProfileWizard({
     }
   }
 
-  const handlePublish = (e) => {
+  const handlePublish = async (e) => {
     e.preventDefault()
-    saveProfile()
+    try {
+      await saveProfile()
+    } catch {
+      setErrors({ form: 'No pudimos guardar tu perfil. Intentá de nuevo.' })
+    }
   }
+
+  const busy = saving || stepSaving
 
   const handleSkipAll = () => {
     onSkip?.(mergeProfileForSave(profile, form, { skipValidation: true }))
@@ -498,16 +531,20 @@ export default function ProfileWizard({
           </Button>
         )}
         {step < TOTAL_STEPS ? (
-          <Button type="button" size={compact ? 'lg' : 'event'} onClick={handleNext}>
-            Siguiente paso
+          <Button type="button" size={compact ? 'lg' : 'event'} disabled={busy} onClick={handleNext}>
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Siguiente paso'}
           </Button>
         ) : (
-          <Button type="submit" size={compact ? 'lg' : 'event'}>
-            {mandatory
-              ? 'Finalizar y entrar a Uanabi'
-              : isEdit
-                ? 'Guardar cambios'
-                : 'Guardar y publicar perfil'}
+          <Button type="submit" size={compact ? 'lg' : 'event'} disabled={busy}>
+            {busy ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : mandatory ? (
+              'Finalizar y entrar a Uanabi'
+            ) : isEdit ? (
+              'Guardar cambios'
+            ) : (
+              'Guardar y publicar perfil'
+            )}
           </Button>
         )}
       </div>
