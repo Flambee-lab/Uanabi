@@ -429,48 +429,6 @@ function yesterdayISO() {
 
 export const myEvents = [
   {
-    id: 'evt-past-002',
-    title: 'Feria Foodie — Invierno en San Telmo',
-    date: '2026-03-08',
-    time: '12:00 – 20:00',
-    location: 'San Telmo, Buenos Aires',
-    audience: '120 presenciales / 4.5k reach',
-    niche: 'Gastronomía',
-    coverImage: EVENT_COVER_IMAGES.foodFair,
-    coverGradient: 'from-amber-100 via-orange-50 to-white',
-    coverLabel: 'FOODIE',
-    venueAddress: 'Plaza Dorrego · San Telmo, CABA',
-    description: 'Feria gastronómica de invierno con stands, música y activaciones de marcas.',
-    matchIndustries: ['Bebidas', 'Gastronomía'],
-    invitedBrands: [
-      { brandId: 'brand-009', status: 'match_aceptado', invitedAt: '2026-02-20' },
-      {
-        brandId: 'brand-004',
-        status: 'en_verificacion_admin',
-        hostPhase: 'validated',
-        invitedAt: '2026-01-30',
-      },
-    ],
-  },
-  {
-    id: 'evt-past-003',
-    title: 'Meetup Tech Founders — Edición CABA',
-    date: '2026-02-14',
-    time: '19:00 – 22:00',
-    location: 'Microcentro, Buenos Aires',
-    audience: '60 presenciales / 1.8k reach',
-    niche: 'Tecnología',
-    coverImage: EVENT_COVER_IMAGES.techMeetup,
-    coverGradient: 'from-sky-100 via-indigo-50 to-white',
-    coverLabel: 'TECH',
-    venueAddress: 'Av. Corrientes 800 · Microcentro, CABA',
-    description: 'Encuentro de founders con paneles, networking y sponsors tech.',
-    matchIndustries: ['Tecnología'],
-    invitedBrands: [
-      { brandId: 'brand-004', status: 'en_verificacion_admin', invitedAt: '2026-01-30' },
-    ],
-  },
-  {
     id: 'evt-past-close',
     title: 'Rooftop Privado — Lanzamiento Exclusivo',
     date: yesterdayISO(),
@@ -500,7 +458,6 @@ export const myEvents = [
         invitedAt: '2026-05-15',
         statusChangedAt: '2026-05-20',
       },
-      { brandId: 'brand-001', status: 'invitacion_enviada', invitedAt: '2026-05-18' },
     ],
   },
   {

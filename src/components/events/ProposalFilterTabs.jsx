@@ -40,9 +40,9 @@ function FilterTab({ tab, isActive, onChange, disabled = false }) {
       onClick={() => onChange(tab.id)}
       className={cn(
         'uanabi-proposal-filter-tab',
-        !hasApprovedWin && tab.widthClass,
-        isActive && 'uanabi-proposal-filter-tab-active',
-        hasApprovedWin && 'h-full w-full rounded-[7px]',
+        tab.widthClass,
+        hasApprovedWin && 'uanabi-proposal-filter-tab-approved-highlight',
+        isActive && !hasApprovedWin && 'uanabi-proposal-filter-tab-active',
         disabled && 'uanabi-proposal-filter-tab-disabled',
       )}
     >
@@ -78,19 +78,6 @@ function FilterTab({ tab, isActive, onChange, disabled = false }) {
     </button>
   )
 
-  if (hasApprovedWin) {
-    return (
-      <div
-        className={cn(
-          'uanabi-proposal-filter-tab-approved-ring h-8 shrink-0 rounded-lg p-px',
-          tab.widthClass,
-        )}
-      >
-        {button}
-      </div>
-    )
-  }
-
   return button
 }
 
@@ -125,9 +112,10 @@ export default function ProposalFilterTabs({
       <div
         className={cn(
           'uanabi-proposal-filter-tab uanabi-proposal-filter-tab--xl',
-          'uanabi-proposal-filter-tab-active w-fit shrink-0',
-          hasVerificationHighlight && 'h-full w-full rounded-[7px] border-0',
-          !hasVerificationHighlight && 'w-fit shrink-0',
+          'uanabi-proposal-filter-tab-active shrink-0',
+          hasVerificationHighlight
+            ? 'uanabi-proposal-filter-tab-verification-highlight w-fit'
+            : 'w-fit',
         )}
         role="tab"
         aria-selected="true"
@@ -163,18 +151,7 @@ export default function ProposalFilterTabs({
         role="tablist"
         aria-label="Verificación de patrocinios"
       >
-        {hasVerificationHighlight ? (
-          <div
-            className={cn(
-              'uanabi-proposal-filter-tab-verification-ring h-8 shrink-0 rounded-lg p-px',
-              'uanabi-proposal-filter-tab--xl',
-            )}
-          >
-            {verificationChip}
-          </div>
-        ) : (
-          verificationChip
-        )}
+        {verificationChip}
         {verificationDescription && (
           <p className="type-small min-w-0 flex-1 leading-relaxed text-muted-foreground">
             {verificationDescription}

@@ -9,21 +9,24 @@ import {
   getInvitationRowBorderClass,
   getInvitationRowSummaryTitleClass,
   getProductDeliveryByLabel,
+  inviteNeedsHostVerificationUpload,
   SPONSORSHIP_STATUS,
 } from '../../utils/sponsorshipLifecycle'
 
 function StatusSummary({ summary, className }) {
   return (
-    <div className={cn('min-w-[8.5rem] max-w-[11rem] text-right', className)}>
+    <div className={cn('shrink-0 text-right', className)}>
       <p
         className={cn(
-          'type-small font-semibold leading-snug',
+          'type-small whitespace-nowrap font-semibold leading-snug',
           getInvitationRowSummaryTitleClass(summary.tone),
         )}
       >
         {summary.title}
       </p>
-      <p className="type-small mt-0.5 leading-snug text-muted-foreground">{summary.subtitle}</p>
+      <p className="type-small mt-0.5 whitespace-nowrap leading-snug text-muted-foreground">
+        {summary.subtitle}
+      </p>
     </div>
   )
 }
@@ -47,8 +50,8 @@ export default function HostInvitedBrandTimeline({
   }
   const presentation = getInvitationPresentation(status, presentationOptions)
   const hasUnreadNotification = Boolean(unreadNotificationType)
-  const participationValidationPending =
-    isPastEvent && status === SPONSORSHIP_STATUS.CASO_ABIERTO
+  const needsVerificationUpload = inviteNeedsHostVerificationUpload({ status }, event)
+  const participationValidationPending = needsVerificationUpload
   const accentType = hasUnreadNotification
     ? unreadNotificationType
     : participationValidationPending
@@ -59,7 +62,7 @@ export default function HostInvitedBrandTimeline({
     hasUnreadNotification &&
     unreadNotificationType === 'declined'
   const isDeclinedMuted = status === SPONSORSHIP_STATUS.DECLINADO && !isDeclinedUnread
-  const showCloseCase = status === SPONSORSHIP_STATUS.CASO_ABIERTO && onCloseCase
+  const showVerificationAction = needsVerificationUpload && onCloseCase
   const [isOpen, setIsOpen] = useState(false)
   const panelId = `invite-brand-panel-${brand.id}`
 
@@ -88,7 +91,9 @@ export default function HostInvitedBrandTimeline({
         <span
           className={cn(
             'absolute bottom-3 left-0 top-3 w-[3px] rounded-full',
-            INLINE_NOTIFICATION_ACCENT_CLASS[accentType] ?? 'bg-emerald-500',
+            accentType === 'declined'
+              ? 'bg-orange-300'
+              : (INLINE_NOTIFICATION_ACCENT_CLASS[accentType] ?? 'bg-emerald-500'),
           )}
           aria-hidden
         />
@@ -128,7 +133,7 @@ export default function HostInvitedBrandTimeline({
       {isOpen && (
         <div id={panelId} className="mt-3 border-t border-border-subtle pt-3">
           <p className="type-small font-semibold leading-snug text-foreground">{presentation.detail}</p>
-          {showCloseCase && (
+          {showVerificationAction && (
             <Button
               type="button"
               variant="primary"
@@ -136,7 +141,7 @@ export default function HostInvitedBrandTimeline({
               className="mt-3"
               onClick={() => onCloseCase(brand.id)}
             >
-              Validar participación
+              Subir pruebas
             </Button>
           )}
         </div>

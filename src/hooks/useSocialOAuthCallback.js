@@ -14,6 +14,7 @@ export function useSocialOAuthCallback({ profile, saveProfile, refreshProfile })
     let active = true
 
     ;(async () => {
+      if (!supabase) return
       setReconciling(true)
       try {
         const {

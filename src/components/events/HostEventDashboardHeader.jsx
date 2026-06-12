@@ -70,7 +70,8 @@ export default function HostEventDashboardHeader({
         <div
           className={cn(
             'flex gap-4 px-4 pt-4 sm:px-6 sm:pt-6',
-            !hasExtraDetails && 'pb-4 sm:pb-6',
+            !detailsOpen && 'pb-4 sm:pb-6',
+            detailsOpen && 'pb-5 sm:pb-6',
           )}
         >
           <EventCoverMedia
@@ -118,39 +119,41 @@ export default function HostEventDashboardHeader({
               {event.title}
             </h1>
 
-            {metaChips.length > 0 && (
-              <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                {metaChips.map((chip) => (
-                  <MetaChip key={chip.id} icon={chip.icon}>
-                    {chip.label}
-                  </MetaChip>
-                ))}
+            {(metaChips.length > 0 || hasExtraDetails) && (
+              <div className="mt-2 flex items-center gap-2">
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                  {metaChips.map((chip) => (
+                    <MetaChip key={chip.id} icon={chip.icon}>
+                      {chip.label}
+                    </MetaChip>
+                  ))}
+                </div>
+                {hasExtraDetails && (
+                  <button
+                    type="button"
+                    onClick={() => setDetailsOpen((o) => !o)}
+                    className="inline-flex shrink-0 items-center gap-1 type-small font-semibold leading-none text-foreground transition hover:text-primary"
+                    aria-expanded={detailsOpen}
+                  >
+                    {detailsOpen ? 'Ocultar detalle' : 'Ver detalle'}
+                    <ChevronDown
+                      className={cn(
+                        'h-4 w-4 shrink-0 text-muted-foreground transition-transform',
+                        detailsOpen && 'rotate-180',
+                      )}
+                      strokeWidth={2}
+                      aria-hidden
+                    />
+                  </button>
+                )}
               </div>
             )}
           </div>
         </div>
 
-        {hasExtraDetails ? (
-          <div className="mt-3 border-t border-navbar-border px-4 py-3 sm:px-6">
-            <button
-              type="button"
-              onClick={() => setDetailsOpen((o) => !o)}
-              className="flex min-h-5 w-full items-center justify-between gap-2 text-left"
-            >
-              <span className="type-small font-semibold leading-none text-foreground">
-                {detailsOpen ? 'Ocultar detalle' : 'Ver detalle del evento'}
-              </span>
-              <ChevronDown
-                className={cn(
-                  'h-4 w-4 shrink-0 text-muted-foreground transition-transform',
-                  detailsOpen && 'rotate-180',
-                )}
-                strokeWidth={2}
-              />
-            </button>
-
-            {detailsOpen && (
-              <div className="mt-3 space-y-3">
+        {hasExtraDetails && detailsOpen ? (
+          <div className="border-t border-navbar-border px-4 pb-4 pt-5 sm:px-6 sm:pb-6 sm:pt-6">
+            <div className="space-y-3">
                 {description && (
                   <p className="type-small max-w-3xl whitespace-pre-line leading-relaxed text-muted-foreground">
                     {description}
@@ -167,8 +170,7 @@ export default function HostEventDashboardHeader({
                     {event.matchIndustries.join(' · ')}
                   </p>
                 )}
-              </div>
-            )}
+            </div>
           </div>
         ) : null}
       </CardContent>

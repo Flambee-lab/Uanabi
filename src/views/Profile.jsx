@@ -86,6 +86,7 @@ export default function Profile({
     let active = true
 
     async function handleOAuthReturn() {
+      if (!supabase) return
       setOauthReconciling(true)
       try {
         const {

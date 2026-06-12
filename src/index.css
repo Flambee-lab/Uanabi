@@ -474,30 +474,37 @@ body {
   .uanabi-proposal-filter-tab-active {
     @apply border-navbar-border bg-white text-foreground shadow-none;
   }
-  .uanabi-proposal-filter-tab-approved-ring {
-    background: linear-gradient(
-      135deg,
-      rgb(110 231 183 / 0.95) 0%,
-      rgb(16 185 129) 45%,
-      rgb(5 150 105) 100%
-    );
+  .uanabi-proposal-filter-tab-approved-highlight {
+    @apply box-border rounded-lg border border-transparent bg-white shadow-none;
+    background-image:
+      linear-gradient(white, white),
+      linear-gradient(
+        135deg,
+        rgb(110 231 183 / 0.95) 0%,
+        rgb(16 185 129) 45%,
+        rgb(5 150 105) 100%
+      );
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
   }
-  .uanabi-proposal-filter-tab-approved-ring .uanabi-proposal-filter-tab {
-    @apply border-0 bg-white;
+  .uanabi-proposal-filter-tab-approved-highlight.uanabi-proposal-filter-tab-active {
+    @apply border-transparent text-foreground;
   }
-  .uanabi-proposal-filter-tab-approved-ring .uanabi-proposal-filter-tab-active {
-    @apply bg-white text-foreground;
+  .uanabi-proposal-filter-tab-verification-highlight {
+    @apply box-border rounded-lg border border-transparent bg-white shadow-none;
+    background-image:
+      linear-gradient(white, white),
+      linear-gradient(
+        135deg,
+        rgb(253 186 116 / 0.95) 0%,
+        rgb(249 115 22) 45%,
+        rgb(234 88 12) 100%
+      );
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
   }
-  .uanabi-proposal-filter-tab-verification-ring {
-    background: linear-gradient(
-      135deg,
-      rgb(253 186 116 / 0.95) 0%,
-      rgb(249 115 22) 45%,
-      rgb(234 88 12) 100%
-    );
-  }
-  .uanabi-proposal-filter-tab-verification-ring .uanabi-proposal-filter-tab {
-    @apply border-0 bg-white;
+  .uanabi-proposal-filter-tab-verification-highlight.uanabi-proposal-filter-tab-active {
+    @apply border-transparent text-foreground;
   }
   .uanabi-proposal-filter-tab-disabled {
     @apply cursor-not-allowed opacity-40;

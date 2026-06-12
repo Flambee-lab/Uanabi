@@ -124,7 +124,7 @@ export default function ExploreHome({
         <div className="mx-auto mb-8 w-full max-w-4xl text-center sm:mb-10">
           <h1 className="type-display">Encontrá un sponsor para tu próximo evento.</h1>
           <p className="mx-auto mt-2 max-w-xl type-body-muted">
-            Estas son las marcas que quieren estar con vos en tu próximo evento.
+            Estas son las marcas que quieren estar con vos.
           </p>
         </div>
         <div

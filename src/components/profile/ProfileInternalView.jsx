@@ -14,7 +14,6 @@ import {
   getVerifiedPartnerEventCounts,
 } from '../../utils/profileBrands'
 import { splitEventsByTimeline } from '../../utils/hostEventBuckets'
-import { BRAND_CATEGORY_TAG_CLASS } from '../explore/BrandCategoryTags'
 import ProfileAvatar from './ProfileAvatar'
 import ProfileHeroSocialGrid from './ProfileHeroSocialGrid'
 import ProfileLinkedInCard from './ProfileLinkedInCard'
@@ -152,15 +151,6 @@ export default function ProfileInternalView({
             onEdit={() => onEdit?.('basic')}
             bodyClassName="pt-0"
           >
-            {categories.length > 0 && (
-              <ul className="mb-4 flex flex-wrap gap-1.5">
-                {categories.map((tag) => (
-                  <li key={tag} className={BRAND_CATEGORY_TAG_CLASS}>
-                    {tag}
-                  </li>
-                ))}
-              </ul>
-            )}
             {profile.bio?.trim() ? (
               <p className="type-body whitespace-pre-line">{profile.bio}</p>
             ) : (

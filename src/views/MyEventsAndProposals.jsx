@@ -12,6 +12,7 @@ import {
 } from '../utils/hostEventBuckets'
 import {
   isEventPast,
+  SPONSORSHIP_STATUS,
 } from '../utils/sponsorshipLifecycle'
 import { migrateLegacyApprovedBannerDismiss } from '../utils/eventInlineNotifications'
 import {
@@ -19,6 +20,7 @@ import {
   getSuggestedBrands,
 } from '../utils/eventSponsorMatch'
 import DeleteEventConfirmModal from '../components/events/DeleteEventConfirmModal'
+import SponsorshipCloseCaseModal from '../components/events/SponsorshipCloseCaseModal'
 import MatchesAndRequests from './MatchesAndRequests'
 import { withRuntimeDemoDates } from '../utils/myEventsRuntime'
 
@@ -35,6 +37,7 @@ export default function MyEventsAndProposals({
   const [panelMode, setPanelMode] = useState('event')
   const [detailSource, setDetailSource] = useState('active')
   const [selectedEventId, setSelectedEventId] = useState(() => pickDefaultEventId(events))
+  const [closeCaseTarget, setCloseCaseTarget] = useState(null)
   const [deleteEventTarget, setDeleteEventTarget] = useState(null)
   const [notifRevision, setNotifRevision] = useState(0)
   const prevEventsLength = useRef(events.length)
@@ -143,11 +146,18 @@ export default function MyEventsAndProposals({
         }
       }),
     )
+    setCloseCaseTarget(null)
   }
 
-  const handleOpenChat = (brandId) => {
-    onBrandsMatch?.(brandId)
-    onOpenChat?.(brandId)
+  const handleCloseCaseForBrand = (brandId) => {
+    const brand = invitedBrands.find((b) => b.id === brandId)
+    if (!brand || !selectedEvent) return
+    setCloseCaseTarget({
+      eventId: selectedEvent.id,
+      eventTitle: selectedEvent.title,
+      brandId,
+      brandName: brand.name,
+    })
   }
 
   const handleSelectEventFromPast = (eventId) => {
@@ -235,6 +245,7 @@ export default function MyEventsAndProposals({
               onNotificationsDismissed={() => setNotifRevision((revision) => revision + 1)}
               onEventsChange={onEventsChange}
               onDeleteEventRequest={setDeleteEventTarget}
+              onCloseCaseForBrand={handleCloseCaseForBrand}
             />
           </>
         ) : (
@@ -256,6 +267,13 @@ export default function MyEventsAndProposals({
           </div>
         )}
       </div>
+
+      <SponsorshipCloseCaseModal
+        isOpen={Boolean(closeCaseTarget)}
+        caseInfo={closeCaseTarget}
+        onClose={() => setCloseCaseTarget(null)}
+        onSubmit={handleCloseCaseSubmit}
+      />
 
       <DeleteEventConfirmModal
         isOpen={Boolean(deleteEventTarget)}
