@@ -13,7 +13,7 @@ export function BrandPanelShell({ brandName, children, activeNav = 'dashboard', 
   ]
 
   return (
-    <div className="flex min-h-dvh flex-col bg-slate-50">
+    <div className="flex h-dvh flex-col overflow-hidden bg-slate-50">
       <header
         className="shrink-0 border-b border-white/10 px-4 py-3 sm:px-6"
         style={{ backgroundColor: SLATE }}
@@ -47,29 +47,31 @@ export function BrandPanelShell({ brandName, children, activeNav = 'dashboard', 
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:py-8">
-        <nav className="flex shrink-0 gap-2 lg:w-52 lg:flex-col">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const active = activeNav === item.id
-            return (
-              <Link
-                key={item.id}
-                to={item.href}
-                className={cn(
-                  'inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition',
-                  active
-                    ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200/80'
-                    : 'text-slate-600 hover:bg-white hover:text-slate-900',
-                )}
-              >
-                <Icon className="h-4 w-4" strokeWidth={2} />
-                {item.label}
-              </Link>
-            )
-          })}
-        </nav>
-        <main className="min-w-0 flex-1">{children}</main>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:py-8">
+          <nav className="flex shrink-0 gap-2 lg:w-52 lg:flex-col">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              const active = activeNav === item.id
+              return (
+                <Link
+                  key={item.id}
+                  to={item.href}
+                  className={cn(
+                    'inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition',
+                    active
+                      ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200/80'
+                      : 'text-slate-600 hover:bg-white hover:text-slate-900',
+                  )}
+                >
+                  <Icon className="h-4 w-4" strokeWidth={2} />
+                  {item.label}
+                </Link>
+              )
+            })}
+          </nav>
+          <main className="min-w-0 flex-1">{children}</main>
+        </div>
       </div>
     </div>
   )

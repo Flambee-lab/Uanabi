@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
+  BadgeCheck,
   Calendar,
   Check,
   ChevronDown,
@@ -222,7 +223,7 @@ function RecommendedPackCard({ pack, selected, quantities, maxUnits, onSelect, o
   )
 }
 
-function BrandHeroPanel({ brandDisplay, selectedEvent, step }) {
+function BrandHeroPanel({ brandDisplay, step }) {
   const heroProducts = HERO_PRODUCT_IDS.map(
     (id) => VITALSPORT_CATALOG.find((p) => p.id === id) ?? VITALSPORT_CATALOG[0],
   )
@@ -271,18 +272,10 @@ function BrandHeroPanel({ brandDisplay, selectedEvent, step }) {
         </div>
 
         <div className="mt-auto space-y-3">
-          {selectedEvent && (
-            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-sky-400/90">
-                Evento vinculado
-              </p>
-              <p className="mt-1 font-display text-base font-bold text-white">{selectedEvent.title}</p>
-              <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-400">
-                <Calendar className="h-3.5 w-3.5" />
-                {selectedEvent.date}
-              </p>
-            </div>
-          )}
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-400">
+            <BadgeCheck className="h-4 w-4 text-sky-400" strokeWidth={2.2} />
+            Marca verificada por UANABI
+          </p>
           <p className="text-xs leading-relaxed text-slate-500">
             {step === 1 && 'Te sugerimos packs con cantidades a la medida de tu evento.'}
             {step === 2 && 'Contanos qué entregables podés ofrecer a cambio.'}
@@ -295,23 +288,28 @@ function BrandHeroPanel({ brandDisplay, selectedEvent, step }) {
   )
 }
 
-function SummaryBlock({ title, items, note }) {
+function SummaryBlock({ title, items, note, className }) {
   return (
-    <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+    <div className={cn('rounded-2xl border border-slate-100 bg-slate-50/60 p-3.5', className)}>
       <p className="text-[10px] font-bold uppercase tracking-widest text-sky-600">{title}</p>
-      {items.length === 0 ? (
-        <p className="mt-2 text-sm text-slate-400">Sin selección</p>
+      {items.length === 0 && !note ? (
+        <p className="mt-1.5 text-[13px] text-slate-400">Sin selección</p>
       ) : (
-        <ul className="mt-2 space-y-1.5">
+        <ul className="mt-1.5 space-y-1">
           {items.map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm text-slate-800">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-sky-500" strokeWidth={2.5} />
+            <li key={item} className="flex items-start gap-1.5 text-[13px] leading-snug text-slate-800">
+              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sky-500" strokeWidth={2.5} />
               {item}
             </li>
           ))}
         </ul>
       )}
-      {note && <p className="mt-3 text-sm leading-relaxed text-slate-600">{note}</p>}
+      {note && (
+        <p className="mt-2 text-[13px] leading-snug text-slate-600">
+          <span className="font-semibold text-slate-500">Pedido especial: </span>
+          {note}
+        </p>
+      )}
     </div>
   )
 }
@@ -487,12 +485,12 @@ export default function InvitationWizard({
       aria-labelledby="invitation-wizard-title"
     >
       <aside className="hidden min-h-0 w-[42%] shrink-0 lg:block xl:w-[44%]">
-        <BrandHeroPanel brandDisplay={brandDisplay} selectedEvent={selectedEvent} step={step} />
+        <BrandHeroPanel brandDisplay={brandDisplay} step={step} />
       </aside>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div className="relative h-28 shrink-0 overflow-hidden lg:hidden">
-          <BrandHeroPanel brandDisplay={brandDisplay} selectedEvent={selectedEvent} step={step} />
+          <BrandHeroPanel brandDisplay={brandDisplay} step={step} />
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col p-4 sm:p-6 lg:p-8">
@@ -729,27 +727,28 @@ export default function InvitationWizard({
                 )}
 
                 {step === 4 && (
-                  <div className="mx-auto max-w-lg space-y-4">
-                    <div className="rounded-3xl border border-sky-200/70 bg-gradient-to-b from-sky-50 to-white px-6 py-7 text-center">
-                      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-400/15 text-sky-500">
-                        <Send className="h-7 w-7" strokeWidth={2.2} />
+                  <div className="mx-auto max-w-2xl space-y-3">
+                    <div className="flex items-center gap-4 rounded-2xl border border-sky-200/70 bg-gradient-to-r from-sky-50 to-white px-5 py-4">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-400/15 text-sky-500">
+                        <Send className="h-5 w-5" strokeWidth={2.2} />
                       </span>
-                      <h3 className="mt-4 font-display text-lg font-black text-slate-900">
-                        Estás por enviar una propuesta
-                      </h3>
-                      <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                        Esto no confirma el patrocinio: {brandDisplay.name} puede{' '}
-                        <strong className="font-semibold text-slate-800">aceptar o declinar</strong>{' '}
-                        tu propuesta. Te avisamos por WhatsApp y acá en la plataforma apenas haya
-                        novedades.
-                      </p>
-                      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-bold text-slate-600 ring-1 ring-slate-200">
-                          <Clock className="h-3.5 w-3.5 text-sky-500" />
-                          Respuesta en hasta 7 días hábiles
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-display text-sm font-black text-slate-900">
+                          Estás por enviar una propuesta
+                        </h3>
+                        <p className="mt-0.5 text-xs leading-snug text-slate-600">
+                          No confirma el patrocinio: {brandDisplay.name} puede{' '}
+                          <strong className="font-semibold text-slate-800">aceptar o declinar</strong>.
+                          Te avisamos por WhatsApp y en la plataforma.
+                        </p>
+                      </div>
+                      <div className="hidden shrink-0 flex-col items-end gap-1.5 sm:flex">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-slate-600 ring-1 ring-slate-200">
+                          <Clock className="h-3 w-3 text-sky-500" />
+                          Hasta 7 días hábiles
                         </span>
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-bold text-slate-600 ring-1 ring-slate-200">
-                          <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-slate-600 ring-1 ring-slate-200">
+                          <MessageCircle className="h-3 w-3 text-emerald-600" />
                           Aviso por WhatsApp
                         </span>
                       </div>
@@ -759,53 +758,55 @@ export default function InvitationWizard({
                       className="overflow-hidden rounded-3xl border border-slate-200/80 shadow-lg"
                       style={{ backgroundColor: SLATE }}
                     >
-                      <div className="border-b border-white/10 px-6 py-5">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-sky-400">
-                          Resumen de la propuesta
-                        </p>
-                        <p className="mt-2 font-display text-xl font-black text-white">
-                          Proponés a {brandDisplay.name}
-                        </p>
-                        <p className="mt-1 text-sm text-slate-400">
+                      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-white/10 px-5 py-3.5">
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-sky-400">
+                            Resumen de la propuesta
+                          </p>
+                          <p className="mt-0.5 font-display text-base font-black text-white">
+                            Proponés a {brandDisplay.name}
+                          </p>
+                        </div>
+                        <p className="text-xs text-slate-400">
                           {selectedEvent?.title} · {selectedEvent?.date}
                         </p>
                       </div>
-                      <div className="space-y-3 bg-white p-5">
-                        <SummaryBlock title="Le pedís a la marca" items={productLines} />
-                        {specialRequest.trim() && (
-                          <SummaryBlock
-                            title="Pedido especial"
-                            items={[]}
-                            note={specialRequest.trim()}
-                          />
-                        )}
+                      <div className="grid gap-3 bg-white p-4 sm:grid-cols-2">
+                        <SummaryBlock
+                          title="Le pedís a la marca"
+                          items={productLines}
+                          note={specialRequest.trim() || null}
+                        />
                         <SummaryBlock title="Ofrecés a cambio" items={requirementLabels} />
-                        <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                        <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-3.5 sm:col-span-2">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-sky-600">
                             Logística
                           </p>
-                          <ul className="mt-2 space-y-1.5 text-sm text-slate-800">
-                            <li>
+                          <div className="mt-1.5 grid gap-x-4 gap-y-1 text-[13px] leading-snug text-slate-800 sm:grid-cols-3">
+                            <p>
                               <span className="text-slate-500">Stock para el: </span>
                               {deliveryDate
                                 ? new Date(`${deliveryDate}T12:00:00`).toLocaleDateString('es-AR', {
-                                    weekday: 'long',
                                     day: 'numeric',
-                                    month: 'long',
+                                    month: 'short',
+                                    year: 'numeric',
                                   })
                                 : '—'}
-                            </li>
-                            <li>
+                            </p>
+                            <p>
                               <span className="text-slate-500">Entrega en: </span>
                               {deliveryAddress || '—'}
-                            </li>
-                            <li>
+                            </p>
+                            <p>
                               <span className="text-slate-500">WhatsApp: </span>
                               {formatWhatsAppDisplay(whatsapp) || '—'}
-                            </li>
-                          </ul>
+                            </p>
+                          </div>
                           {extraMessage.trim() && (
-                            <p className="mt-3 text-sm text-slate-600">{extraMessage.trim()}</p>
+                            <p className="mt-2 text-[13px] leading-snug text-slate-600">
+                              <span className="font-semibold text-slate-500">Nota: </span>
+                              {extraMessage.trim()}
+                            </p>
                           )}
                         </div>
                       </div>
