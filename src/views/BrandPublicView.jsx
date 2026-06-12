@@ -26,19 +26,7 @@ import {
   UANABI_PROFILE_COVER_CLASS,
 } from '../components/layout/UanabiProfileLayout'
 import { getBrandCategoryTags } from '../utils/exploreFilters'
-
-const COVER_BY_INDUSTRY = {
-  Bebidas:
-    'https://images.unsplash.com/photo-1629203857988-ef7dd06ae83c?auto=format&fit=crop&w=1200&q=80',
-  Tecnología:
-    'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80',
-  Indumentaria:
-    'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=1200&q=80',
-  Gastronomía:
-    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80',
-  Entretenimiento:
-    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80',
-}
+import { getBrandCoverSrc } from '../utils/brandCovers'
 
 function formatCollabCount(count) {
   const n = count ?? 0
@@ -112,24 +100,28 @@ function PartnershipsGallery({ photos }) {
           Colaboraciones recientes en Uanabi
         </h2>
         <div className="flex shrink-0 gap-1">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="icon-sm"
+            className="rounded-full"
             disabled={!canPrev}
             onClick={() => setIndex((i) => Math.max(0, i - 1))}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-border-subtle text-foreground/70 transition hover:bg-selection disabled:opacity-30"
             aria-label="Anterior"
           >
             <ChevronLeft className="h-4 w-4" strokeWidth={2} />
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
+            size="icon-sm"
+            className="rounded-full"
             disabled={!canNext}
             onClick={() => setIndex((i) => i + 1)}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-border-subtle text-foreground/70 transition hover:bg-selection disabled:opacity-30"
             aria-label="Siguiente"
           >
             <ChevronRight className="h-4 w-4" strokeWidth={2} />
-          </button>
+          </Button>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -190,8 +182,7 @@ export default function BrandPublicView({
 
   if (!brand) return null
 
-  const coverSrc =
-    brand.coverImage ?? COVER_BY_INDUSTRY[brand.industry] ?? null
+  const coverSrc = getBrandCoverSrc(brand)
   const showCover = coverSrc && !coverFailed
   const participations = brand.participations ?? brand.activeHosts ?? 0
   const partnershipPhotos = getBrandPartnershipPhotos(brand)

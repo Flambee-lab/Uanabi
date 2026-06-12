@@ -436,7 +436,7 @@ export default function HostRegistrationWizard({
                           id="host-lastName"
                           value={form.lastName}
                           onChange={(e) => updateForm({ lastName: e.target.value })}
-                          placeholder="Ej: Miranda"
+                          placeholder="Ej: Salas"
                         />
                       </FormField>
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Bell, CheckCheck } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
   getInlineNotificationBadgeClass,
@@ -70,27 +71,26 @@ export default function NotificationsCenter({
         <div className="absolute right-0 top-full z-50 mt-2 w-[min(100vw-2rem,380px)] overflow-hidden rounded-2xl border border-border-subtle bg-white shadow-xl">
           <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
             <div>
-              <p className="text-sm font-bold text-foreground">Notificaciones</p>
+              <p className="type-body font-bold">Notificaciones</p>
               {unreadCount > 0 && (
                 <p className="type-small text-muted-foreground">{unreadCount} sin leer</p>
               )}
             </div>
             {unreadCount > 0 && (
-              <button
-                type="button"
-                onClick={onMarkAllRead}
-                className="inline-flex items-center gap-1 type-small font-semibold text-muted-foreground hover:text-foreground"
-              >
+              <Button type="button" variant="tertiary" size="xs" onClick={onMarkAllRead}>
                 <CheckCheck className="h-3.5 w-3.5" strokeWidth={2} />
                 Marcar todas
-              </button>
+              </Button>
             )}
           </div>
 
           <ul className="max-h-[min(420px,70vh)] overflow-y-auto overscroll-contain">
             {notifications.length === 0 ? (
-              <li className="px-4 py-10 text-center text-sm text-muted-foreground">
-                No tenés notificaciones
+              <li className="px-4 py-10 text-center">
+                <p className="type-body font-semibold text-foreground">Estás al día</p>
+                <p className="mt-1 type-small text-muted-foreground">
+                  Acá vas a ver las novedades de tus eventos y propuestas con marcas.
+                </p>
               </li>
             ) : (
               notifications.map((notif) => {

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { MapPin, MessageCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import {
   createEmptyCollaboration,
   getProfileDisplayName,
@@ -9,12 +8,14 @@ import {
   HOST_LOCATION_HINT,
   mergeProfileForSave,
   PROFILE_EDIT_SECTIONS,
-  SOCIAL_PLATFORMS,
+  validateProfileEssentials,
 } from '../../data/hostProfile'
 import ProfileAvatar from './ProfileAvatar'
 import IdentityTagPills from './IdentityTagPills'
 import ProfileAnchorTabs from './ProfileAnchorTabs'
+import ProfileEditActions from './ProfileEditActions'
 import ProfileEditCollaborations from './ProfileEditCollaborations'
+import ProfileEditSocialChannels from './ProfileEditSocialChannels'
 import ProfileSuggestionsSidebar from './ProfileSuggestionsSidebar'
 import { ProfileField, profileEditInputClass } from './wizard/ProfileField'
 
@@ -46,6 +47,7 @@ function initDraft(profile) {
         twitch: profile.socialMetrics?.platformFollowers?.twitch ?? '',
       },
     },
+    validatedLinks: { ...(profile.validatedLinks ?? {}) },
     successStories: stories.length > 0 ? stories : [createEmptyCollaboration()],
   }
 }
@@ -53,31 +55,30 @@ function initDraft(profile) {
 export default function ProfileEditView({ profile, onSave, onBack, initialSection }) {
   const [draft, setDraft] = useState(() => initDraft(profile))
   const [activeTab, setActiveTab] = useState(PROFILE_EDIT_SECTIONS[0].id)
+  const [errors, setErrors] = useState({})
   const sectionRefs = useRef({})
   const avatarInputRef = useRef(null)
   const scrollRootRef = useRef(null)
+  const draftAvatarRef = useRef(null)
 
   useEffect(() => {
     setDraft(initDraft(profile))
   }, [profile])
 
+  // Liberar el blob del avatar si se descarta la edición sin guardar
+  useEffect(() => {
+    return () => {
+      if (
+        draftAvatarRef.current?.startsWith('blob:') &&
+        draftAvatarRef.current !== profile.avatarUrl
+      ) {
+        URL.revokeObjectURL(draftAvatarRef.current)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const update = (patch) => setDraft((prev) => ({ ...prev, ...patch }))
-  const updateMetrics = (patch) =>
-    setDraft((prev) => ({
-      ...prev,
-      socialMetrics: { ...prev.socialMetrics, ...patch },
-    }))
-  const updatePlatformFollowers = (platform, value) =>
-    setDraft((prev) => ({
-      ...prev,
-      socialMetrics: {
-        ...prev.socialMetrics,
-        platformFollowers: {
-          ...prev.socialMetrics.platformFollowers,
-          [platform]: value,
-        },
-      },
-    }))
 
   const scrollToSection = useCallback((id) => {
     setActiveTab(id)
@@ -115,16 +116,24 @@ export default function ProfileEditView({ profile, onSave, onBack, initialSectio
   const handleAvatar = (file) => {
     if (!file) return
     const url = URL.createObjectURL(file)
+    draftAvatarRef.current = url
     setDraft((prev) => {
-      if (prev.avatarUrl?.startsWith('blob:')) URL.revokeObjectURL(prev.avatarUrl)
+      if (prev.avatarUrl?.startsWith('blob:') && prev.avatarUrl !== profile.avatarUrl) {
+        URL.revokeObjectURL(prev.avatarUrl)
+      }
       return { ...prev, avatarUrl: url }
     })
   }
 
-  const persistDraft = () => mergeProfileForSave(profile, draft)
-
   const handleSave = () => {
-    onSave?.(persistDraft())
+    const validationErrors = validateProfileEssentials(draft)
+    setErrors(validationErrors)
+    if (Object.keys(validationErrors).length > 0) {
+      scrollToSection('basic')
+      return
+    }
+    draftAvatarRef.current = null
+    onSave?.(mergeProfileForSave(profile, draft))
   }
 
   const displayInitial = getProfileInitial({ ...profile, fullName: draft.fullName })
@@ -137,21 +146,14 @@ export default function ProfileEditView({ profile, onSave, onBack, initialSectio
             <button
               type="button"
               onClick={onBack}
-              className="text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+              className="type-small font-semibold text-muted-foreground transition hover:text-foreground"
             >
               ← Volver al perfil
             </button>
-            <h1 className="mt-2 font-display text-2xl font-black tracking-tight text-foreground sm:text-3xl">
-              Editar perfil
-            </h1>
+            <h1 className="type-display mt-2">Editar perfil</h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="button" variant="secondary" size="sm" onClick={onBack}>
-              Cancelar
-            </Button>
-            <Button type="button" variant="primary" size="sm" onClick={handleSave}>
-              Guardar y volver
-            </Button>
+            <ProfileEditActions onCancel={onBack} onSave={handleSave} />
           </div>
         </div>
         <div className="mx-auto max-w-6xl px-6 sm:px-10">
@@ -184,8 +186,8 @@ export default function ProfileEditView({ profile, onSave, onBack, initialSectio
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="font-display text-lg font-bold text-foreground">Basic Information</h2>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <h2 className="type-heading">Información básica</h2>
+                <p className="mt-1 type-small text-muted-foreground">
                   Última actualización:{' '}
                   {profile.joinedAt
                     ? new Date(profile.joinedAt).toLocaleDateString('es-AR')
@@ -195,13 +197,16 @@ export default function ProfileEditView({ profile, onSave, onBack, initialSectio
             </div>
 
             <div className="space-y-6 rounded-2xl border border-border-subtle bg-white p-6 sm:p-8">
-              <ProfileField label="Full Name" required>
+              <ProfileField label="Nombre completo" required>
                 <input
                   className={profileEditInputClass}
                   value={draft.fullName}
                   onChange={(e) => update({ fullName: e.target.value })}
-                  placeholder="Celeste Rojas"
+                  placeholder="Celeste Salas"
                 />
+                {errors.name && (
+                  <p className="type-small text-destructive">{errors.name}</p>
+                )}
               </ProfileField>
               <ProfileField
                 label="Nombre público del Host / colectivo"
@@ -225,6 +230,9 @@ export default function ProfileEditView({ profile, onSave, onBack, initialSectio
                     type="tel"
                   />
                 </div>
+                {errors.whatsapp && (
+                  <p className="type-small text-destructive">{errors.whatsapp}</p>
+                )}
               </ProfileField>
               <ProfileField label="Ubicación">
                 <div className="relative">
@@ -242,6 +250,9 @@ export default function ProfileEditView({ profile, onSave, onBack, initialSectio
                   selected={draft.categories}
                   onChange={(categories) => update({ categories })}
                 />
+                {errors.tags && (
+                  <p className="type-small text-destructive">{errors.tags}</p>
+                )}
               </ProfileField>
               <ProfileField label="Bio" hint="250–500 caracteres recomendados para la vista pública">
                 <textarea
@@ -263,44 +274,16 @@ export default function ProfileEditView({ profile, onSave, onBack, initialSectio
             }}
             className="scroll-mt-28"
           >
-            <h2 className="mb-6 font-display text-lg font-bold text-foreground">
-              Channels & Metrics
-            </h2>
-            <div className="space-y-6 rounded-2xl border border-border-subtle bg-white p-6 sm:p-8">
-              {SOCIAL_PLATFORMS.map((platform) => (
-                <div key={platform.key} className="space-y-4 border-b border-border-subtle/80 pb-6 last:border-0 last:pb-0">
-                  <ProfileField label={platform.label}>
-                    <input
-                      className={profileEditInputClass}
-                      value={draft[platform.field] ?? ''}
-                      onChange={(e) => update({ [platform.field]: e.target.value })}
-                      placeholder="@usuario o URL completa"
-                    />
-                  </ProfileField>
-                  {draft[platform.field]?.trim() && (
-                    <ProfileField
-                      label={`Seguidores en ${platform.label}`}
-                      hint="Estimado por ahora — se verificará con la API de cada red"
-                    >
-                      <input
-                        className={profileEditInputClass}
-                        value={draft.socialMetrics.platformFollowers?.[platform.key] ?? ''}
-                        onChange={(e) => updatePlatformFollowers(platform.key, e.target.value)}
-                        placeholder="18.2k"
-                        inputMode="text"
-                      />
-                    </ProfileField>
-                  )}
-                </div>
-              ))}
-              <ProfileField label="% Engagement aprox.">
-                <input
-                  className={profileEditInputClass}
-                  value={draft.socialMetrics.engagementPercent}
-                  onChange={(e) => updateMetrics({ engagementPercent: e.target.value })}
-                  placeholder="4.2%"
-                />
-              </ProfileField>
+            <h2 className="type-heading mb-2">Redes sociales</h2>
+            <p className="type-small mb-6 text-muted-foreground">
+              Verificá tus cuentas para que las marcas confíen en tu alcance real.
+            </p>
+            <div className="rounded-2xl border border-border-subtle bg-white p-6 sm:p-8">
+              <ProfileEditSocialChannels
+                draft={draft}
+                profile={profile}
+                onUpdate={update}
+              />
             </div>
           </section>
 
@@ -311,10 +294,8 @@ export default function ProfileEditView({ profile, onSave, onBack, initialSectio
             }}
             className="scroll-mt-28"
           >
-            <h2 className="mb-2 font-display text-lg font-bold text-foreground">
-              Past Collaborations
-            </h2>
-            <p className="mb-6 text-xs text-muted-foreground">
+            <h2 className="type-heading mb-2">Colaboraciones pasadas</h2>
+            <p className="mb-6 type-small text-muted-foreground">
               Agregaste {draft.successStories.filter((s) => s.title?.trim()).length} colaboración
               {draft.successStories.filter((s) => s.title?.trim()).length !== 1 ? 'es' : ''}.
             </p>
@@ -328,6 +309,12 @@ export default function ProfileEditView({ profile, onSave, onBack, initialSectio
 
         <div className="lg:col-span-1">
           <ProfileSuggestionsSidebar />
+        </div>
+      </div>
+
+      <div className="border-t border-border-subtle bg-white">
+        <div className="mx-auto flex max-w-6xl justify-end px-6 py-6 sm:px-10 lg:px-10">
+          <ProfileEditActions onCancel={onBack} onSave={handleSave} />
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import {
   Share2,
   Users,
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import BrandLogo from '../BrandLogo'
 import EventCoverMedia from '../events/EventCoverMedia'
 import { getProfileDisplayName } from '../../data/hostProfile'
@@ -38,10 +39,10 @@ function MetaRow({ icon: Icon, label, value }) {
   if (!value) return null
   return (
     <div className="flex items-start gap-2.5">
-      <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neutral-400" strokeWidth={1.75} />
+      <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
       <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{label}</p>
-        <p className="mt-0.5 text-xs font-semibold text-neutral-900">{value}</p>
+        <p className="uanabi-section-label">{label}</p>
+        <p className="type-small mt-0.5 font-semibold text-foreground">{value}</p>
       </div>
     </div>
   )
@@ -49,8 +50,8 @@ function MetaRow({ icon: Icon, label, value }) {
 
 function InfoCard({ title, children }) {
   return (
-    <div className="rounded-2xl border border-neutral-100 bg-neutral-50/80 p-4 sm:p-5">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{title}</p>
+    <div className="rounded-2xl border border-border-subtle bg-secondary/50 p-4 sm:p-5">
+      <p className="uanabi-section-label">{title}</p>
       <div className="mt-3">{children}</div>
     </div>
   )
@@ -61,8 +62,8 @@ function DealList({ items }) {
   return (
     <ul className="space-y-2">
       {items.map((item) => (
-        <li key={item} className="flex gap-2 text-xs leading-relaxed text-neutral-600">
-          <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neutral-400" />
+        <li key={item} className="type-small flex gap-2 text-muted-foreground">
+          <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" />
           {item}
         </li>
       ))}
@@ -72,7 +73,7 @@ function DealList({ items }) {
 
 function SponsorRow({ brand }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-neutral-100 bg-white p-3 shadow-sm">
+    <div className="flex items-center gap-3 rounded-xl border border-border-subtle bg-card p-3 shadow-sm">
       <BrandLogo
         name={brand.name}
         logo={brand.logo}
@@ -80,8 +81,8 @@ function SponsorRow({ brand }) {
         size="sm"
       />
       <div className="min-w-0">
-        <p className="truncate text-sm font-bold text-neutral-900">{brand.name}</p>
-        <p className="text-[10px] font-semibold text-emerald-700">Patrocinio confirmado</p>
+        <p className="type-body truncate font-bold text-foreground">{brand.name}</p>
+        <p className="text-[11px] font-semibold text-emerald-700">Patrocinio confirmado</p>
       </div>
     </div>
   )
@@ -89,8 +90,8 @@ function SponsorRow({ brand }) {
 
 function EmptyBlock({ title }) {
   return (
-    <div className="rounded-2xl border border-neutral-100 bg-white/60 px-6 py-12 text-center">
-      <p className="text-sm text-neutral-400">{title}</p>
+    <div className="rounded-2xl border border-border-subtle bg-card/60 px-6 py-12 text-center">
+      <p className="type-body-muted">{title}</p>
     </div>
   )
 }
@@ -144,24 +145,24 @@ export default function EventCommercialSheet({
   }
 
   return (
-    <div className="min-h-full overflow-y-auto bg-[#fafafa]">
-      <header className="sticky top-0 z-10 border-b border-neutral-100 bg-[#fafafa]/90 backdrop-blur-md">
+    <div className="uanabi-shell min-h-full overflow-y-auto">
+      <header className="sticky top-0 z-10 border-b border-border-subtle bg-background/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-10">
           {previewMode ? (
-            <p className="text-xs font-semibold text-neutral-500">
+            <p className="type-small font-semibold text-muted-foreground">
               Vista de marca — ficha comercial del evento
             </p>
           ) : (
             <button
               type="button"
               onClick={onBack}
-              className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-500 transition hover:text-neutral-900"
+              className="type-small inline-flex items-center gap-2 font-semibold text-muted-foreground transition hover:text-foreground"
             >
               <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />
               Volver al perfil
             </button>
           )}
-          <p className="text-xs font-semibold text-neutral-500">
+          <p className="type-small font-semibold text-muted-foreground">
             {previewMode ? 'Solo lectura' : 'Ficha del evento'}
           </p>
         </div>
@@ -170,7 +171,7 @@ export default function EventCommercialSheet({
       <div className="mx-auto max-w-7xl px-6 py-10 sm:px-10 sm:py-12">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,340px)_1fr] lg:gap-12 xl:grid-cols-[minmax(0,360px)_1fr]">
           <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="space-y-5 rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm sm:p-6">
+            <div className="uanabi-panel space-y-5 p-5 sm:p-6">
               <div className="relative overflow-hidden rounded-2xl">
                 <EventCoverMedia
                   event={cardCoverEvent(event)}
@@ -180,14 +181,10 @@ export default function EventCommercialSheet({
               </div>
 
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                  {event.niche}
-                </span>
-                <h1 className="mt-1 font-display text-2xl font-black tracking-tight text-neutral-900 sm:text-3xl">
-                  {event.title}
-                </h1>
+                <span className="uanabi-section-label">{event.niche}</span>
+                <h1 className="type-title mt-1">{event.title}</h1>
                 {event.coverLabel && (
-                  <p className="mt-2 font-display text-[10px] font-black uppercase tracking-[0.35em] text-neutral-300">
+                  <p className="mt-2 font-display text-xs font-black uppercase tracking-[0.35em] text-muted-foreground/50">
                     {event.coverLabel}
                   </p>
                 )}
@@ -208,19 +205,23 @@ export default function EventCommercialSheet({
               </InfoCard>
 
               <InfoCard title="Organización">
-                <p className="text-xs font-bold text-neutral-900">{hostName}</p>
+                <p className="type-small font-bold text-foreground">{hostName}</p>
                 {event.organizer?.role && (
-                  <p className="mt-1 text-[11px] text-neutral-500">{event.organizer.role}</p>
+                  <p className="type-small mt-1 text-muted-foreground">{event.organizer.role}</p>
                 )}
                 {event.hostCommunity?.name && (
-                  <p className="mt-2 text-[11px] text-neutral-500">{event.hostCommunity.name}</p>
+                  <p className="type-small mt-2 text-muted-foreground">
+                    {event.hostCommunity.name}
+                  </p>
                 )}
               </InfoCard>
 
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="default"
+                className="w-full"
                 onClick={handleShareEvent}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-xs font-bold text-neutral-800 transition hover:border-neutral-300 hover:bg-white"
               >
                 {shareState === 'copied' ? (
                   <>
@@ -233,32 +234,30 @@ export default function EventCommercialSheet({
                     Compartir evento
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </aside>
 
           <main className="min-w-0 space-y-14">
             <section>
               <div className="mb-6">
-                <h2 className="font-display text-xl font-black tracking-tight text-neutral-900">
-                  Sobre este evento
-                </h2>
-                <p className="mt-1 text-xs text-neutral-500">
+                <h2 className="type-heading">Sobre este evento</h2>
+                <p className="type-small mt-1 text-muted-foreground">
                   Descripción y contexto de la experiencia
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm sm:p-6">
-                <p className="text-sm leading-relaxed text-neutral-600">
+              <div className="uanabi-panel p-5 sm:p-6">
+                <p className="type-body-muted">
                   {event.description ||
                     'Experiencia presencial en CABA con activaciones de marca, público cualificado y oportunidades de patrocinio.'}
                 </p>
                 {event.matchIndustries?.length > 0 && (
-                  <div className="mt-5 flex flex-wrap gap-2 border-t border-neutral-100 pt-5">
+                  <div className="mt-5 flex flex-wrap gap-2 border-t border-border-subtle pt-5">
                     {event.matchIndustries.map((industry) => (
                       <span
                         key={industry}
-                        className="rounded-full bg-neutral-100 px-3 py-1 text-[10px] font-bold text-neutral-600"
+                        className="rounded-full bg-secondary px-3 py-1 text-[11px] font-bold text-secondary-foreground"
                       >
                         {industry}
                       </span>
@@ -270,27 +269,21 @@ export default function EventCommercialSheet({
 
             <section>
               <div className="mb-6">
-                <h2 className="font-display text-xl font-black tracking-tight text-neutral-900">
-                  Propuesta comercial
-                </h2>
-                <p className="mt-1 text-xs text-neutral-500">
+                <h2 className="type-heading">Propuesta comercial</h2>
+                <p className="type-small mt-1 text-muted-foreground">
                   Lo que ofrece el evento y lo que busca de las marcas
                 </p>
               </div>
 
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <article className="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                    Qué ofrece
-                  </p>
+                <article className="uanabi-panel p-5">
+                  <p className="uanabi-section-label">Qué ofrece</p>
                   <div className="mt-4">
                     <DealList items={offers} />
                   </div>
                 </article>
-                <article className="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                    Qué busca
-                  </p>
+                <article className="uanabi-panel p-5">
+                  <p className="uanabi-section-label">Qué busca</p>
                   <div className="mt-4">
                     <DealList items={seeks} />
                   </div>
@@ -300,10 +293,8 @@ export default function EventCommercialSheet({
 
             <section>
               <div className="mb-6">
-                <h2 className="font-display text-xl font-black tracking-tight text-neutral-900">
-                  Marcas patrocinadoras
-                </h2>
-                <p className="mt-1 text-xs text-neutral-500">
+                <h2 className="type-heading">Marcas patrocinadoras</h2>
+                <p className="type-small mt-1 text-muted-foreground">
                   Sponsors confirmados en esta experiencia
                 </p>
               </div>

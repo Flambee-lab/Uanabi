@@ -1,18 +1,27 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Input from '../ui/Input'
 import { isEventPast } from '../../utils/sponsorshipLifecycle'
 
-export default function EventEditModal({ event, isOpen, onClose, onSave }) {
-  const [form, setForm] = useState({
+function initForm(event) {
+  return {
     title: event.title ?? '',
     date: event.date ?? '',
     time: event.time ?? '',
     venueName: event.venueName ?? '',
     venueAddress: event.venueAddress ?? event.location ?? '',
     description: event.description ?? '',
-  })
+  }
+}
+
+export default function EventEditModal({ event, isOpen, onClose, onSave }) {
+  const [form, setForm] = useState(() => initForm(event))
+
+  // Re-sincronizar al abrir o al cambiar de evento (evita mostrar datos stale)
+  useEffect(() => {
+    if (isOpen) setForm(initForm(event))
+  }, [isOpen, event])
 
   if (!isOpen) return null
 

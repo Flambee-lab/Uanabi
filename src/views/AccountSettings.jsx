@@ -58,6 +58,7 @@ export default function AccountSettings({
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [emailEditMode, setEmailEditMode] = useState(false)
   const [draftEmail, setDraftEmail] = useState(settings.email)
+  const [errors, setErrors] = useState({})
 
   const googleAuth = isGoogleAuth(settings)
 
@@ -68,11 +69,37 @@ export default function AccountSettings({
       emailNotifications: { ...prev.emailNotifications, [key]: value },
     }))
 
+  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+
+  const handleConfirmEmail = () => {
+    if (!isValidEmail(draftEmail)) {
+      setErrors((prev) => ({ ...prev, email: 'Ingresá un email válido' }))
+      return
+    }
+    setErrors((prev) => ({ ...prev, email: null }))
+    update({ email: draftEmail.trim() })
+    setEmailEditMode(false)
+  }
+
   const handleSave = () => {
-    onSave?.({
-      ...settings,
-      email: emailEditMode ? draftEmail.trim() : settings.email,
-    })
+    const nextErrors = {}
+    const nextEmail = emailEditMode ? draftEmail.trim() : settings.email
+    if (emailEditMode && !isValidEmail(nextEmail)) {
+      nextErrors.email = 'Ingresá un email válido antes de guardar'
+    }
+    const wantsPasswordChange =
+      !googleAuth && (passwords.current || passwords.next || passwords.confirm)
+    if (wantsPasswordChange) {
+      if (passwords.next.length < 8) {
+        nextErrors.password = 'La nueva contraseña debe tener al menos 8 caracteres'
+      } else if (passwords.next !== passwords.confirm) {
+        nextErrors.password = 'Las contraseñas no coinciden'
+      }
+    }
+    setErrors(nextErrors)
+    if (Object.keys(nextErrors).length > 0) return
+
+    onSave?.({ ...settings, email: nextEmail })
     setEmailEditMode(false)
     setPasswords({ current: '', next: '', confirm: '' })
   }
@@ -86,9 +113,9 @@ export default function AccountSettings({
     <div className="uanabi-page overflow-y-auto">
       <div className="mx-auto max-w-2xl space-y-10 p-8 sm:p-10">
         <header>
-          <h1 className="type-display">Account Settings</h1>
+          <h1 className="type-display">Configuración de cuenta</h1>
           <p className="type-small mt-2">
-            Administra las credenciales de tu cuenta, seguridad y canales de comunicación.
+            Administrá las credenciales de tu cuenta, seguridad y canales de comunicación.
           </p>
         </header>
 
@@ -123,17 +150,19 @@ export default function AccountSettings({
                   className="shrink-0"
                   onClick={() => {
                     if (emailEditMode) {
-                      update({ email: draftEmail.trim() })
-                      setEmailEditMode(false)
+                      handleConfirmEmail()
                     } else {
                       setDraftEmail(settings.email)
                       setEmailEditMode(true)
                     }
                   }}
                 >
-                  {emailEditMode ? 'Confirmar email' : 'Modificar Email'}
+                  {emailEditMode ? 'Confirmar email' : 'Modificar email'}
                 </Button>
               </div>
+              {errors.email && (
+                <p className="type-small mt-2 text-destructive">{errors.email}</p>
+              )}
               <p className="type-small mt-2">
                 {googleAuth
                   ? 'Los cambios de email se sincronizarán con Supabase Auth al guardar.'
@@ -172,6 +201,9 @@ export default function AccountSettings({
                   onChange={(e) => setPasswords((p) => ({ ...p, confirm: e.target.value }))}
                   autoComplete="new-password"
                 />
+                {errors.password && (
+                  <p className="type-small text-destructive">{errors.password}</p>
+                )}
               </div>
             )}
           </div>

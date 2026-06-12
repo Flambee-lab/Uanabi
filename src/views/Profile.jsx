@@ -8,28 +8,17 @@ export default function Profile({
   onProfileChange,
   events,
   brands = [],
-  onOpenChat,
+  editingSection = null,
+  onEditingChange,
 }) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [editSection, setEditSection] = useState(null)
   const [commercialEventId, setCommercialEventId] = useState(null)
 
   const commercialEvent = events.find((e) => e.id === commercialEventId)
+  const isEditing = editingSection != null
 
   const handleSave = (data) => {
     onProfileChange?.(data)
-    setIsEditing(false)
-    setEditSection(null)
-  }
-
-  const handleEdit = (section = 'basic') => {
-    setEditSection(section)
-    setIsEditing(true)
-  }
-
-  const handleBackFromEdit = () => {
-    setIsEditing(false)
-    setEditSection(null)
+    onEditingChange?.(null)
   }
 
   if (commercialEventId && commercialEvent) {
@@ -48,8 +37,8 @@ export default function Profile({
       <ProfileEditView
         profile={profile}
         onSave={handleSave}
-        onBack={handleBackFromEdit}
-        initialSection={editSection}
+        onBack={() => onEditingChange?.(null)}
+        initialSection={editingSection}
       />
     )
   }
@@ -59,7 +48,7 @@ export default function Profile({
       profile={profile}
       events={events}
       brands={brands}
-      onEdit={handleEdit}
+      onEdit={(section = 'basic') => onEditingChange?.(section)}
       onSelectEvent={(eventId) => setCommercialEventId(eventId)}
     />
   )

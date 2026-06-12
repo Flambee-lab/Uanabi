@@ -15,6 +15,7 @@ export function ProfileSectionEditButton({ onClick, label }) {
 }
 
 export default function ProfileLinkedInCard({
+  id,
   title,
   onEdit,
   editLabel,
@@ -23,7 +24,7 @@ export default function ProfileLinkedInCard({
   bodyClassName,
 }) {
   return (
-    <section className={cn('uanabi-panel overflow-hidden', className)}>
+    <section id={id} className={cn('uanabi-panel overflow-hidden', className)}>
       <div className="flex items-center justify-between gap-4 px-5 py-5 sm:px-6">
         <h2 className="type-heading">{title}</h2>
         {onEdit && (

@@ -12,7 +12,7 @@ export const AUTH_PROVIDERS = {
 
 export const DEFAULT_AUTH_USER = {
   email: 'celeste@uanabi.app',
-  fullName: 'Celeste Rojas',
+  fullName: 'Celeste Salas',
   provider: AUTH_PROVIDERS.GOOGLE,
 }
 

@@ -17,7 +17,13 @@ import {
 } from '../data/hostEvents'
 import { mockNotifications as initialNotifications } from '../data/mockNotifications'
 import { restoreInlineNotification } from '../utils/eventInlineNotifications'
-import { DEFAULT_HOST_PROFILE, mergeProfileForSave } from '../data/hostProfile'
+import {
+  DEFAULT_HOST_PROFILE,
+  getProfileDisplayName,
+  HOST_PROFILE_STORAGE_KEY,
+  mergeProfileForSave,
+} from '../data/hostProfile'
+import { DEFAULT_AUTH_USER } from '../data/auth'
 import { GUEST_BANNER_KEY } from '../data/appSession'
 import {
   availableBrands,
@@ -58,6 +64,7 @@ export default function Dashboard({
   const [proposalModal, setProposalModal] = useState(null)
   const [toast, setToast] = useState(null)
   const [accountSettings, setAccountSettings] = useState(DEFAULT_ACCOUNT_SETTINGS)
+  const [profileEditSection, setProfileEditSection] = useState(null)
   const [exploreSearchQuery, setExploreSearchQuery] = useState('')
   const [exploreRubro, setExploreRubro] = useState(null)
   const [exploreSearchDockProgress, setExploreSearchDockProgress] = useState(0)
@@ -71,10 +78,18 @@ export default function Dashboard({
 
   useEffect(() => {
     if (!isAuthenticated || !user) return
-    setHostProfile((prev) => ({
-      ...prev,
-      fullName: user.fullName || prev.fullName,
-    }))
+    setHostProfile((prev) => {
+      const isDemoAccount = user.email?.trim().toLowerCase() === DEFAULT_AUTH_USER.email
+      const profileName = getProfileDisplayName(prev)
+      const nextFullName = isDemoAccount
+        ? profileName
+        : user.fullName?.trim() || profileName
+
+      return {
+        ...prev,
+        fullName: nextFullName,
+      }
+    })
     setAccountSettings((prev) => ({
       ...prev,
       email: user.email,
@@ -146,10 +161,6 @@ export default function Dashboard({
     setApplyTarget(null)
   }
 
-  const handleOpenChat = () => {
-    setToast('La mensajería estará disponible pronto')
-  }
-
   const openProposalModal = (brandId, activeEvent = null) => {
     const brand =
       brands.find((b) => b.id === brandId) ?? availableBrands.find((b) => b.id === brandId)
@@ -191,18 +202,10 @@ export default function Dashboard({
     )
   }
 
-  const handleBrandsMatch = (brandId) => {
-    setBrands((prev) =>
-      prev.map((b) =>
-        b.id === brandId ? { ...b, applicationStatus: 'match_aceptado' } : b,
-      ),
-    )
-    setToast('Match confirmado')
-  }
-
   const handleNavChange = (navId) => {
     setActiveNav(navId)
     setNotificationsOpen(false)
+    if (navId !== 'profile') setProfileEditSection(null)
   }
 
   const handleOpenCreateEvent = () => {
@@ -256,7 +259,7 @@ export default function Dashboard({
   const showGuestBanner = isGuest && !guestBannerDismissed && !isCreateEventOpen
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-[#fafafa]">
+    <div className="uanabi-shell flex h-full flex-col overflow-hidden">
       {showGuestBanner && (
         <GuestBanner onLogin={handleRequestLogin} onDismiss={dismissGuestBanner} />
       )}
@@ -290,7 +293,8 @@ export default function Dashboard({
               : null
           }
           onUserMenuAction={(action) => {
-            if (action === 'profile-settings') handleNavChange('settings')
+            if (action === 'my-profile') handleNavChange('profile')
+            else if (action === 'profile-settings') handleNavChange('settings')
             else if (action === 'event-manager') handleNavChange('matches')
             else if (action === 'privacy') setToast('Privacidad — próximamente')
             else if (action === 'logout') handleLogout()
@@ -326,8 +330,6 @@ export default function Dashboard({
             onCreateEvent={handleOpenCreateEvent}
             focusEventId={focusEventId}
             onFocusEventConsumed={() => setFocusEventId(null)}
-            onOpenChat={handleOpenChat}
-            onBrandsMatch={handleBrandsMatch}
             onGoToProfile={() => handleNavChange('profile')}
             onProposeToBrand={(brandId, activeEvent) =>
               openProposalModal(brandId, activeEvent)
@@ -345,7 +347,8 @@ export default function Dashboard({
               setToast('Perfil actualizado')
             }}
             events={myEvents}
-            onOpenChat={handleOpenChat}
+            editingSection={profileEditSection}
+            onEditingChange={setProfileEditSection}
           />
         )}
 
@@ -365,6 +368,11 @@ export default function Dashboard({
               setHostProfile(DEFAULT_HOST_PROFILE)
               onProfilePersist?.(DEFAULT_HOST_PROFILE)
               setAccountSettings(DEFAULT_ACCOUNT_SETTINGS)
+              try {
+                localStorage.removeItem(HOST_PROFILE_STORAGE_KEY)
+              } catch {
+                /* ignore */
+              }
               logout()
             }}
             onRestartOnboarding={async () => {

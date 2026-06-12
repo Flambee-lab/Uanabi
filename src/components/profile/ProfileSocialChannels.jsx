@@ -96,41 +96,45 @@ function SocialChannelRow({ channel }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex gap-3 border-b border-border-subtle py-4 first:pt-0 last:border-0"
+      className="group flex items-center gap-2.5 py-2.5"
     >
       <div
         className={cn(
-          'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl',
+          'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
           wrap,
         )}
       >
-        <Icon className="h-5 w-5 text-white" />
+        <Icon className="h-4 w-4 text-white" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
-          <p className="type-body font-semibold">{label}</p>
-          <ArrowUpRight
-            className="h-3.5 w-3.5 text-muted-foreground/50 transition group-hover:text-muted-foreground"
-            strokeWidth={2.5}
-          />
-        </div>
-        {displayHandle && <p className="type-body-muted">@{displayHandle}</p>}
-        <div className="type-small mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="type-small inline-flex min-w-0 items-center gap-1 font-semibold text-foreground">
+            <span className="truncate">{label}</span>
+            <ArrowUpRight
+              className="h-3 w-3 shrink-0 text-muted-foreground/50 transition group-hover:text-muted-foreground"
+              strokeWidth={2.5}
+            />
+          </p>
           {followers ? (
-            <span className="font-semibold text-foreground">{followers} seguidores</span>
+            <span className="type-small shrink-0 font-semibold tabular-nums text-foreground">
+              {followers}
+            </span>
           ) : (
-            <span>Sin dato de seguidores</span>
+            <span className="type-small shrink-0 text-muted-foreground">—</span>
           )}
-          <span aria-hidden>·</span>
+        </div>
+        <p className="type-small mt-0.5 truncate text-muted-foreground">
+          {displayHandle ? `@${displayHandle}` : label}
+          <span aria-hidden> · </span>
           {verified ? (
-            <span className="inline-flex items-center gap-1 font-medium text-emerald-700">
-              <BadgeCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
-              Verificado por API
+            <span className="inline-flex items-center gap-0.5 font-medium text-emerald-700">
+              <BadgeCheck className="h-3 w-3" strokeWidth={2.5} />
+              Verificado
             </span>
           ) : (
             <span className="italic">Pendiente de verificación</span>
           )}
-        </div>
+        </p>
       </div>
     </a>
   )
@@ -148,13 +152,12 @@ export default function ProfileSocialChannels({ profile }) {
   }
 
   return (
-    <div>
+    <div className="divide-y divide-border-subtle">
       {channels.map((channel) => (
         <SocialChannelRow key={channel.key} channel={channel} />
       ))}
-      <p className="type-small mt-3">
-        Los seguidores se verificarán con las APIs de cada red — por ahora mostramos datos
-        estimados.
+      <p className="type-small pt-2.5 text-muted-foreground">
+        Los seguidores aparecen solo en redes verificadas.
       </p>
     </div>
   )

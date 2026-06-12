@@ -32,8 +32,6 @@ export default function MyEventsAndProposals({
   onCreateEvent,
   focusEventId,
   onFocusEventConsumed,
-  onOpenChat,
-  onBrandsMatch,
   onProposeToBrand,
   onGoToProfile,
 }) {
@@ -134,11 +132,6 @@ export default function MyEventsAndProposals({
     )
   }
 
-  const handleOpenChat = (brandId) => {
-    onBrandsMatch?.(brandId)
-    onOpenChat?.(brandId)
-  }
-
   const handleCloseCaseSubmit = (submission) => {
     if (!closeCaseTarget) return
     const { eventId, brandId } = closeCaseTarget
@@ -168,13 +161,11 @@ export default function MyEventsAndProposals({
   }
 
   const handleDeleteEvent = (eventId) => {
-    onEventsChange((prev) => {
-      const remaining = prev.filter((event) => event.id !== eventId)
-      setSelectedEventId((current) =>
-        current === eventId ? pickDefaultEventId(remaining) : current,
-      )
-      return remaining
-    })
+    const remaining = timelineEvents.filter((event) => event.id !== eventId)
+    setSelectedEventId((current) =>
+      current === eventId ? pickDefaultEventId(remaining) : current,
+    )
+    onEventsChange((prev) => prev.filter((event) => event.id !== eventId))
     setDeleteEventTarget(null)
     setPanelMode('event')
   }
@@ -193,33 +184,32 @@ export default function MyEventsAndProposals({
           Crear evento
         </Button>
         {onGoToProfile && (
-          <button
+          <Button
             type="button"
+            variant="tertiary"
+            size="sm"
+            className="mt-4 text-muted-foreground"
             onClick={onGoToProfile}
-            className="type-small mt-4 font-semibold text-muted-foreground underline-offset-2 hover:underline"
           >
             Completar Mi Perfil
-          </button>
+          </Button>
         )}
       </div>
     )
   }
 
   return (
-    <div className="flex h-full min-h-0 w-full overflow-hidden bg-background">
+    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-background lg:flex-row">
       <EventsTimelineSidebar
         upcoming={upcoming}
-        pastCount={past.length}
+        past={past}
         pastPendingCount={pastPendingCount}
-        selectedId={
-          detailSource === 'active' && isUpcomingEvent(selectedEvent, timelineEvents)
-            ? selectedEvent?.id
-            : null
-        }
+        selectedId={panelMode === 'event' ? selectedEventId : null}
         panelMode={panelMode}
         brandCatalog={availableBrands}
         notifRevision={notifRevision}
         onSelectEvent={handleSelectEvent}
+        onSelectPastEvent={handleSelectEventFromPast}
         onShowPastEvents={() => {
           setPanelMode('past')
           setDetailSource('active')
@@ -231,6 +221,7 @@ export default function MyEventsAndProposals({
         {panelMode === 'past' ? (
           <HostPastEventsView
             events={past}
+            brandCatalog={availableBrands}
             pendingCount={pastPendingCount}
             onSelectEvent={handleSelectEventFromPast}
           />
@@ -243,7 +234,6 @@ export default function MyEventsAndProposals({
               suggestedBrands={suggestedBrands}
               hostProfile={hostProfile}
               onInvite={handleInvite}
-              onOpenChat={handleOpenChat}
               onEventUpdate={handleEventUpdate}
               notifRevision={notifRevision}
               onNotificationsDismissed={() => setNotifRevision((revision) => revision + 1)}
@@ -257,8 +247,21 @@ export default function MyEventsAndProposals({
             />
           </>
         ) : (
-          <div className="flex h-full items-center justify-center p-8">
-            <p className="uanabi-meta">Seleccioná un evento</p>
+          <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+            <p className="type-body font-semibold text-foreground">Seleccioná un evento</p>
+            <p className="type-small mt-1 max-w-xs text-muted-foreground">
+              Elegí un evento de la lista para gestionar sus patrocinios, o creá uno nuevo.
+            </p>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="mt-5"
+              onClick={onCreateEvent}
+            >
+              <Plus className="h-4 w-4" strokeWidth={2.5} />
+              Crear evento
+            </Button>
           </div>
         )}
       </div>

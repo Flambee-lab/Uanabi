@@ -7,8 +7,8 @@
 @theme {
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
-  --color-border-subtle: #eef0f2;
   --color-navbar-border: #dddddd;
+  --color-border-subtle: var(--color-navbar-border);
   --color-match: #f4f6e9;
   --color-match-foreground: #1d230d;
   --color-selection: var(--selection-surface);
@@ -136,8 +136,8 @@ body {
   --accent: oklch(0.96 0.01 95);
   --accent-foreground: oklch(0.21 0.01 265);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #eef0f2;
-  --input: #eef0f2;
+  --border: #dddddd;
+  --input: #dddddd;
   /* Superficie de selección (segmentos search, ítems de menú — estilo Airbnb) */
   --selection-surface: #f2f2f2;
   --ring: oklch(0.21 0.014 265 / 25%);
@@ -213,8 +213,16 @@ body {
   .uanabi-page {
     @apply min-h-full bg-background;
   }
+  /* Superficie del shell de la app */
+  .uanabi-shell {
+    background-color: var(--page-surface, var(--background));
+  }
+  /* Label de sección (reemplaza los text-[10px] dispersos) */
+  .uanabi-section-label {
+    @apply text-xs font-semibold tracking-wide text-muted-foreground uppercase;
+  }
   .uanabi-page-hero {
-    @apply relative z-10 border-b border-border-subtle bg-background px-6 py-10 sm:px-10 sm:py-12;
+    @apply relative z-10 border-b border-navbar-border bg-background px-6 py-10 sm:px-10 sm:py-12;
   }
   .uanabi-section {
     @apply relative z-0 bg-background px-6 py-10 sm:px-10 sm:py-12;
@@ -254,7 +262,7 @@ body {
     @apply text-xs font-semibold tracking-wide text-muted-foreground uppercase;
   }
   .uanabi-panel {
-    @apply rounded-2xl border border-border-subtle bg-card shadow-sm;
+    @apply rounded-2xl border border-navbar-border bg-card shadow-sm;
   }
   /*
    * Catálogo de marcas — flex centrado, ancho fijo por card (~288px).
@@ -284,7 +292,7 @@ body {
 
   /* Barra de búsqueda segmentada (Home + internas) */
   .uanabi-search-bar {
-    @apply flex items-stretch overflow-visible rounded-full border border-border bg-card shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-[border-color,box-shadow] duration-150;
+    @apply flex items-stretch overflow-visible rounded-full border border-navbar-border bg-card shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-[border-color,box-shadow] duration-150;
   }
   .uanabi-search-bar:focus-within {
     @apply border-foreground/15 shadow-[0_8px_28px_rgba(0,0,0,0.12)];
@@ -342,9 +350,9 @@ body {
     @apply bg-selection font-semibold text-foreground hover:bg-selection;
   }
 
-  /* Barra principal de la app */
+  /* Barra principal de la app — columnas laterales simétricas (1fr) para que el riel central quede siempre centrado, sin importar el ancho de logo/acciones */
   .uanabi-navbar {
-    @apply relative z-30 grid h-14 shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center border-b border-navbar-border bg-background px-4 sm:px-6;
+    @apply relative z-30 grid h-14 shrink-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center border-b border-navbar-border bg-background px-4 sm:px-6;
   }
   .uanabi-navbar-start {
     @apply flex min-w-0 items-center justify-start;
@@ -356,7 +364,7 @@ body {
     @apply font-display text-lg font-extrabold tracking-tight text-foreground transition-opacity hover:opacity-75;
   }
   .uanabi-nav-rail {
-    @apply inline-flex max-w-full items-center gap-0.5 rounded-full border border-border-subtle bg-secondary/60 p-1;
+    @apply inline-flex max-w-full items-center gap-0.5 rounded-full border border-navbar-border bg-secondary/60 p-1;
   }
   .uanabi-nav-item {
     @apply inline-flex h-8 min-w-0 items-center justify-center gap-2 rounded-full px-3 text-sm font-semibold text-muted-foreground transition-colors duration-150 hover:bg-selection/70 hover:text-foreground sm:px-3.5;
@@ -368,16 +376,16 @@ body {
     @apply flex shrink-0 items-center justify-end gap-1 sm:gap-2;
   }
   .uanabi-navbar-divider {
-    @apply mx-0.5 hidden h-6 w-px bg-border-subtle sm:block;
+    @apply mx-0.5 hidden h-6 w-px bg-navbar-border sm:block;
   }
   .uanabi-navbar-icon-btn {
-    @apply relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-subtle bg-card text-muted-foreground transition-colors duration-150 hover:bg-selection hover:text-foreground;
+    @apply relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-navbar-border bg-card text-muted-foreground transition-colors duration-150 hover:bg-selection hover:text-foreground;
   }
   .uanabi-navbar-user-trigger {
-    @apply flex shrink-0 items-center gap-0.5 rounded-full border border-transparent py-0.5 pl-0.5 pr-1.5 transition-colors duration-150 hover:border-border-subtle hover:bg-selection/80;
+    @apply flex shrink-0 items-center gap-0.5 rounded-full border border-transparent py-0.5 pl-0.5 pr-1.5 transition-colors duration-150 hover:border-navbar-border hover:bg-selection/80;
   }
   .uanabi-navbar-user-trigger[aria-expanded='true'] {
-    @apply border-border-subtle bg-selection;
+    @apply border-navbar-border bg-selection;
   }
 
   /* Borde de contenedores en patrocinio (mismo gris que la barra de navegación) */
@@ -387,7 +395,7 @@ body {
 
   /* Selector segmentado (tabs en grilla, pill activo) */
   .uanabi-segmented-control {
-    @apply grid w-full grid-cols-2 gap-1 rounded-lg border border-neutral-200 bg-neutral-100 p-1;
+    @apply grid w-full grid-cols-2 gap-1 rounded-lg border border-navbar-border bg-secondary p-1;
   }
   .uanabi-segmented-control-tab {
     @apply flex min-h-10 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors duration-150 hover:text-foreground;
@@ -396,12 +404,79 @@ body {
     @apply bg-white text-foreground shadow-sm;
   }
 
+  /* Filtros horizontales — Propuestas enviadas (captura Figma) */
+  .uanabi-proposal-filters {
+    @apply flex w-full flex-wrap items-center gap-2 overflow-x-auto;
+    scrollbar-width: none;
+  }
+  .uanabi-proposal-filters::-webkit-scrollbar {
+    display: none;
+  }
+  .uanabi-proposal-filters-primary {
+    @apply flex min-w-0 flex-wrap items-center gap-2;
+  }
+  .uanabi-proposal-filters-divider {
+    @apply hidden h-4 w-px shrink-0 bg-navbar-border sm:block;
+  }
+  .uanabi-proposal-filter-tab {
+    @apply inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-lg border border-transparent px-2 py-1.5 text-sm font-semibold tabular-nums text-muted-foreground transition-[color,background-color,border-color] duration-150 hover:text-foreground;
+  }
+  .uanabi-proposal-filter-tab--sm {
+    @apply w-[5.5rem];
+  }
+  .uanabi-proposal-filter-tab--md {
+    @apply w-[8.5rem];
+  }
+  .uanabi-proposal-filter-tab--lg {
+    @apply w-[8.75rem];
+  }
+  .uanabi-proposal-filter-tab--xl {
+    @apply w-[9.25rem];
+  }
+  .uanabi-proposal-filter-tab-active {
+    @apply border-navbar-border bg-white text-foreground shadow-none;
+  }
+  .uanabi-proposal-filter-tab-approved-ring {
+    background: linear-gradient(
+      135deg,
+      rgb(110 231 183 / 0.95) 0%,
+      rgb(16 185 129) 45%,
+      rgb(5 150 105) 100%
+    );
+  }
+  .uanabi-proposal-filter-tab-approved-ring .uanabi-proposal-filter-tab {
+    @apply border-0 bg-white;
+  }
+  .uanabi-proposal-filter-tab-approved-ring .uanabi-proposal-filter-tab-active {
+    @apply bg-white text-foreground;
+  }
+  .uanabi-proposal-filter-tab-verification-ring {
+    background: linear-gradient(
+      135deg,
+      rgb(253 186 116 / 0.95) 0%,
+      rgb(249 115 22) 45%,
+      rgb(234 88 12) 100%
+    );
+  }
+  .uanabi-proposal-filter-tab-verification-ring .uanabi-proposal-filter-tab {
+    @apply border-0 bg-white;
+  }
+  .uanabi-proposal-filter-tab-disabled {
+    @apply cursor-not-allowed opacity-40;
+  }
+  .uanabi-proposal-section-title {
+    @apply text-sm font-bold leading-snug text-foreground;
+  }
+  .uanabi-proposal-group-label {
+    @apply text-xs font-medium leading-none text-muted-foreground;
+  }
+
   /* Timeline vertical de marcas invitadas */
   .uanabi-invite-timeline-marker {
     @apply transition-colors duration-200;
   }
   .uanabi-invite-timeline-marker-future {
-    @apply bg-neutral-200;
+    @apply bg-border;
   }
   .uanabi-invite-timeline-marker-done {
     @apply bg-foreground/20;

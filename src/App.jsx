@@ -179,8 +179,8 @@ function ProtectedRoutes() {
 
   if (!isReady) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#fafafa]">
-        <p className="text-sm text-neutral-500">Cargando…</p>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <p className="type-body-muted">Cargando…</p>
       </div>
     )
   }

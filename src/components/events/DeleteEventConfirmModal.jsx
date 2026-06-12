@@ -11,7 +11,7 @@ export default function DeleteEventConfirmModal({
   if (!isOpen || !event) return null
 
   const { matches, activeInvites } = countEventInvites(event)
-  const totalConnections = matches + activeInvites + (event.invitedBrands?.length ?? 0)
+  const totalConnections = event.invitedBrands?.length ?? Math.max(matches + activeInvites, 0)
 
   return (
     <div
@@ -59,7 +59,6 @@ export default function DeleteEventConfirmModal({
             type="button"
             variant="destructive"
             size="default"
-            className="bg-red-600 text-white hover:bg-red-700"
             onClick={() => onConfirm(event.id)}
           >
             Eliminar evento

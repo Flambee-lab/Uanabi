@@ -55,8 +55,10 @@ export function getInvitedBrandsForEvent(event, catalog, { searchQuery = '' } = 
       return {
         ...brand,
         invitationStatus: invite.status,
+        hostPhase: invite.hostPhase ?? null,
         invitedAt: invite.invitedAt,
         statusChangedAt: invite.statusChangedAt,
+        declineReason: invite.declineReason ?? null,
       }
     })
     .filter(Boolean)

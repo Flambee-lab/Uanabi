@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 
 /** Misma superficie que las Cards del perfil de marca (Marcas → detalle). */
 export const UANABI_PROFILE_CARD_CLASS =
-  'overflow-hidden rounded-2xl border-border-subtle shadow-none'
+  'overflow-hidden rounded-2xl border border-navbar-border shadow-none'
 
 /** Contenedor de portada compacta del perfil de marca. */
 export const UANABI_PROFILE_COVER_CLASS =

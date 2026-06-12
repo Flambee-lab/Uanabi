@@ -18,6 +18,7 @@ import {
 } from '../data/appSession'
 import {
   DEFAULT_HOST_PROFILE,
+  isLegacyDemoHostName,
   loadStoredHostProfile,
   saveStoredHostProfile,
 } from '../data/hostProfile'
@@ -60,10 +61,28 @@ function mapSupabaseUser(user) {
   }
 }
 
+function sanitizeDevSessionUser(user) {
+  if (!user) return user
+  const isDemoAccount = user.email?.trim().toLowerCase() === DEFAULT_AUTH_USER.email
+  if (isDemoAccount && isLegacyDemoHostName(user.fullName)) {
+    return { ...user, fullName: DEFAULT_AUTH_USER.fullName }
+  }
+  return user
+}
+
 function loadDevSession() {
   try {
     const raw = localStorage.getItem(DEV_SESSION_KEY)
-    return raw ? JSON.parse(raw) : null
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (!parsed?.user) return parsed
+    const user = sanitizeDevSessionUser(parsed.user)
+    if (user !== parsed.user) {
+      const next = { ...parsed, user }
+      saveDevSession(next)
+      return next
+    }
+    return parsed
   } catch {
     return null
   }

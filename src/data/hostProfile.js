@@ -2,7 +2,7 @@ export const WHATSAPP_PREFILL_MESSAGE =
   'Hola, vi tu perfil en Uanabi y nos interesa analizar una propuesta de patrocinio.'
 
 export const DEFAULT_ACCOUNT_USER = {
-  fullName: 'Celeste Rojas',
+  fullName: 'Celeste Salas',
   role: 'Host',
 }
 
@@ -24,14 +24,15 @@ export const HOST_IDENTITY_TAGS = [
 export const HOST_PROFILE_STORAGE_KEY = 'uanabi_host_profile'
 
 /** Incrementar cuando cambien defaults de demo que deben propagarse a perfiles guardados. */
-const HOST_PROFILE_DATA_VERSION = 7
+const HOST_PROFILE_DATA_VERSION = 11
 
-function stripLegacyOnbrandHandle(value) {
-  if (!value?.trim()) return value
-  return value
-    .replace(/milena\.onbrand/gi, 'milena.uanabi')
-    .replace(/milenaonbrand/gi, 'milenauanabi')
-    .replace(/onbrand/gi, 'uanabi')
+/** Nombres del demo anterior que deben migrarse al host actual. */
+export function isLegacyDemoHostName(fullName) {
+  const name = fullName?.trim() ?? ''
+  if (!name) return false
+  if (/milena/i.test(name)) return true
+  if (name === 'Celeste Rojas' || name === 'Celeste') return true
+  return false
 }
 
 export const SOCIAL_PLATFORMS = [
@@ -72,8 +73,8 @@ export const DEFAULT_HOST_PROFILE = {
   },
   bio: 'Creo contenido de viajes y documento recorridos por el mundo en camper, ruta y experiencias locales. Trabajo con marcas que buscan historias auténticas: activaciones en destino, sampling on-the-road y cobertura que surge del viaje. Ya produje experiencias con Red Bull y Samsung, con foco en engagement alto y una audiencia que sigue el recorrido en tiempo real.',
   validatedLinks: {
-    instagram: false,
-    tiktok: false,
+    instagram: true,
+    tiktok: true,
   },
   successStories: [
     {
@@ -154,11 +155,29 @@ export function validateSocialLink(platform, value) {
   }
 }
 
+function sanitizePlatformFollowers(profile) {
+  const platformFollowers = {
+    ...DEFAULT_HOST_PROFILE.socialMetrics.platformFollowers,
+    ...profile?.socialMetrics?.platformFollowers,
+  }
+  for (const { key } of SOCIAL_PLATFORMS) {
+    if (!profile?.validatedLinks?.[key]) platformFollowers[key] = ''
+  }
+  return {
+    ...profile,
+    socialMetrics: {
+      ...DEFAULT_HOST_PROFILE.socialMetrics,
+      ...profile?.socialMetrics,
+      platformFollowers,
+    },
+  }
+}
+
 export function loadStoredHostProfile() {
   try {
     const raw = localStorage.getItem(HOST_PROFILE_STORAGE_KEY)
     if (!raw) {
-      return hydratePlatformFollowers({ ...DEFAULT_HOST_PROFILE, isConfigured: false })
+      return sanitizePlatformFollowers({ ...DEFAULT_HOST_PROFILE, isConfigured: false })
     }
     const parsed = JSON.parse(raw)
     const { tagline: _legacyTagline, ...parsedWithoutTagline } = parsed
@@ -181,11 +200,6 @@ export function loadStoredHostProfile() {
           },
         }
       }
-      if (storedVersion < 4) {
-        for (const { field } of SOCIAL_PLATFORMS) {
-          if (merged[field]) merged[field] = stripLegacyOnbrandHandle(merged[field])
-        }
-      }
       if (storedVersion < 5) {
         merged.successStories = DEFAULT_HOST_PROFILE.successStories
       }
@@ -201,28 +215,57 @@ export function loadStoredHostProfile() {
           },
         }
       }
-      if (storedVersion < 7) {
-        merged.fullName = DEFAULT_HOST_PROFILE.fullName
-        merged.bio = DEFAULT_HOST_PROFILE.bio
-        merged.categories = DEFAULT_HOST_PROFILE.categories
-        for (const { field } of SOCIAL_PLATFORMS) {
-          merged[field] = DEFAULT_HOST_PROFILE[field]
+      if (storedVersion < 9) {
+        if (merged.fullName?.trim() === 'Celeste Rojas' && !merged.displayName?.trim()) {
+          merged.fullName = DEFAULT_HOST_PROFILE.fullName
         }
-        merged.successStories = DEFAULT_HOST_PROFILE.successStories
-        merged.socialMetrics = {
-          ...DEFAULT_HOST_PROFILE.socialMetrics,
-          platformFollowers: {
-            ...DEFAULT_HOST_PROFILE.socialMetrics.platformFollowers,
-          },
+      }
+      if (storedVersion < 10) {
+        if (isLegacyDemoHostName(merged.fullName) && !merged.displayName?.trim()) {
+          merged.fullName = DEFAULT_HOST_PROFILE.fullName
+        }
+      }
+      if (storedVersion < 11) {
+        merged.validatedLinks = { ...(merged.validatedLinks ?? {}) }
+        if ((merged.instagram ?? '').trim() === DEFAULT_HOST_PROFILE.instagram) {
+          merged.validatedLinks.instagram = true
+        }
+        if ((merged.tiktok ?? '').trim() === DEFAULT_HOST_PROFILE.tiktok) {
+          merged.validatedLinks.tiktok = true
         }
       }
       merged._dataVersion = HOST_PROFILE_DATA_VERSION
       saveStoredHostProfile(merged)
     }
 
-    return hydratePlatformFollowers(merged)
+    // Limpieza incondicional: si el perfil guardado todavía es el demo previo
+    // de Milena (handles/nombre legacy), resetearlo al demo actual de Celeste.
+    // Nunca pisa datos editados por el usuario (no matchean /milena/).
+    const isLegacyDemoProfile =
+      isLegacyDemoHostName(merged.fullName) ||
+      SOCIAL_PLATFORMS.some(({ field }) => /milena/i.test(merged[field] ?? ''))
+    if (isLegacyDemoProfile) {
+      merged.fullName = DEFAULT_HOST_PROFILE.fullName
+      merged.bio = DEFAULT_HOST_PROFILE.bio
+      merged.categories = DEFAULT_HOST_PROFILE.categories
+      for (const { field } of SOCIAL_PLATFORMS) {
+        merged[field] = DEFAULT_HOST_PROFILE[field]
+      }
+      merged.successStories = DEFAULT_HOST_PROFILE.successStories
+      merged.socialMetrics = {
+        ...DEFAULT_HOST_PROFILE.socialMetrics,
+        platformFollowers: {
+          ...DEFAULT_HOST_PROFILE.socialMetrics.platformFollowers,
+        },
+      }
+      merged.validatedLinks = { ...DEFAULT_HOST_PROFILE.validatedLinks }
+      merged._dataVersion = HOST_PROFILE_DATA_VERSION
+      saveStoredHostProfile(merged)
+    }
+
+    return sanitizePlatformFollowers(merged)
   } catch {
-    return hydratePlatformFollowers({ ...DEFAULT_HOST_PROFILE, isConfigured: false })
+    return sanitizePlatformFollowers({ ...DEFAULT_HOST_PROFILE, isConfigured: false })
   }
 }
 
@@ -340,6 +383,31 @@ export function mergeProfileForSave(profile, form, { skipValidation = false } = 
   const { tagline: _legacyTagline, ...formWithoutTagline } = form
   const { tagline: _profileTagline, ...profileWithoutTagline } = profile
 
+  const validatedLinks = (() => {
+    const links = {
+      ...(profile.validatedLinks ?? {}),
+      ...(form.validatedLinks ?? {}),
+    }
+    for (const { key, field } of SOCIAL_PLATFORMS) {
+      if ((profile[field] ?? '').trim() !== (form[field] ?? '').trim()) {
+        links[key] = false
+      }
+    }
+    return links
+  })()
+
+  const platformFollowers = (() => {
+    const merged = {
+      ...(profile.socialMetrics?.platformFollowers ?? {}),
+      ...(form.socialMetrics?.platformFollowers ?? {}),
+    }
+    const sanitized = { ...merged }
+    for (const { key } of SOCIAL_PLATFORMS) {
+      if (!validatedLinks[key]) sanitized[key] = ''
+    }
+    return sanitized
+  })()
+
   return {
     ...profileWithoutTagline,
     ...formWithoutTagline,
@@ -350,12 +418,9 @@ export function mergeProfileForSave(profile, form, { skipValidation = false } = 
     socialMetrics: {
       ...(profile.socialMetrics ?? {}),
       ...(form.socialMetrics ?? {}),
-      platformFollowers: {
-        ...(profile.socialMetrics?.platformFollowers ?? {}),
-        ...(form.socialMetrics?.platformFollowers ?? {}),
-      },
+      platformFollowers,
     },
-    validatedLinks: { ...(profile.validatedLinks ?? {}), ...(form.validatedLinks ?? {}) },
+    validatedLinks,
     successStories: cleanedStories.length > 0 ? cleanedStories : stories,
     joinedAt: profile.joinedAt ?? new Date().toISOString(),
     isConfigured: true,
@@ -363,9 +428,9 @@ export function mergeProfileForSave(profile, form, { skipValidation = false } = 
 }
 
 export const PROFILE_EDIT_SECTIONS = [
-  { id: 'basic', label: 'Basic Information' },
-  { id: 'channels', label: 'Channels & Metrics' },
-  { id: 'collaborations', label: 'Past Collaborations' },
+  { id: 'basic', label: 'Información básica' },
+  { id: 'channels', label: 'Redes sociales' },
+  { id: 'collaborations', label: 'Colaboraciones' },
 ]
 
 export const PROFILE_PUBLIC_TABS = [
@@ -377,37 +442,10 @@ export function getProfileCategories(profile) {
   return profile?.categories?.length > 0 ? profile.categories : []
 }
 
-function hydratePlatformFollowers(profile) {
-  const platformFollowers = {
-    ...DEFAULT_HOST_PROFILE.socialMetrics.platformFollowers,
-    ...profile?.socialMetrics?.platformFollowers,
-  }
-
-  for (const { key, field } of SOCIAL_PLATFORMS) {
-    if (profile?.[field]?.trim() && !platformFollowers[key]?.trim()) {
-      const fallback = DEFAULT_HOST_PROFILE.socialMetrics.platformFollowers[key]
-      if (fallback?.trim()) platformFollowers[key] = fallback
-    }
-  }
-
-  return {
-    ...profile,
-    socialMetrics: {
-      ...DEFAULT_HOST_PROFILE.socialMetrics,
-      ...profile?.socialMetrics,
-      platformFollowers,
-    },
-  }
-}
-
 export function getPlatformFollowers(profile, platform) {
-  const hydrated = hydratePlatformFollowers(profile ?? {})
-  const value = hydrated.socialMetrics?.platformFollowers?.[platform]
-  if (value?.trim()) return value.trim()
-  if (platform === 'instagram' && hydrated.socialMetrics?.totalFollowers?.trim()) {
-    return hydrated.socialMetrics.totalFollowers.trim()
-  }
-  return null
+  if (!profile?.validatedLinks?.[platform]) return null
+  const value = profile.socialMetrics?.platformFollowers?.[platform]
+  return value?.trim() ? value.trim() : null
 }
 
 export function getConnectedSocialChannels(profile) {

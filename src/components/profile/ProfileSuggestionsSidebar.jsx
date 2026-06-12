@@ -1,20 +1,20 @@
-import { Lightbulb, MessageCircle, ShieldCheck, Sparkles } from 'lucide-react'
+import { Lightbulb, Link2, MessageCircle, Sparkles } from 'lucide-react'
 
 const TIPS = [
   {
+    icon: Link2,
+    title: 'Verificá Instagram y TikTok',
+    body: 'Conectá cada cuenta desde Redes sociales. Si cambiás el @usuario, hay que volver a verificar — así evitamos perfiles ajenos.',
+  },
+  {
     icon: MessageCircle,
-    title: 'Por qué validar tu WhatsApp',
-    body: 'Es el canal directo sin fricción por el que las marcas cierran patrocinios. Un número verificado aumenta la tasa de respuesta.',
+    title: 'WhatsApp comercial',
+    body: 'Es el canal directo por el que las marcas cierran patrocinios. Mantenelo actualizado.',
   },
   {
     icon: Sparkles,
-    title: 'Cómo mejorar tu atractivo ante marcas',
-    body: 'Completá métricas reales de Instagram y TikTok, y sumá colaboraciones con fotos de evidencia que demuestren resultados.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Credibilidad que convierte',
-    body: 'Los sponsors comparan hosts en segundos. Un perfil completo con portfolio visual reduce la fricción para invitarte.',
+    title: 'Contenido destacado',
+    body: 'El grid de tu perfil se alimenta de las redes conectadas. Conectá IG/TikTok para mostrar seguidores reales.',
   },
 ]
 

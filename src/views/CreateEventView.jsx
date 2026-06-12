@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Calendar,
   Globe,
@@ -120,14 +120,14 @@ function PhotoSlot({ label, previewUrl, onPick, onClear }) {
         {previewUrl ? (
           <>
             <img src={previewUrl} alt="" className="h-full w-full object-cover" />
-            <span className="absolute inset-0 flex items-center justify-center bg-black/0 text-[10px] font-semibold text-white opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100">
+            <span className="absolute inset-0 flex items-center justify-center bg-black/0 text-xs font-semibold text-white opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100">
               Cambiar
             </span>
           </>
         ) : (
           <span className="flex h-full flex-col items-center justify-center gap-1 p-2 text-center">
             <ImagePlus className="h-4 w-4 text-muted-foreground/60" strokeWidth={1.5} />
-            <span className="text-[9px] font-medium text-muted-foreground">{label}</span>
+            <span className="text-xs font-medium text-muted-foreground">{label}</span>
           </span>
         )}
       </button>
@@ -146,7 +146,7 @@ function PhotoSlot({ label, previewUrl, onPick, onClear }) {
         <button
           type="button"
           onClick={onClear}
-          className="mt-1 text-[9px] font-semibold text-muted-foreground hover:text-foreground"
+          className="mt-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
         >
           Quitar
         </button>
@@ -155,9 +155,23 @@ function PhotoSlot({ label, previewUrl, onPick, onClear }) {
   )
 }
 
+function revokeBlobPreview(item) {
+  if (item?.previewUrl?.startsWith('blob:')) URL.revokeObjectURL(item.previewUrl)
+}
+
 export default function CreateEventView({ onClose, onSubmit }) {
   const [form, setForm] = useState(getDefaultCreateEventForm)
   const [errors, setErrors] = useState({})
+  const formRef = useRef(form)
+  formRef.current = form
+
+  // Liberar blobs de imágenes al cerrar sin publicar
+  useEffect(() => {
+    return () => {
+      revokeBlobPreview(formRef.current.coverImage)
+      formRef.current.secondaryPhotos?.forEach(revokeBlobPreview)
+    }
+  }, [])
 
   const selectedGradient = useMemo(
     () => COVER_GRADIENTS.find((g) => g.id === form.coverGradientId) ?? COVER_GRADIENTS[4],
@@ -170,21 +184,38 @@ export default function CreateEventView({ onClose, onSubmit }) {
   const showVirtual = form.format === 'online' || form.format === 'hibrido'
 
   const setCoverImage = (file) => {
-    update({
-      coverImage: { name: file.name, previewUrl: URL.createObjectURL(file) },
+    setForm((prev) => {
+      revokeBlobPreview(prev.coverImage)
+      return {
+        ...prev,
+        coverImage: { name: file.name, previewUrl: URL.createObjectURL(file) },
+      }
+    })
+  }
+
+  const clearCoverImage = () => {
+    setForm((prev) => {
+      revokeBlobPreview(prev.coverImage)
+      return { ...prev, coverImage: null }
     })
   }
 
   const setSecondaryPhoto = (index, file) => {
-    const next = [...form.secondaryPhotos]
-    next[index] = { name: file.name, previewUrl: URL.createObjectURL(file) }
-    update({ secondaryPhotos: next })
+    setForm((prev) => {
+      const next = [...prev.secondaryPhotos]
+      revokeBlobPreview(next[index])
+      next[index] = { name: file.name, previewUrl: URL.createObjectURL(file) }
+      return { ...prev, secondaryPhotos: next }
+    })
   }
 
   const clearSecondaryPhoto = (index) => {
-    const next = [...form.secondaryPhotos]
-    next[index] = null
-    update({ secondaryPhotos: next })
+    setForm((prev) => {
+      const next = [...prev.secondaryPhotos]
+      revokeBlobPreview(next[index])
+      next[index] = null
+      return { ...prev, secondaryPhotos: next }
+    })
   }
 
   const handleSubmit = (e) => {
@@ -198,7 +229,7 @@ export default function CreateEventView({ onClose, onSubmit }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#fafafa]">
+    <div className="uanabi-shell fixed inset-0 z-50 flex flex-col">
       <header className="flex shrink-0 items-center justify-between border-b border-border-subtle bg-white px-4 py-3 sm:px-6">
         <button
           type="button"
@@ -208,9 +239,7 @@ export default function CreateEventView({ onClose, onSubmit }) {
         >
           <X className="h-5 w-5" strokeWidth={1.75} />
         </button>
-        <span className="font-display text-sm font-bold text-foreground sm:text-base">
-          Nuevo evento
-        </span>
+        <span className="type-body font-display font-bold">Nuevo evento</span>
         <div className="w-9" aria-hidden />
       </header>
 
@@ -235,12 +264,12 @@ export default function CreateEventView({ onClose, onSubmit }) {
               gradientClass={selectedGradient.class}
               title={form.title}
               onPick={setCoverImage}
-              onClear={() => update({ coverImage: null })}
+              onClear={clearCoverImage}
             />
 
             <div className="mt-4 max-w-sm">
               <FieldLabel>Fotos secundarias</FieldLabel>
-              <p className="mb-2 text-[11px] text-muted-foreground">
+              <p className="mb-2 type-small text-muted-foreground">
                 Sumá hasta 3 imágenes más para mostrar el evento
               </p>
               <div className="flex gap-2">
@@ -295,7 +324,7 @@ export default function CreateEventView({ onClose, onSubmit }) {
                 autoFocus
               />
               {errors.title && (
-                <p className="mt-1.5 text-xs font-medium text-red-600">{errors.title}</p>
+                <p className="mt-1.5 type-small font-medium text-destructive">{errors.title}</p>
               )}
             </div>
 
@@ -308,14 +337,14 @@ export default function CreateEventView({ onClose, onSubmit }) {
                 placeholder="Describí la experiencia, tu audiencia y qué tipo de sponsors buscás..."
               />
               {errors.description && (
-                <p className="mt-1.5 text-xs font-medium text-red-600">{errors.description}</p>
+                <p className="mt-1.5 type-small font-medium text-destructive">{errors.description}</p>
               )}
             </div>
 
             <div className="rounded-2xl border border-border-subtle bg-white p-4 sm:p-5">
               <div className="mb-4 flex items-center gap-2 text-foreground">
                 <Calendar className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
-                <span className="text-sm font-bold">Fecha y horario</span>
+                <span className="type-body font-bold">Fecha y horario</span>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
@@ -327,7 +356,7 @@ export default function CreateEventView({ onClose, onSubmit }) {
                     onChange={(e) => update({ startDate: e.target.value })}
                   />
                   {errors.startDate && (
-                    <p className="mt-1.5 text-xs font-medium text-red-600">{errors.startDate}</p>
+                    <p className="mt-1.5 type-small font-medium text-destructive">{errors.startDate}</p>
                   )}
                 </div>
                 <div>
@@ -365,8 +394,8 @@ export default function CreateEventView({ onClose, onSubmit }) {
 
             <div className="rounded-2xl border border-border-subtle bg-white p-4 sm:p-5">
               <div className="mb-4 flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-orange-500" strokeWidth={1.75} />
-                <span className="text-sm font-bold text-foreground">Ubicación y formato</span>
+                <MapPin className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+                <span className="type-body font-bold">Ubicación y formato</span>
               </div>
 
               <FieldLabel>Formato</FieldLabel>
@@ -408,7 +437,7 @@ export default function CreateEventView({ onClose, onSubmit }) {
                     />
                   </div>
                   {errors.venue && (
-                    <p className="text-xs font-medium text-red-600">{errors.venue}</p>
+                    <p className="type-small font-medium text-destructive">{errors.venue}</p>
                   )}
                 </div>
               )}
@@ -419,7 +448,7 @@ export default function CreateEventView({ onClose, onSubmit }) {
                 >
                   <div className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
-                    <span className="text-xs font-bold text-foreground">Enlace virtual</span>
+                    <span className="type-small font-bold text-foreground">Enlace virtual</span>
                   </div>
                   <FieldInput
                     value={form.virtualLink}
@@ -427,7 +456,7 @@ export default function CreateEventView({ onClose, onSubmit }) {
                     placeholder="https://meet.google.com/..."
                   />
                   {errors.virtualLink && (
-                    <p className="text-xs font-medium text-red-600">{errors.virtualLink}</p>
+                    <p className="type-small font-medium text-destructive">{errors.virtualLink}</p>
                   )}
                 </div>
               )}

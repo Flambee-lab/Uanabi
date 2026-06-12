@@ -245,7 +245,7 @@ export default function ProfileWizard({
           id="wizard-fullName"
           value={form.fullName}
           onChange={(e) => update({ fullName: e.target.value })}
-          placeholder="Celeste Rojas"
+          placeholder="Celeste Salas"
           autoFocus
         />
       </FormField>
@@ -314,7 +314,7 @@ export default function ProfileWizard({
         {renderInput({
           value: form.fullName,
           onChange: (e) => update({ fullName: e.target.value }),
-          placeholder: 'Celeste Rojas',
+          placeholder: 'Celeste Salas',
           autoFocus: true,
         })}
       </ProfileField>

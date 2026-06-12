@@ -1,20 +1,8 @@
 import { useState } from 'react'
 import { Infinity } from 'lucide-react'
 import { useBrandLogoSrc } from '@/hooks/useBrandLogoSrc'
+import { getBrandCoverSrc } from '../../utils/brandCovers'
 import BrandCategoryTags from './BrandCategoryTags'
-
-const COVER_BY_INDUSTRY = {
-  Bebidas:
-    'https://images.unsplash.com/photo-1629203857988-ef7dd06ae83c?auto=format&fit=crop&w=800&q=80',
-  Tecnología:
-    'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=800&q=80',
-  Indumentaria:
-    'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=800&q=80',
-  Gastronomía:
-    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
-  Entretenimiento:
-    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80',
-}
 
 function participacionesLabel(count) {
   const n = count ?? 0
@@ -45,8 +33,7 @@ function BrandAvatar({ brand }) {
 
 function CardCover({ brand }) {
   const [coverFailed, setCoverFailed] = useState(false)
-  const coverSrc =
-    brand.coverImage ?? COVER_BY_INDUSTRY[brand.industry] ?? null
+  const coverSrc = getBrandCoverSrc(brand)
   const showImage = coverSrc && !coverFailed
 
   return (
@@ -83,6 +70,7 @@ export default function BrandDiscoverCard({ brand, onSelect }) {
     <article
       role={onSelect ? 'button' : undefined}
       tabIndex={onSelect ? 0 : undefined}
+      aria-label={onSelect ? `Ver perfil de ${brand.name}` : undefined}
       onClick={onSelect ? handleActivate : undefined}
       onKeyDown={
         onSelect

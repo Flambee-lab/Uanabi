@@ -32,7 +32,7 @@ export function clearOnboardingSkip() {
 export function createFreshHostProfile() {
   return {
     ...DEFAULT_HOST_PROFILE,
-    fullName: '',
+    fullName: 'Celeste Salas',
     displayName: '',
     bio: '',
     avatarUrl: null,

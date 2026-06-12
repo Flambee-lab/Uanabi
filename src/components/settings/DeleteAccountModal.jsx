@@ -30,17 +30,14 @@ export default function DeleteAccountModal({ isOpen, email, onClose, onConfirm }
       <div className="w-full max-w-md rounded-2xl border border-border-subtle bg-white p-8">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
               <AlertTriangle className="h-5 w-5" strokeWidth={1.75} />
             </span>
             <div>
-              <h2
-                id="delete-account-title"
-                className="font-display text-lg font-bold text-foreground"
-              >
+              <h2 id="delete-account-title" className="type-heading">
                 Eliminar cuenta definitivamente
               </h2>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+              <p className="type-small mt-2 text-muted-foreground">
                 Esta acción es irreversible. Se borrarán tu perfil de Host, eventos y
                 colaboraciones asociadas en Supabase.
               </p>
@@ -59,11 +56,11 @@ export default function DeleteAccountModal({ isOpen, email, onClose, onConfirm }
         <p className="mt-6 type-small text-muted-foreground">
           Cuenta: <span className="font-semibold text-foreground/80">{email}</span>
         </p>
-        <p className="mt-4 text-xs font-medium text-foreground/80">
-          Escribí <span className="font-bold text-red-600">ELIMINAR</span> para confirmar
+        <p className="type-small mt-4 font-medium text-foreground/80">
+          Escribí <span className="font-bold text-destructive">ELIMINAR</span> para confirmar
         </p>
         <input
-          className="mt-2 w-full rounded-xl border border-border bg-secondary px-4 py-3 text-xs text-foreground focus:border-red-500 focus:bg-white focus:outline-none"
+          className="mt-2 w-full rounded-xl border border-border bg-secondary px-4 py-3 text-sm text-foreground focus:border-destructive focus:bg-white focus:outline-none"
           value={confirmText}
           onChange={(e) => setConfirmText(e.target.value)}
           placeholder="ELIMINAR"
@@ -78,7 +75,7 @@ export default function DeleteAccountModal({ isOpen, email, onClose, onConfirm }
             type="button"
             variant="destructive"
             size="default"
-            className="flex-1 bg-red-600 text-white hover:bg-red-700"
+            className="flex-1"
             onClick={handleConfirm}
             disabled={!canDelete}
           >

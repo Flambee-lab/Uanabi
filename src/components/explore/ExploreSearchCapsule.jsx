@@ -164,16 +164,13 @@ export default function ExploreSearchCapsule({
                   >
                     <span>{option.label}</span>
                     {!option.available && (
-                      <Badge
-                        variant="secondary"
-                        className="shrink-0 rounded-full border-0 bg-sky-100 px-2 py-0.5 text-[0.625rem] font-semibold text-sky-700"
-                      >
+                      <Badge variant="secondary" className="shrink-0">
                         Próximamente
                       </Badge>
                     )}
                   </div>
                 ))}
-                <p className="px-3 pb-2 pt-1 text-xs leading-relaxed text-muted-foreground">
+                <p className="type-small px-3 pb-2 pt-1">
                   Estamos sumando más zonas del AMBA.
                 </p>
               </CardContent>
@@ -273,45 +270,47 @@ export default function ExploreSearchCapsule({
 
         <div className="my-3 w-px shrink-0 bg-border" aria-hidden />
 
-        {/* Marca */}
-        <label
+        {/* Marca — el wrapper incluye el botón de búsqueda para que el fondo activo pinte el campo completo hasta la punta redondeada */}
+        <div
           className={cn(
-            'uanabi-search-segment flex min-w-0 flex-1 cursor-text flex-col px-4 py-2 sm:px-5',
-            brandFocused && 'uanabi-search-segment-active',
+            'flex min-w-0 flex-1 items-stretch rounded-r-full transition-colors duration-150 hover:bg-selection',
+            brandFocused && 'bg-selection',
           )}
         >
-          <SegmentLabel>Marca</SegmentLabel>
-          <input
-            id="explore-brand-search"
-            type="search"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            onFocus={() => {
-              setBrandFocused(true)
-              closePanels()
-            }}
-            onBlur={() => setBrandFocused(false)}
-            placeholder="Nombre o rubro"
-            className={cn(
-              'uanabi-search-segment-value mt-1 w-full border-0 bg-transparent p-0 outline-none placeholder:font-normal placeholder:text-muted-foreground',
-              (brandFocused || searchQuery.trim()) && 'text-foreground',
-            )}
-          />
-        </label>
+          <label className="uanabi-search-segment flex min-w-0 flex-1 cursor-text flex-col px-4 py-2 hover:bg-transparent sm:px-5">
+            <SegmentLabel>Marca</SegmentLabel>
+            <input
+              id="explore-brand-search"
+              type="search"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              onFocus={() => {
+                setBrandFocused(true)
+                closePanels()
+              }}
+              onBlur={() => setBrandFocused(false)}
+              placeholder="Nombre o rubro"
+              className={cn(
+                'uanabi-search-segment-value mt-1 w-full border-0 bg-transparent p-0 outline-none placeholder:font-normal placeholder:text-muted-foreground',
+                (brandFocused || searchQuery.trim()) && 'text-foreground',
+              )}
+            />
+          </label>
 
-        <div className={cn('flex shrink-0 items-center', isCompact ? 'pr-1.5' : 'pr-2 sm:pr-3')}>
-          <Button
-            type="button"
-            size="icon"
-            className={cn(
-              'shrink-0 rounded-full shadow-sm',
-              isCompact ? 'h-8 w-8' : 'h-11 w-11',
-            )}
-            aria-label="Buscar marcas"
-            onClick={() => document.getElementById('explore-brand-search')?.focus()}
-          >
-            <Search className="h-[1.15rem] w-[1.15rem]" strokeWidth={2.25} />
-          </Button>
+          <div className={cn('flex shrink-0 items-center', isCompact ? 'pr-1.5' : 'pr-2 sm:pr-3')}>
+            <Button
+              type="button"
+              size="icon"
+              className={cn(
+                'shrink-0 rounded-full shadow-sm',
+                isCompact ? 'h-8 w-8' : 'h-11 w-11',
+              )}
+              aria-label="Buscar marcas"
+              onClick={() => document.getElementById('explore-brand-search')?.focus()}
+            >
+              <Search className="h-[1.15rem] w-[1.15rem]" strokeWidth={2.25} />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

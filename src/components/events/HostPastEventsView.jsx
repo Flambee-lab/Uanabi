@@ -5,15 +5,20 @@ import {
   UanabiProfilePage,
 } from '../layout/UanabiProfileLayout'
 import { countEventInvites } from '../../utils/eventSponsorMatch'
-import { inviteNeedsClosure } from '../../utils/sponsorshipLifecycle'
+import { getEventHostActionSummary } from '../../utils/hostEventBuckets'
+import {
+  countPastEventInvitesNeedingHostAction,
+  formatVerificationStatusLine,
+} from '../../utils/sponsorshipLifecycle'
 import { formatEventDateShort } from '../../utils/eventDetailFormat'
 import EventCoverMedia from './EventCoverMedia'
+import EventPinnedActionBanner from './EventPinnedActionBanner'
 
-function PastEventCard({ event, onSelect }) {
+function PastEventCard({ event, brandCatalog, onSelect }) {
   const { matches, activeInvites } = countEventInvites(event)
-  const needsClosure = (event.invitedBrands ?? []).some((inv) =>
-    inviteNeedsClosure(inv, event),
-  )
+  const pendingVerificationCount = countPastEventInvitesNeedingHostAction(event)
+  const verificationLine = formatVerificationStatusLine(pendingVerificationCount)
+  const action = getEventHostActionSummary(event, brandCatalog)
 
   return (
     <button
@@ -21,37 +26,55 @@ function PastEventCard({ event, onSelect }) {
       onClick={() => onSelect(event.id)}
       className={cn(
         UANABI_PROFILE_CARD_CLASS,
-        'flex w-full gap-4 p-4 text-left transition-colors hover:bg-selection/30',
+        'flex w-full flex-col gap-3 p-4 text-left transition-colors hover:bg-selection/30',
+        action && 'border-navbar-border bg-secondary/25',
       )}
     >
-      <EventCoverMedia event={event} variant="thumb" className="!h-16 !w-[5.5rem] rounded-xl" />
-      <div className="min-w-0 flex-1">
-        <p className="type-body font-semibold leading-snug text-foreground">{event.title}</p>
-        <p className="type-small mt-1 flex items-center gap-1.5 text-muted-foreground">
-          <Calendar className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
-          {formatEventDateShort(event.date)}
-          {event.niche && (
-            <>
-              <span className="text-border-subtle">·</span>
-              {event.niche}
-            </>
-          )}
-        </p>
-        {(matches > 0 || activeInvites > 0 || needsClosure) && (
-          <p className="type-small mt-2 font-medium text-muted-foreground">
-            {needsClosure && <span className="text-orange-700">Validación pendiente</span>}
-            {needsClosure && (matches > 0 || activeInvites > 0) && ' · '}
-            {matches > 0 && `${matches} match`}
-            {matches > 0 && activeInvites > 0 && ' · '}
-            {activeInvites > 0 && `${activeInvites} invit.`}
+      {action && <EventPinnedActionBanner message={action.message} className="w-full" />}
+      <div className="flex w-full gap-4">
+        <EventCoverMedia event={event} variant="thumb" className="!h-16 !w-[5.5rem] rounded-xl" />
+        <div className="min-w-0 flex-1">
+          <p className="type-body font-semibold leading-snug text-foreground">{event.title}</p>
+          <p className="type-small mt-1 flex items-center gap-1.5 text-muted-foreground">
+            <Calendar className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
+            {formatEventDateShort(event.date)}
+            {event.niche && (
+              <>
+                <span className="text-border-subtle">·</span>
+                {event.niche}
+              </>
+            )}
           </p>
-        )}
+          {verificationLine ? (
+            <p className="type-small mt-2 font-semibold text-orange-700">{verificationLine}</p>
+          ) : (
+            (matches > 0 || activeInvites > 0) && (
+              <p className="type-small mt-2 font-medium text-muted-foreground">
+                {matches > 0 && `${matches} match`}
+                {matches > 0 && activeInvites > 0 && ' · '}
+                {activeInvites > 0 && `${activeInvites} invit.`}
+              </p>
+            )
+          )}
+        </div>
       </div>
     </button>
   )
 }
 
-export default function HostPastEventsView({ events, onSelectEvent, pendingCount = 0 }) {
+export default function HostPastEventsView({
+  events,
+  brandCatalog = [],
+  onSelectEvent,
+  pendingCount = 0,
+}) {
+  const sortedEvents = [...events].sort((a, b) => {
+    const aAction = Boolean(getEventHostActionSummary(a, brandCatalog))
+    const bAction = Boolean(getEventHostActionSummary(b, brandCatalog))
+    if (aAction !== bAction) return aAction ? -1 : 1
+    return String(b.date).localeCompare(String(a.date))
+  })
+
   if (events.length === 0) {
     return (
       <UanabiProfilePage
@@ -77,15 +100,20 @@ export default function HostPastEventsView({ events, onSelectEvent, pendingCount
       </p>
 
       {pendingCount > 0 && (
-        <p className="mt-4 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-xs font-medium leading-relaxed text-orange-900">
+        <p className="type-small mt-4 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 font-medium text-orange-900">
           Tenés {pendingCount} evento{pendingCount !== 1 ? 's' : ''} con validación de marca pendiente.
           Abrí el evento y confirmá la participación del sponsor.
         </p>
       )}
 
       <div className="mt-5 space-y-3">
-        {events.map((event) => (
-          <PastEventCard key={event.id} event={event} onSelect={onSelectEvent} />
+        {sortedEvents.map((event) => (
+          <PastEventCard
+            key={event.id}
+            event={event}
+            brandCatalog={brandCatalog}
+            onSelect={onSelectEvent}
+          />
         ))}
       </div>
     </UanabiProfilePage>

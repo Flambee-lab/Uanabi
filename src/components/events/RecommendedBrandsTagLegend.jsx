@@ -5,7 +5,7 @@ export default function RecommendedBrandsTagLegend({ className }) {
   return (
     <div
       className={cn(
-        'uanabi-sponsor-stroke flex gap-2.5 rounded-xl bg-secondary/25 px-3 py-2.5',
+        'flex gap-2.5 rounded-xl border border-emerald-200/80 bg-emerald-50/35 px-3 py-2.5',
         className,
       )}
     >

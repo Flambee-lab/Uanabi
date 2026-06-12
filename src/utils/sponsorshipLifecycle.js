@@ -103,6 +103,34 @@ export function inviteNeedsClosure(invite, event) {
   return invite.status === SPONSORSHIP_STATUS.CASO_ABIERTO
 }
 
+/** Post-evento: el host debe subir pruebas de uso de productos. */
+export function inviteNeedsHostVerificationUpload(invite, event) {
+  if (!invite || !isEventPast(event)) return false
+  return (
+    invite.status === SPONSORSHIP_STATUS.CASO_ABIERTO ||
+    invite.status === SPONSORSHIP_STATUS.MATCH_ACEPTADO
+  )
+}
+
+export function countPastEventInvitesNeedingHostAction(event, referenceDate = new Date()) {
+  if (!event || !isEventPast(event, referenceDate)) return 0
+  return (event.invitedBrands ?? []).filter((inv) =>
+    inviteNeedsHostVerificationUpload(inv, event),
+  ).length
+}
+
+export function formatVerificationAttentionMessage(count, singleBrandName) {
+  if (count <= 0) return null
+  if (count === 1) return `Verificación · ${singleBrandName}`
+  return `Verificación · ${count} marcas`
+}
+
+export function formatVerificationStatusLine(count) {
+  if (count <= 0) return null
+  if (count === 1) return 'Verificación'
+  return `Verificación · ${count} marcas`
+}
+
 export function getPendingClosureCases(events, catalog = []) {
   const cases = []
   for (const event of events ?? []) {
@@ -259,103 +287,164 @@ function joinPanelSentences(parts) {
   return parts.filter(Boolean).join(' ')
 }
 
+/** Fases visibles para el host (pre y post evento). Opcional en invite.hostPhase */
+export const HOST_SPONSORSHIP_PHASE = {
+  ACCEPTED: 'accepted',
+  IN_CONVERSATION: 'in_conversation',
+  IN_TRANSIT: 'in_transit',
+  READY: 'ready',
+  UPLOAD_PROOFS: 'upload_proofs',
+  VERIFYING: 'verifying',
+  VALIDATED: 'validated',
+}
+
+const HOST_PHASE_PRESENTATION = {
+  [HOST_SPONSORSHIP_PHASE.ACCEPTED]: {
+    title: 'Solicitud aceptada',
+    subtitle: 'Te contactamos en las próx. 24 hs',
+    detail:
+      'Uanabi te escribe por WhatsApp en las próximas 24 hs para coordinar el patrocinio con la marca.',
+    tone: 'approved',
+  },
+  [HOST_SPONSORSHIP_PHASE.IN_CONVERSATION]: {
+    title: 'En conversación',
+    subtitle: 'Ultimando detalles del acuerdo',
+    detail: 'Estamos cerrando el acuerdo con la marca. Te avisamos si necesitamos algo de tu lado.',
+    tone: 'approved',
+  },
+  [HOST_SPONSORSHIP_PHASE.IN_TRANSIT]: {
+    title: 'En camino',
+    subtitle: 'Avisanos apenas te lleguen los productos',
+    detail:
+      'Los productos de la marca están en camino. Cuando los recibas, avisanos por WhatsApp.',
+    tone: 'attention',
+  },
+  [HOST_SPONSORSHIP_PHASE.READY]: {
+    title: 'Todo listo',
+    subtitle: 'Recordá sacar fotos para la marca',
+    detail:
+      'Ya está todo coordinado. Sacá fotos del stand o la activación el día del evento.',
+    tone: 'approved',
+  },
+  [HOST_SPONSORSHIP_PHASE.UPLOAD_PROOFS]: {
+    title: 'Subí tus pruebas',
+    subtitle: 'Mostranos que usaste los productos de la marca',
+    detail:
+      'Subí fotos o links de cómo usaste los productos que te envió la marca. Nosotros gestionamos el envío — con esto verificamos que los utilizaste en el evento.',
+    tone: 'attention',
+  },
+  [HOST_SPONSORSHIP_PHASE.VERIFYING]: {
+    title: 'En verificación',
+    subtitle: 'Revisando el material que compartiste',
+    detail:
+      'Estamos revisando que hayas usado los productos de la marca en el evento. Te avisamos cuando esté validado.',
+    tone: 'verification',
+  },
+  [HOST_SPONSORSHIP_PHASE.VALIDATED]: {
+    title: 'Acuerdo validado',
+    subtitle: 'Nos vemos la próxima',
+    detail:
+      'Patrocinio validado. Aparece en tu perfil y podés sumar la marca a tus colaboraciones.',
+    tone: 'approved',
+  },
+}
+
+function resolveHostPhase(status, { hostPhase, isPastEvent } = {}) {
+  if (hostPhase && HOST_PHASE_PRESENTATION[hostPhase]) return hostPhase
+  if (status === SPONSORSHIP_STATUS.CASO_ABIERTO) return HOST_SPONSORSHIP_PHASE.UPLOAD_PROOFS
+  if (status === SPONSORSHIP_STATUS.EN_VERIFICACION) return HOST_SPONSORSHIP_PHASE.VERIFYING
+  if (status === SPONSORSHIP_STATUS.MATCH_ACEPTADO && isPastEvent) {
+    return HOST_SPONSORSHIP_PHASE.UPLOAD_PROOFS
+  }
+  if (status === SPONSORSHIP_STATUS.MATCH_ACEPTADO && !isPastEvent) {
+    return HOST_SPONSORSHIP_PHASE.ACCEPTED
+  }
+  return null
+}
+
 /**
- * @returns {{ tone: string, title: string, body: string }}
+ * Copy unificada para fila colapsada y detalle expandido del host.
+ * @returns {{ title: string, subtitle: string, detail: string, tone: string }}
  */
-export function getInvitationStepPanelContent(
+export function getInvitationPresentation(
   status,
   {
     isPastEvent = false,
-    productDeliveryBy = null,
+    hostPhase = null,
+    declineReason = null,
     invitedAt = null,
-    approvedBannerVisible = false,
+    productDeliveryBy = null,
   } = {},
 ) {
-  const invitedLine = invitedAt
-    ? `Invitación: ${formatEventDateShort(invitedAt)}.`
-    : null
+  const invitedLine = invitedAt ? `Enviaste la propuesta el ${formatEventDateShort(invitedAt)}.` : null
 
   if (status === SPONSORSHIP_STATUS.DECLINADO) {
+    const trimmedReason = declineReason?.trim()
     return {
-      tone: 'declined',
       title: 'Rechazada',
-      body: joinPanelSentences([
-        'Rechazada por la marca.',
-        'Podés invitar otras desde Recomendadas.',
-        invitedLine,
-      ]),
+      subtitle: 'Esta marca no se suma al evento',
+      detail: trimmedReason
+        ? trimmedReason
+        : joinPanelSentences([
+            'La marca rechazó la propuesta.',
+            'Podés invitar otras desde Recomendadas.',
+          ]),
+      tone: 'declined',
     }
   }
 
   if (isInvitationInReview(status)) {
     const deadline = getInvitationResponseDeadline(invitedAt)
     return {
-      tone: 'review',
       title: 'En revisión',
-      body: joinPanelSentences([
-        'La marca revisa tu evento. Te avisamos cuando responda.',
+      subtitle: 'La marca está revisando tu propuesta',
+      detail: joinPanelSentences([
+        'La marca está evaluando tu evento. Te avisamos cuando responda.',
         deadline
-          ? `Plazo: ${deadline}. Sin respuesta en ${INVITATION_RESPONSE_DAYS} días → rechazada.`
-          : `Sin respuesta en ${INVITATION_RESPONSE_DAYS} días → rechazada.`,
+          ? `Si no hay respuesta antes del ${deadline}, la solicitud se cierra sola.`
+          : `Sin respuesta en ${INVITATION_RESPONSE_DAYS} días, la solicitud se cierra sola.`,
         invitedLine,
       ]),
+      tone: 'review',
     }
   }
 
-  if (status === SPONSORSHIP_STATUS.MATCH_ACEPTADO) {
-    if (isPastEvent) {
-      return {
-        tone: 'close',
-        title: 'Por cerrar',
-        body: joinPanelSentences([
-          'Evento finalizado. Subí fotos del patrocinio para cerrar el caso.',
-          invitedLine,
-        ]),
-      }
+  const phase = resolveHostPhase(status, { hostPhase, isPastEvent })
+  if (phase && HOST_PHASE_PRESENTATION[phase]) {
+    const preset = HOST_PHASE_PRESENTATION[phase]
+    let detail = preset.detail
+
+    if (phase === HOST_SPONSORSHIP_PHASE.ACCEPTED && productDeliveryBy) {
+      detail = joinPanelSentences([
+        preset.detail,
+        `Objetivo de entrega de productos: ${productDeliveryBy}.`,
+      ])
     }
 
-    const deliveryLine = productDeliveryBy
-      ? `Uanabi coordina productos (objetivo: ${productDeliveryBy}).`
-      : 'Uanabi coordina el envío de productos.'
-
-    return {
-      tone: 'approved',
-      title: 'Aprobada',
-      body: joinPanelSentences([
-        approvedBannerVisible ? 'Aprobada. Coordinación en curso.' : 'Aprobada.',
-        deliveryLine,
-        invitedLine,
-      ]),
-    }
-  }
-
-  if (status === SPONSORSHIP_STATUS.CASO_ABIERTO) {
-    return {
-      tone: 'close',
-      title: 'Validar participación',
-      body: joinPanelSentences([
-        'Confirmá que la marca participó en tu evento.',
-        'Subí fotos del stand o activación y una reseña breve — con eso validamos el patrocinio y lo publicamos en tu perfil.',
-        invitedLine,
-      ]),
-    }
-  }
-
-  if (status === SPONSORSHIP_STATUS.EN_VERIFICACION) {
-    return {
-      tone: 'verification',
-      title: 'En verificación',
-      body: joinPanelSentences([
-        'Verificando el patrocinio. Cuando confirmemos, aparece en tu perfil.',
-        invitedLine,
-      ]),
-    }
+    return { ...preset, detail }
   }
 
   return {
-    tone: 'review',
     title: 'En proceso',
-    body: joinPanelSentences(['Seguimos tu invitación con esta marca.', invitedLine]),
+    subtitle: 'Seguimos tu invitación con esta marca',
+    detail: joinPanelSentences(['Seguimos tu invitación con esta marca.', invitedLine]),
+    tone: 'neutral',
+  }
+}
+
+
+export function getInvitationStepPanelContent(status, options = {}) {
+  const presentation = getInvitationPresentation(status, options)
+  const panelTone =
+    presentation.tone === 'attention'
+      ? 'close'
+      : presentation.tone === 'neutral'
+        ? 'review'
+        : presentation.tone
+  return {
+    tone: panelTone,
+    title: presentation.title,
+    body: presentation.detail,
   }
 }
 
@@ -381,4 +470,36 @@ export function getInvitationBadgeClass(status) {
     return 'bg-secondary text-muted-foreground border-border-subtle'
   }
   return 'bg-secondary text-muted-foreground border-border-subtle'
+}
+
+const ROW_SUMMARY_TONE_CLASS = {
+  approved: 'text-emerald-700',
+  review: 'text-amber-700',
+  declined: 'text-muted-foreground',
+  attention: 'text-orange-700',
+  verification: 'text-sky-700',
+  neutral: 'text-foreground',
+}
+
+const ROW_BORDER_TONE_CLASS = {
+  approved: 'border-emerald-200/70',
+  review: 'border-border-subtle',
+  declined: 'border-border-subtle bg-secondary/20',
+  attention: 'border-orange-200/80',
+  verification: 'border-sky-200/60',
+  neutral: 'border-border-subtle',
+}
+
+/** Copy de la fila colapsada (Propuestas enviadas) */
+export function getInvitationRowSummary(status, options = {}) {
+  const { title, subtitle, tone } = getInvitationPresentation(status, options)
+  return { title, subtitle, tone }
+}
+
+export function getInvitationRowSummaryTitleClass(tone) {
+  return ROW_SUMMARY_TONE_CLASS[tone] ?? ROW_SUMMARY_TONE_CLASS.neutral
+}
+
+export function getInvitationRowBorderClass(tone) {
+  return ROW_BORDER_TONE_CLASS[tone] ?? ROW_BORDER_TONE_CLASS.neutral
 }

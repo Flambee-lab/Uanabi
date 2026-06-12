@@ -20,6 +20,9 @@ export default function SponsorshipCloseCaseModal({
   if (!isOpen || !caseInfo) return null
 
   const reset = () => {
+    photos.forEach((p) => {
+      if (p.previewUrl?.startsWith('blob:')) URL.revokeObjectURL(p.previewUrl)
+    })
     setStep(1)
     setDelivered(null)
     setPhotos([])
@@ -68,13 +71,13 @@ export default function SponsorshipCloseCaseModal({
             <p className="type-label ">
               Paso {success ? '✓' : step} de 3
             </p>
-            <h2 className="mt-1 font-display text-xl font-black tracking-tight text-foreground">
+            <h2 className="type-heading mt-1">
               {success
                 ? 'Pruebas enviadas'
                 : 'Finalizar Patrocinio y Validar Marcas'}
             </h2>
             {!success && (
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="type-small mt-1 text-muted-foreground">
                 {caseInfo.brandName} · {caseInfo.eventTitle}
               </p>
             )}
@@ -92,7 +95,7 @@ export default function SponsorshipCloseCaseModal({
         <div className="px-8 py-8">
           {success ? (
             <div className="space-y-4 text-center">
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <p className="type-body-muted">
                 Recibimos tus pruebas. Uanabi verificará el caso en las próximas 24 horas para
                 impactar las marcas en tu perfil público.
               </p>
@@ -102,7 +105,7 @@ export default function SponsorshipCloseCaseModal({
             </div>
           ) : step === 1 ? (
             <div className="space-y-6">
-              <p className="text-sm font-medium text-foreground">
+              <p className="type-body font-medium">
                 ¿La marca entregó los productos o el presupuesto acordado?
               </p>
               <div className="grid grid-cols-2 gap-4">
@@ -124,7 +127,7 @@ export default function SponsorshipCloseCaseModal({
             </div>
           ) : step === 2 ? (
             <div className="space-y-4">
-              <p className="text-sm font-medium text-foreground">
+              <p className="type-body font-medium">
                 Subí evidencia visual del patrocinio
               </p>
               <label className="block cursor-pointer rounded-2xl border-2 border-dashed border-border p-8 text-center transition hover:border-muted-foreground/40">
@@ -140,7 +143,7 @@ export default function SponsorshipCloseCaseModal({
                   }}
                 />
                 <ImagePlus className="mx-auto h-6 w-6 text-muted-foreground" strokeWidth={1.75} />
-                <p className="mt-3 text-xs font-bold text-foreground/80">
+                <p className="type-small mt-3 font-bold text-foreground/80">
                   + Subir fotos del evento (Banners, stands o producto entregado)
                 </p>
                 <p className="mt-1 type-small text-muted-foreground">
@@ -162,7 +165,7 @@ export default function SponsorshipCloseCaseModal({
             </div>
           ) : (
             <div className="space-y-6">
-              <p className="text-sm font-medium text-foreground">
+              <p className="type-body font-medium">
                 Calificá tu experiencia con la marca
               </p>
               <div className="flex gap-2">
@@ -186,7 +189,7 @@ export default function SponsorshipCloseCaseModal({
                 ))}
               </div>
               <textarea
-                className="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-xs text-foreground focus:border-primary focus:bg-white focus:outline-none"
+                className="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-sm text-foreground focus:border-primary focus:bg-white focus:outline-none"
                 rows={3}
                 placeholder="Reseña interna sobre la marca (opcional)"
                 value={review}

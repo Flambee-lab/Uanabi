@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { RotateCcw } from 'lucide-react'
 import BrandDiscoverCard from '../components/explore/BrandDiscoverCard'
 import ExploreSearchCapsule from '../components/explore/ExploreSearchCapsule'
@@ -27,6 +27,7 @@ export default function ExploreHome({
   const [rubrosLocal, setRubrosLocal] = useState([])
   const [selectedBrandId, setSelectedBrandId] = useState(null)
   const [dockProgress, setDockProgress] = useState(0)
+  const listScrollRef = useRef(0)
 
   const searchQuery = searchQueryProp ?? searchQueryLocal
   const setSearchQuery = onSearchChangeProp ?? setSearchQueryLocal
@@ -89,14 +90,29 @@ export default function ExploreHome({
     ? brands.find((b) => b.id === selectedBrandId)
     : null
 
+  // Al abrir un detalle, llevar el scroll del main arriba; al volver, restaurar la posición de la lista
+  const openBrand = (brandId) => {
+    const root = scrollRootRef?.current
+    if (root && !selectedBrandId) listScrollRef.current = root.scrollTop
+    setSelectedBrandId(brandId)
+    root?.scrollTo({ top: 0 })
+  }
+
+  const closeBrand = () => {
+    setSelectedBrandId(null)
+    requestAnimationFrame(() => {
+      scrollRootRef?.current?.scrollTo({ top: listScrollRef.current })
+    })
+  }
+
   if (selectedBrand) {
     return (
       <BrandPublicView
         brand={selectedBrand}
         hostEvents={hostEvents}
         relatedBrands={filteredBrands}
-        onSelectBrand={setSelectedBrandId}
-        onBack={() => setSelectedBrandId(null)}
+        onSelectBrand={openBrand}
+        onBack={closeBrand}
         onRequestPartnership={onRequestPartnership}
       />
     )
@@ -149,7 +165,7 @@ export default function ExploreHome({
         {filteredBrands.length === 0 ? (
           <Card className="rounded-2xl border-dashed border-border bg-transparent py-28 text-center shadow-none">
             <CardContent className="px-8">
-              <p className="type-heading">No hay Uanabis con estos filtros</p>
+              <p className="type-heading">No encontramos marcas con estos filtros</p>
               <p className="uanabi-meta mt-2">
                 Probá otra categoría o ampliá la búsqueda en Capital Federal.
               </p>
@@ -164,7 +180,7 @@ export default function ExploreHome({
               <BrandDiscoverCard
                 key={brand.id}
                 brand={brand}
-                onSelect={setSelectedBrandId}
+                onSelect={openBrand}
               />
             ))}
           </div>

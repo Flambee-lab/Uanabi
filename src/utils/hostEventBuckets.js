@@ -1,5 +1,10 @@
-import { isEventPast, inviteNeedsClosure, SPONSORSHIP_STATUS } from './sponsorshipLifecycle'
-import { getInvitationStatusLabel } from './eventSponsorMatch'
+import {
+  formatVerificationAttentionMessage,
+  isEventPast,
+  inviteNeedsHostVerificationUpload,
+  SPONSORSHIP_STATUS,
+} from './sponsorshipLifecycle'
+import { getInvitedBrandsForEvent, getInvitationStatusLabel } from './eventSponsorMatch'
 
 const CONFIRMED_STATUSES = new Set([
   SPONSORSHIP_STATUS.MATCH_ACEPTADO,
@@ -23,10 +28,40 @@ export function splitEventsByTimeline(events, referenceDate = new Date()) {
 }
 
 export function countPastEventsWithPendingActions(events, referenceDate = new Date()) {
+  return getPastEventsNeedingAction(events, [], referenceDate).length
+}
+
+/** Resumen de la acción pendiente del host en un evento pasado (verificación). */
+export function getEventHostActionSummary(event, catalog = [], referenceDate = new Date()) {
+  if (!event || !isEventPast(event, referenceDate)) return null
+
+  const invitedBrands = getInvitedBrandsForEvent(event, catalog)
+  const pendingBrands = invitedBrands.filter((brand) =>
+    inviteNeedsHostVerificationUpload({ status: brand.invitationStatus }, event),
+  )
+
+  if (pendingBrands.length === 0) return null
+
+  return {
+    type: 'verification',
+    brandId: pendingBrands[0].id,
+    brandName: pendingBrands[0].name,
+    pendingCount: pendingBrands.length,
+    message: formatVerificationAttentionMessage(pendingBrands.length, pendingBrands[0].name),
+  }
+}
+
+/** Eventos pasados que requieren acción del host, ordenados del más reciente al más antiguo. */
+export function getPastEventsNeedingAction(events, catalog = [], referenceDate = new Date()) {
   const { past } = splitEventsByTimeline(events, referenceDate)
-  return past.filter((event) =>
-    (event.invitedBrands ?? []).some((invite) => inviteNeedsClosure(invite, event)),
-  ).length
+
+  return past
+    .map((event) => ({
+      event,
+      action: getEventHostActionSummary(event, catalog, referenceDate),
+    }))
+    .filter(({ action }) => Boolean(action))
+    .sort((a, b) => String(b.event.date).localeCompare(String(a.event.date)))
 }
 
 export function getHostPartnerships(events, catalog = []) {
