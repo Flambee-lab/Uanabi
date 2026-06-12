@@ -1,6 +1,20 @@
-import { Calendar, MapPin, MessageCircle, Package, Sparkles, StickyNote, UserCircle, Users, X } from 'lucide-react'
+import { useState } from 'react'
+import {
+  ArrowLeftRight,
+  Calendar,
+  CheckCircle2,
+  MapPin,
+  MessageCircle,
+  Package,
+  Sparkles,
+  StickyNote,
+  UserCircle,
+  Users,
+  X,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { BRAND_INPUT_CLASS } from './BrandPanelShell'
 
 function formatDate(iso) {
   if (!iso) return '—'
@@ -10,6 +24,17 @@ function formatDate(iso) {
     month: 'long',
     year: 'numeric',
   })
+}
+
+/** Link wa.me con mensaje precargado para coordinar el trato aceptado */
+function buildWhatsAppLink(invitation, marcaNombre) {
+  const digits = (invitation.whatsapp ?? '').replace(/\D/g, '')
+  if (!digits) return null
+  const full = digits.startsWith('54') ? digits : `549${digits}`
+  const text = encodeURIComponent(
+    `¡Hola${invitation.hostNombre ? ` ${invitation.hostNombre}` : ''}! Somos ${marcaNombre} 👋 Aceptamos tu propuesta para "${invitation.eventoTitulo}". Te escribimos para coordinar la entrega y los detalles de logística.`,
+  )
+  return `https://wa.me/${full}?text=${text}`
 }
 
 function ListBlock({ title, items, icon: Icon, accentClass }) {
@@ -32,15 +57,30 @@ function ListBlock({ title, items, icon: Icon, accentClass }) {
 
 export default function BrandProposalDetailModal({
   invitation,
+  marcaNombre = 'Tu marca',
   onClose,
   onAccept,
   onDecline,
+  onCounterOffer,
   accepting = false,
+  countering = false,
 }) {
+  const [counterMode, setCounterMode] = useState(false)
+  const [counterMessage, setCounterMessage] = useState('')
+
   if (!invitation) return null
 
   const isPending = invitation.estado === 'pendiente'
   const isAccepted = invitation.estado === 'aceptado'
+  const isCounterOffered = invitation.estado === 'contraoferta'
+  const whatsAppLink = buildWhatsAppLink(invitation, marcaNombre)
+
+  const handleSendCounter = () => {
+    if (!counterMessage.trim()) return
+    onCounterOffer?.(invitation, counterMessage.trim())
+    setCounterMode(false)
+    setCounterMessage('')
+  }
 
   return (
     <div
@@ -90,6 +130,46 @@ export default function BrandProposalDetailModal({
         </div>
 
         <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-5">
+          {isAccepted && (
+            <div className="rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-4">
+              <p className="flex items-center gap-2 text-sm font-bold text-emerald-800">
+                <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} />
+                Trato aceptado — coordiná la entrega por WhatsApp
+              </p>
+              <div className="mt-2.5 space-y-1 text-sm text-slate-800">
+                {invitation.whatsapp && (
+                  <p className="flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4 text-emerald-600" />
+                    WhatsApp del host: <strong>{invitation.whatsapp}</strong>
+                  </p>
+                )}
+                {invitation.direccionEntrega && (
+                  <p className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-emerald-600" />
+                    Entrega: {invitation.direccionEntrega}
+                  </p>
+                )}
+                {invitation.fechaLimiteEntrega && (
+                  <p className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-emerald-600" />
+                    Stock para el {formatDate(invitation.fechaLimiteEntrega)}
+                  </p>
+                )}
+              </div>
+              {whatsAppLink && (
+                <a
+                  href={whatsAppLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-400"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Abrir WhatsApp con mensaje listo
+                </a>
+              )}
+            </div>
+          )}
+
           {(invitation.hostNombre || invitation.hostComunidad) && (
             <div className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50/60 p-3.5">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-200 text-slate-500">
@@ -136,32 +216,23 @@ export default function BrandProposalDetailModal({
             </div>
           )}
 
-          {invitation.fechaLimiteEntrega && (
+          {!isAccepted && invitation.fechaLimiteEntrega && (
             <p className="text-xs text-slate-500">
               Stock necesario para:{' '}
               <strong className="text-slate-700">{formatDate(invitation.fechaLimiteEntrega)}</strong>
             </p>
           )}
 
-          {isAccepted && (
-            <div className="rounded-xl border border-emerald-200/80 bg-emerald-50/60 p-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700">
-                Contacto del host
+          {isCounterOffered && invitation.mensajeRespuesta && (
+            <div className="rounded-xl border border-sky-200/80 bg-sky-50/60 p-3.5">
+              <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-sky-700">
+                <ArrowLeftRight className="h-3.5 w-3.5" />
+                Tu contraoferta
               </p>
-              <div className="mt-2 space-y-1 text-sm text-slate-800">
-                {invitation.whatsapp && (
-                  <p className="flex items-center gap-2">
-                    <MessageCircle className="h-4 w-4 text-emerald-600" />
-                    WhatsApp: <strong>{invitation.whatsapp}</strong>
-                  </p>
-                )}
-                {invitation.direccionEntrega && (
-                  <p className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-emerald-600" />
-                    {invitation.direccionEntrega}
-                  </p>
-                )}
-              </div>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-700">{invitation.mensajeRespuesta}</p>
+              <p className="mt-2 text-xs text-slate-500">
+                El host la va a ver en su panel y puede contactarte para renegociar.
+              </p>
             </div>
           )}
 
@@ -176,7 +247,42 @@ export default function BrandProposalDetailModal({
         </div>
 
         <div className="shrink-0 border-t border-slate-100 px-5 py-4">
-          {isPending ? (
+          {isPending && counterMode ? (
+            <div className="space-y-3">
+              <div>
+                <label htmlFor="counter-message" className="mb-1.5 block text-xs font-bold text-slate-800">
+                  ¿Qué cambiarías de la propuesta?
+                </label>
+                <textarea
+                  id="counter-message"
+                  className={`${BRAND_INPUT_CLASS} min-h-[88px] resize-y`}
+                  value={counterMessage}
+                  onChange={(e) => setCounterMessage(e.target.value)}
+                  placeholder="Ej: Podemos enviar 40 unidades en vez de 80, y sumamos 2 coolers. ¿Les sirve si a cambio agregan un posteo en feed?"
+                  autoFocus
+                />
+              </div>
+              <div className="flex flex-wrap justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-full border-slate-200 text-slate-600"
+                  disabled={countering}
+                  onClick={() => setCounterMode(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="button"
+                  className="rounded-full bg-sky-500 px-6 font-bold text-white hover:bg-sky-400"
+                  disabled={countering || !counterMessage.trim()}
+                  onClick={handleSendCounter}
+                >
+                  {countering ? 'Enviando…' : 'Enviar contraoferta'}
+                </Button>
+              </div>
+            </div>
+          ) : isPending ? (
             <div className="flex flex-wrap justify-end gap-2">
               <Button
                 type="button"
@@ -186,6 +292,16 @@ export default function BrandProposalDetailModal({
                 onClick={() => onDecline?.(invitation)}
               >
                 Declinar
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-full border-sky-200 text-sky-700 hover:bg-sky-50"
+                disabled={accepting}
+                onClick={() => setCounterMode(true)}
+              >
+                <ArrowLeftRight className="h-4 w-4" />
+                Contraoferta
               </Button>
               <Button
                 type="button"

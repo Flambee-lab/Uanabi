@@ -97,15 +97,24 @@ export async function fetchInvitacionesMarcasForEvents(eventoIds = []) {
   return { data: data ?? [], error }
 }
 
+function loadLocalInvitacionesForMarca(normalized, eventsById) {
+  const rows = loadLocalBrandInvitaciones()
+  const matching = rows.filter((row) => row.marca_nombre?.toLowerCase() === normalized)
+  // Demo: si la marca registrada no coincide con los mocks, mostramos todos igual
+  const source = matching.length > 0 ? matching : rows
+  return source.map((row) => mapInvitacionRow(row, eventsById))
+}
+
 export async function fetchInvitacionesForMarca(marcaNombre, eventsById = {}) {
   const normalized = (marcaNombre ?? '').trim().toLowerCase()
   if (!normalized) return { data: [], error: null }
 
   if (!isSupabaseConfigured || !supabase) {
-    const local = loadLocalBrandInvitaciones()
-      .filter((row) => row.marca_nombre?.toLowerCase() === normalized)
-      .map((row) => mapInvitacionRow(row, eventsById))
-    return { data: local, error: null, persisted: false }
+    return {
+      data: loadLocalInvitacionesForMarca(normalized, eventsById),
+      error: null,
+      persisted: false,
+    }
   }
 
   const { data, error } = await supabase
@@ -114,9 +123,16 @@ export async function fetchInvitacionesForMarca(marcaNombre, eventsById = {}) {
     .ilike('marca_nombre', marcaNombre.trim())
     .order('created_at', { ascending: false })
 
-  if (error) return { data: [], error, persisted: true }
+  // Demo: sin filas reales en Supabase, caemos a las invitaciones mock locales
+  if (error || !data?.length) {
+    return {
+      data: loadLocalInvitacionesForMarca(normalized, eventsById),
+      error: null,
+      persisted: false,
+    }
+  }
 
-  const mapped = (data ?? []).map((row) => mapInvitacionRow(row, eventsById))
+  const mapped = data.map((row) => mapInvitacionRow(row, eventsById))
   return { data: mapped, error: null, persisted: true }
 }
 
@@ -126,7 +142,9 @@ export async function updateInvitacionEstado(id, { estado, mensajeRespuesta = nu
     ...(mensajeRespuesta != null ? { mensaje_respuesta: mensajeRespuesta } : {}),
   }
 
-  if (!isSupabaseConfigured || !supabase) {
+  const isLocalRow = typeof id === 'string' && (id.startsWith('inv-mock') || id.startsWith('local-'))
+
+  if (!isSupabaseConfigured || !supabase || isLocalRow) {
     const rows = loadLocalBrandInvitaciones()
     const next = rows.map((row) =>
       row.id === id ? { ...row, estado, mensaje_respuesta: mensajeRespuesta } : row,

@@ -107,6 +107,114 @@ export const BRAND_REQUIREMENTS = [
 
 export const BRAND_OFFERS = VITALSPORT_CATALOG.map(({ id, label }) => ({ id, label }))
 
+/* ---------- Recomendaciones según el tamaño del evento ---------- */
+
+export const DEFAULT_EVENT_ATTENDANCE = 80
+
+/** Extrae la asistencia presencial estimada del evento (ej: "120 presenciales / 12k reach" → 120) */
+export function parseEventAttendance(event) {
+  if (!event) return null
+  if (Number.isFinite(event.expectedAttendance)) return event.expectedAttendance
+  const match = `${event.audience ?? ''}`.match(/\d+/)
+  return match ? parseInt(match[0], 10) : null
+}
+
+export function getEventScale(attendance) {
+  const n = attendance ?? DEFAULT_EVENT_ATTENDANCE
+  if (n < 50) return 'intimo'
+  if (n <= 150) return 'mediano'
+  return 'grande'
+}
+
+export const EVENT_SCALE_LABELS = {
+  intimo: 'Evento íntimo',
+  mediano: 'Evento mediano',
+  grande: 'Evento grande',
+}
+
+/** Redondea unidades a números "lindos" según la magnitud */
+function roundUnits(value) {
+  if (value <= 6) return Math.max(2, Math.round(value))
+  if (value <= 30) return Math.round(value / 5) * 5 || 5
+  return Math.round(value / 10) * 10
+}
+
+/** Tope de unidades por producto para no pedir de más en eventos chicos */
+export function getMaxUnitsForAttendance(attendance) {
+  const n = attendance ?? DEFAULT_EVENT_ATTENDANCE
+  return Math.max(10, roundUnits(n * 1.5))
+}
+
+/**
+ * Arma 2–3 packs recomendados con cantidades calculadas en base a la
+ * asistencia estimada del evento. No se muestra el catálogo completo.
+ */
+export function buildRecommendedPacks(event) {
+  const attendance = parseEventAttendance(event) ?? DEFAULT_EVENT_ATTENDANCE
+  const scale = getEventScale(attendance)
+
+  const packs = [
+    {
+      id: 'pack-sampling',
+      name: 'Sampling esencial',
+      badge: 'Más elegido',
+      description: 'Producto para repartir entre tus asistentes en barra o acreditaciones.',
+      items: [
+        { id: 'energy-classic', qty: roundUnits(attendance * 0.7) },
+        { id: 'energy-zero', qty: roundUnits(attendance * 0.4) },
+      ],
+    },
+    {
+      id: 'pack-hidratacion',
+      name: 'Hidratación + barra fría',
+      description: 'Isotónicas para todo el evento con cooler montado en el venue.',
+      items: [
+        { id: 'iso-500', qty: roundUnits(attendance * 0.9) },
+        { id: 'cooler-event', qty: 1 },
+      ],
+    },
+  ]
+
+  if (scale !== 'intimo') {
+    packs.push({
+      id: 'pack-experiencia',
+      name: 'Experiencia + premios',
+      description: 'Multipacks para sorteos, shots para el staff y shakers co-branded.',
+      items: [
+        { id: 'multipack-cans', qty: roundUnits(Math.max(2, attendance / 12)) },
+        { id: 'energy-shots', qty: roundUnits(attendance * 0.25) },
+        { id: 'shakers', qty: roundUnits(attendance * 0.3) },
+      ],
+    })
+  }
+
+  return {
+    attendance,
+    scale,
+    scaleLabel: EVENT_SCALE_LABELS[scale],
+    maxUnits: getMaxUnitsForAttendance(attendance),
+    packs,
+  }
+}
+
+/** Qué entregables tienen sentido según la escala del evento */
+const REQUIREMENT_SCALES = {
+  'ig-stories': ['intimo', 'mediano', 'grande'],
+  'tag-marca': ['intimo', 'mediano', 'grande'],
+  'foto-producto': ['intimo', 'mediano', 'grande'],
+  'ig-post': ['mediano', 'grande'],
+  stand: ['mediano', 'grande'],
+  'logo-shirts': ['grande'],
+}
+
+export function getRequirementsForScale(scale) {
+  return BRAND_REQUIREMENTS.filter((r) => REQUIREMENT_SCALES[r.id]?.includes(scale))
+}
+
+export function catalogProductById(id) {
+  return VITALSPORT_CATALOG.find((p) => p.id === id) ?? null
+}
+
 export function getInvitationBrandDisplay(brand) {
   if (!brand) return VITALSPORT_BRAND
   return {

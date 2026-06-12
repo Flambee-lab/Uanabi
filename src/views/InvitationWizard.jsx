@@ -2,25 +2,30 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
+  BadgeCheck,
   Calendar,
   Check,
   ChevronDown,
+  Clock,
   MessageCircle,
   Minus,
   Plus,
+  Send,
   Sparkles,
+  Users,
   X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
-  BRAND_REQUIREMENTS,
   HERO_PRODUCT_IDS,
   VITALSPORT_CATALOG,
-  buildInvitationContactMessage,
+  buildRecommendedPacks,
   catalogLabelById,
+  catalogProductById,
   formatWhatsAppDisplay,
   getInvitationBrandDisplay,
+  getRequirementsForScale,
   requirementLabelById,
 } from '../data/invitationWizardCatalog'
 
@@ -31,7 +36,7 @@ const INPUT_CLASS =
   'w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-sky-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-400/25'
 
 const QTY_INPUT_CLASS =
-  'w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-center text-sm font-semibold text-slate-900 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/20'
+  'w-16 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-center text-sm font-semibold text-slate-900 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/20'
 
 function StepDots({ current, total }) {
   return (
@@ -115,78 +120,110 @@ function EventContextBar({
   return null
 }
 
-function ProductCatalogCard({ product, selected, quantity, onToggle, onQuantityChange }) {
-  const adjustQty = (delta, e) => {
-    e.stopPropagation()
-    const next = Math.max(1, (quantity || 1) + delta)
-    onQuantityChange(next)
-  }
+function RecommendedPackCard({ pack, selected, quantities, maxUnits, onSelect, onQuantityChange }) {
+  const itemsSummary = pack.items
+    .map((item) => `${item.qty}× ${catalogLabelById(item.id)}`)
+    .join(' · ')
+
+  const clampQty = (value) => Math.min(maxUnits, Math.max(1, value))
 
   return (
     <div
       className={cn(
-        'flex w-[168px] shrink-0 flex-col overflow-hidden rounded-2xl border transition-all duration-300',
+        'overflow-hidden rounded-2xl border transition-all duration-300',
         selected
-          ? 'border-sky-400 bg-sky-50/80 shadow-lg shadow-sky-400/10 ring-2 ring-sky-400/30'
+          ? 'border-sky-400 bg-sky-50/70 shadow-lg shadow-sky-400/10 ring-2 ring-sky-400/25'
           : 'border-slate-200/80 bg-white hover:border-sky-300/60 hover:shadow-md',
       )}
     >
-      <button type="button" onClick={onToggle} className="group text-left">
-        <div className={cn('relative h-36 overflow-hidden bg-gradient-to-br', product.accent)}>
-          <img
-            src={product.image}
-            alt=""
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-          />
-          {selected && (
-            <span className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-sky-400 text-white shadow-md">
-              <Check className="h-4 w-4" strokeWidth={2.5} />
-            </span>
+      <button type="button" onClick={onSelect} className="flex w-full items-center gap-4 p-4 text-left">
+        <div className="flex shrink-0 -space-x-3">
+          {pack.items.slice(0, 3).map((item) => {
+            const product = catalogProductById(item.id)
+            return (
+              <span
+                key={item.id}
+                className="block h-12 w-12 overflow-hidden rounded-xl border-2 border-white shadow-sm"
+              >
+                <img src={product?.image} alt="" className="h-full w-full object-cover" />
+              </span>
+            )
+          })}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-sm font-bold text-slate-900">{pack.name}</p>
+            {pack.badge && (
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                {pack.badge}
+              </span>
+            )}
+          </div>
+          <p className="mt-0.5 text-[11px] leading-snug text-slate-500">{pack.description}</p>
+          <p className="mt-1.5 text-[11px] font-semibold text-slate-600">{itemsSummary}</p>
+        </div>
+        <span
+          className={cn(
+            'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition',
+            selected
+              ? 'border-sky-400 bg-sky-400 text-white'
+              : 'border-slate-300 bg-white text-transparent',
           )}
-        </div>
-        <div className="p-3.5 pb-2">
-          <p className="text-sm font-bold text-slate-900">{product.label}</p>
-          <p className="mt-0.5 text-[11px] leading-snug text-slate-500">{product.subtitle}</p>
-        </div>
+        >
+          <Check className="h-3.5 w-3.5" strokeWidth={3} />
+        </span>
       </button>
 
       {selected && (
-        <div className="border-t border-sky-100 px-3 pb-3 pt-2" onClick={(e) => e.stopPropagation()}>
-          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">
-            Unidades
+        <div className="space-y-2.5 border-t border-sky-100 px-4 py-3">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">
+            Ajustá unidades · máx. {maxUnits} por producto
           </p>
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={(e) => adjustQty(-1, e)}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-sky-300"
-              aria-label="Menos"
-            >
-              <Minus className="h-3.5 w-3.5" />
-            </button>
-            <input
-              type="number"
-              min={1}
-              className={QTY_INPUT_CLASS}
-              value={quantity || 1}
-              onChange={(e) => onQuantityChange(Math.max(1, parseInt(e.target.value, 10) || 1))}
-            />
-            <button
-              type="button"
-              onClick={(e) => adjustQty(1, e)}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-sky-300"
-              aria-label="Más"
-            >
-              <Plus className="h-3.5 w-3.5" />
-            </button>
-          </div>
+          {pack.items.map((item) => {
+            const qty = quantities[item.id] ?? item.qty
+            return (
+              <div key={item.id} className="flex items-center justify-between gap-3">
+                <p className="min-w-0 flex-1 truncate text-xs font-medium text-slate-700">
+                  {catalogLabelById(item.id)}
+                </p>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => onQuantityChange(item.id, clampQty(qty - 1))}
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-sky-300"
+                    aria-label={`Menos ${catalogLabelById(item.id)}`}
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <input
+                    type="number"
+                    min={1}
+                    max={maxUnits}
+                    className={QTY_INPUT_CLASS}
+                    value={qty}
+                    onChange={(e) =>
+                      onQuantityChange(item.id, clampQty(parseInt(e.target.value, 10) || 1))
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() => onQuantityChange(item.id, clampQty(qty + 1))}
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-sky-300"
+                    aria-label={`Más ${catalogLabelById(item.id)}`}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
   )
 }
 
-function BrandHeroPanel({ brandDisplay, selectedEvent, step }) {
+function BrandHeroPanel({ brandDisplay, step }) {
   const heroProducts = HERO_PRODUCT_IDS.map(
     (id) => VITALSPORT_CATALOG.find((p) => p.id === id) ?? VITALSPORT_CATALOG[0],
   )
@@ -235,22 +272,15 @@ function BrandHeroPanel({ brandDisplay, selectedEvent, step }) {
         </div>
 
         <div className="mt-auto space-y-3">
-          {selectedEvent && (
-            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-sky-400/90">
-                Evento vinculado
-              </p>
-              <p className="mt-1 font-display text-base font-bold text-white">{selectedEvent.title}</p>
-              <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-400">
-                <Calendar className="h-3.5 w-3.5" />
-                {selectedEvent.date}
-              </p>
-            </div>
-          )}
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-400">
+            <BadgeCheck className="h-4 w-4 text-sky-400" strokeWidth={2.2} />
+            Marca verificada por UANABI
+          </p>
           <p className="text-xs leading-relaxed text-slate-500">
-            {step === 1 && 'Elegí productos y cantidades para la invitación.'}
+            {step === 1 && 'Te sugerimos packs con cantidades a la medida de tu evento.'}
             {step === 2 && 'Contanos qué entregables podés ofrecer a cambio.'}
-            {step === 3 && 'Revisá el trato antes de enviar la invitación.'}
+            {step === 3 && 'Validá fechas, punto de entrega y contacto.'}
+            {step === 4 && 'Enviá tu propuesta — la marca decide si la acepta.'}
           </p>
         </div>
       </div>
@@ -258,23 +288,28 @@ function BrandHeroPanel({ brandDisplay, selectedEvent, step }) {
   )
 }
 
-function SummaryBlock({ title, items, note }) {
+function SummaryBlock({ title, items, note, className }) {
   return (
-    <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+    <div className={cn('rounded-2xl border border-slate-100 bg-slate-50/60 p-3.5', className)}>
       <p className="text-[10px] font-bold uppercase tracking-widest text-sky-600">{title}</p>
-      {items.length === 0 ? (
-        <p className="mt-2 text-sm text-slate-400">Sin selección</p>
+      {items.length === 0 && !note ? (
+        <p className="mt-1.5 text-[13px] text-slate-400">Sin selección</p>
       ) : (
-        <ul className="mt-2 space-y-1.5">
+        <ul className="mt-1.5 space-y-1">
           {items.map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm text-slate-800">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-sky-500" strokeWidth={2.5} />
+            <li key={item} className="flex items-start gap-1.5 text-[13px] leading-snug text-slate-800">
+              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sky-500" strokeWidth={2.5} />
               {item}
             </li>
           ))}
         </ul>
       )}
-      {note && <p className="mt-3 text-sm leading-relaxed text-slate-600">{note}</p>}
+      {note && (
+        <p className="mt-2 text-[13px] leading-snug text-slate-600">
+          <span className="font-semibold text-slate-500">Pedido especial: </span>
+          {note}
+        </p>
+      )}
     </div>
   )
 }
@@ -291,12 +326,13 @@ export default function InvitationWizard({
 }) {
   const skipEventPicker = Boolean(activeEvent?.id)
   const brandDisplay = getInvitationBrandDisplay(brand)
-  const totalSteps = 3
+  const totalSteps = 4
   const savedWhatsApp = hostProfile?.whatsapp?.trim() ?? ''
 
   const [step, setStep] = useState(1)
   const [direction, setDirection] = useState(1)
   const [selectedEventId, setSelectedEventId] = useState(activeEvent?.id ?? '')
+  const [selectedPackId, setSelectedPackId] = useState(null)
   const [productQty, setProductQty] = useState({})
   const [specialRequest, setSpecialRequest] = useState('')
   const [requirements, setRequirements] = useState([])
@@ -310,6 +346,13 @@ export default function InvitationWizard({
     if (activeEvent?.id) return activeEvent
     return hostEvents.find((e) => e.id === selectedEventId) ?? null
   }, [activeEvent, hostEvents, selectedEventId])
+
+  const recommendation = useMemo(() => buildRecommendedPacks(selectedEvent), [selectedEvent])
+
+  const scaledRequirements = useMemo(
+    () => getRequirementsForScale(recommendation.scale),
+    [recommendation.scale],
+  )
 
   const productLines = useMemo(
     () =>
@@ -329,6 +372,7 @@ export default function InvitationWizard({
     setStep(1)
     setDirection(1)
     setSelectedEventId(activeEvent?.id ?? hostEvents[0]?.id ?? '')
+    setSelectedPackId(null)
     setProductQty({})
     setSpecialRequest('')
     setRequirements([])
@@ -345,36 +389,41 @@ export default function InvitationWizard({
     setDeliveryAddress((prev) => (prev.trim() ? prev : venue))
   }, [selectedEvent?.id, selectedEvent?.venueAddress, selectedEvent?.location])
 
+  // Si cambia el evento, recalcula las cantidades del pack elegido
+  useEffect(() => {
+    if (!selectedPackId) return
+    const pack = recommendation.packs.find((p) => p.id === selectedPackId)
+    if (!pack) {
+      setSelectedPackId(null)
+      setProductQty({})
+      return
+    }
+    setProductQty(Object.fromEntries(pack.items.map((i) => [i.id, i.qty])))
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al cambiar de evento
+  }, [selectedEvent?.id])
+
   if (!isOpen || !brand) return null
 
   const hasProducts = productLines.length > 0
   const canContinueStep1 =
     Boolean(selectedEvent?.id) && (hasProducts || specialRequest.trim().length > 0)
-  const canContinueStep2 =
-    requirements.length > 0 &&
-    Boolean(deliveryDate) &&
-    Boolean(deliveryAddress.trim()) &&
-    Boolean(whatsapp.trim())
-
-  const contactMessage = buildInvitationContactMessage({
-    brandName: brandDisplay.name,
-    whatsapp,
-  })
+  const canContinueStep2 = requirements.length > 0
+  const canContinueStep3 =
+    Boolean(deliveryDate) && Boolean(deliveryAddress.trim()) && Boolean(whatsapp.trim())
 
   const goTo = (next) => {
     setDirection(next > step ? 1 : -1)
     setStep(next)
   }
 
-  const toggleProduct = (id) => {
-    setProductQty((prev) => {
-      if (id in prev) {
-        const next = { ...prev }
-        delete next[id]
-        return next
-      }
-      return { ...prev, [id]: 10 }
-    })
+  const selectPack = (pack) => {
+    if (selectedPackId === pack.id) {
+      setSelectedPackId(null)
+      setProductQty({})
+      return
+    }
+    setSelectedPackId(pack.id)
+    setProductQty(Object.fromEntries(pack.items.map((i) => [i.id, i.qty])))
   }
 
   const setQuantity = (id, qty) => {
@@ -414,15 +463,17 @@ export default function InvitationWizard({
   const busy = submitting || saving
 
   const stepHeadings = {
-    1: '¿Qué te ofrece la marca?',
+    1: 'Packs sugeridos para tu evento',
     2: '¿Qué entregás vos a cambio?',
-    3: 'Confirmá tu invitación',
+    3: 'Validá la logística',
+    4: 'Tu propuesta está lista',
   }
 
   const stepSubtitles = {
-    1: `Elegí productos y unidades del catálogo de ${brandDisplay.name}.`,
-    2: 'Entregables, fecha de entrega y datos de contacto.',
-    3: 'Un último vistazo antes de enviar.',
+    1: 'Calculamos cantidades en base a la asistencia estimada de tu evento.',
+    2: 'Opciones ajustadas al tamaño de tu evento — elegí las que puedas cumplir.',
+    3: 'Fecha de stock, punto de entrega y contacto.',
+    4: 'Revisala antes de enviarla — la marca decide si la acepta.',
   }
 
   return (
@@ -434,12 +485,12 @@ export default function InvitationWizard({
       aria-labelledby="invitation-wizard-title"
     >
       <aside className="hidden min-h-0 w-[42%] shrink-0 lg:block xl:w-[44%]">
-        <BrandHeroPanel brandDisplay={brandDisplay} selectedEvent={selectedEvent} step={step} />
+        <BrandHeroPanel brandDisplay={brandDisplay} step={step} />
       </aside>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div className="relative h-28 shrink-0 overflow-hidden lg:hidden">
-          <BrandHeroPanel brandDisplay={brandDisplay} selectedEvent={selectedEvent} step={step} />
+          <BrandHeroPanel brandDisplay={brandDisplay} step={step} />
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col p-4 sm:p-6 lg:p-8">
@@ -450,7 +501,7 @@ export default function InvitationWizard({
                   <div className="flex items-center gap-2 text-sky-500">
                     <Sparkles className="h-4 w-4" />
                     <span className="text-[11px] font-bold uppercase tracking-widest">
-                      Invitación a marca
+                      Propuesta a marca
                     </span>
                   </div>
                   <h2
@@ -495,21 +546,29 @@ export default function InvitationWizard({
                 {step === 1 && (
                   <div className="space-y-6">
                     <div>
-                      <p className="text-xs font-bold text-slate-800">
-                        Catálogo {brandDisplay.name}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-xs font-bold text-slate-800">
+                          Recomendado por UANABI
+                        </p>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2.5 py-1 text-[10px] font-bold text-sky-700">
+                          <Users className="h-3 w-3" />
+                          ~{recommendation.attendance} asistentes · {recommendation.scaleLabel}
+                        </span>
+                      </div>
                       <p className="mt-1 text-xs text-slate-500">
-                        Tocá un producto y definí cuántas unidades necesitás.
+                        Armamos estos packs del catálogo de {brandDisplay.name} según la asistencia
+                        de tu evento — así no pedís ni de más ni de menos.
                       </p>
-                      <div className="-mx-1 mt-4 flex gap-3 overflow-x-auto px-1 pb-2">
-                        {VITALSPORT_CATALOG.map((product) => (
-                          <ProductCatalogCard
-                            key={product.id}
-                            product={product}
-                            selected={product.id in productQty}
-                            quantity={productQty[product.id]}
-                            onToggle={() => toggleProduct(product.id)}
-                            onQuantityChange={(qty) => setQuantity(product.id, qty)}
+                      <div className="mt-4 space-y-3">
+                        {recommendation.packs.map((pack) => (
+                          <RecommendedPackCard
+                            key={pack.id}
+                            pack={pack}
+                            selected={selectedPackId === pack.id}
+                            quantities={productQty}
+                            maxUnits={recommendation.maxUnits}
+                            onSelect={() => selectPack(pack)}
+                            onQuantityChange={setQuantity}
                           />
                         ))}
                       </div>
@@ -526,7 +585,7 @@ export default function InvitationWizard({
                         className={INPUT_CLASS}
                         value={specialRequest}
                         onChange={(e) => setSpecialRequest(e.target.value)}
-                        placeholder='Ej: "50 unidades sabor limón + hielera para el venue"'
+                        placeholder='Ej: "Sabor limón si hay disponible" o algo fuera del pack'
                       />
                     </div>
                   </div>
@@ -535,12 +594,18 @@ export default function InvitationWizard({
                 {step === 2 && (
                   <div className="space-y-6">
                     <div>
-                      <p className="text-xs font-bold text-slate-800">Entregables que ofrecés</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-xs font-bold text-slate-800">Entregables que ofrecés</p>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2.5 py-1 text-[10px] font-bold text-sky-700">
+                          Sugerido para un {recommendation.scaleLabel.toLowerCase()}
+                        </span>
+                      </div>
                       <p className="mt-1 text-xs text-slate-500">
-                        Lo que la marca espera a cambio del patrocinio.
+                        Mostramos solo lo que se ajusta al tamaño de tu evento — elegí lo que
+                        realmente podés cumplir.
                       </p>
                       <ul className="mt-4 space-y-2">
-                        {BRAND_REQUIREMENTS.map((item) => {
+                        {scaledRequirements.map((item) => {
                           const checked = requirements.includes(item.id)
                           return (
                             <li key={item.id}>
@@ -565,7 +630,11 @@ export default function InvitationWizard({
                         })}
                       </ul>
                     </div>
+                  </div>
+                )}
 
+                {step === 3 && (
+                  <div className="space-y-6">
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
                         <label htmlFor="delivery-date" className="mb-2 block text-xs font-bold text-slate-800">
@@ -591,6 +660,10 @@ export default function InvitationWizard({
                           onChange={(e) => setDeliveryAddress(e.target.value)}
                           placeholder="Ej: Av. Corrientes 1234, CABA"
                         />
+                        <p className="mt-1.5 text-[11px] text-slate-400">
+                          Precargamos la dirección del venue — podés cambiarla si recibís en otro
+                          punto.
+                        </p>
                       </div>
                     </div>
 
@@ -598,8 +671,8 @@ export default function InvitationWizard({
                       <div className="flex gap-3">
                         <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
                         <p className="text-xs leading-relaxed text-emerald-950/85">
-                          <strong className="font-bold">Canal de contacto.</strong> La marca te escribe
-                          por WhatsApp — confirmá el número para evitar idas y vueltas.
+                          <strong className="font-bold">Canal de contacto.</strong> La marca te
+                          escribe por WhatsApp — confirmá que el número de tu perfil sea correcto.
                         </p>
                       </div>
                       <div className="mt-3">
@@ -611,13 +684,28 @@ export default function InvitationWizard({
                           <input
                             id="invitation-whatsapp"
                             type="tel"
-                            className={`${INPUT_CLASS} pl-10`}
+                            className={cn(
+                              `${INPUT_CLASS} pl-10`,
+                              savedWhatsApp && 'cursor-not-allowed bg-slate-100 text-slate-500',
+                            )}
                             value={whatsapp}
                             onChange={(e) => setWhatsapp(e.target.value)}
                             placeholder="11 2345 6789"
                             autoComplete="tel"
+                            readOnly={Boolean(savedWhatsApp)}
                           />
+                          {savedWhatsApp && (
+                            <span className="absolute top-1/2 right-3 flex -translate-y-1/2 items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                              <Check className="h-3 w-3" strokeWidth={3} />
+                              Desde tu perfil
+                            </span>
+                          )}
                         </div>
+                        {savedWhatsApp && (
+                          <p className="mt-1.5 text-[11px] text-slate-500">
+                            Si necesitás cambiarlo, editalo desde tu perfil de host.
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -638,64 +726,87 @@ export default function InvitationWizard({
                   </div>
                 )}
 
-                {step === 3 && (
-                  <div className="mx-auto max-w-lg space-y-4">
-                    <div className="flex gap-3 rounded-2xl border border-sky-200/80 bg-sky-50/80 px-4 py-4">
-                      <MessageCircle className="mt-0.5 h-5 w-5 shrink-0 text-sky-600" />
-                      <p className="text-sm leading-relaxed text-slate-700">{contactMessage}</p>
+                {step === 4 && (
+                  <div className="mx-auto max-w-2xl space-y-3">
+                    <div className="flex items-center gap-4 rounded-2xl border border-sky-200/70 bg-gradient-to-r from-sky-50 to-white px-5 py-4">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-400/15 text-sky-500">
+                        <Send className="h-5 w-5" strokeWidth={2.2} />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-display text-sm font-black text-slate-900">
+                          Estás por enviar una propuesta
+                        </h3>
+                        <p className="mt-0.5 text-xs leading-snug text-slate-600">
+                          No confirma el patrocinio: {brandDisplay.name} puede{' '}
+                          <strong className="font-semibold text-slate-800">aceptar o declinar</strong>.
+                          Te avisamos por WhatsApp y en la plataforma.
+                        </p>
+                      </div>
+                      <div className="hidden shrink-0 flex-col items-end gap-1.5 sm:flex">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-slate-600 ring-1 ring-slate-200">
+                          <Clock className="h-3 w-3 text-sky-500" />
+                          Hasta 7 días hábiles
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-slate-600 ring-1 ring-slate-200">
+                          <MessageCircle className="h-3 w-3 text-emerald-600" />
+                          Aviso por WhatsApp
+                        </span>
+                      </div>
                     </div>
 
                     <div
                       className="overflow-hidden rounded-3xl border border-slate-200/80 shadow-lg"
                       style={{ backgroundColor: SLATE }}
                     >
-                      <div className="border-b border-white/10 px-6 py-5">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-sky-400">
-                          Resumen del trato
-                        </p>
-                        <p className="mt-2 font-display text-xl font-black text-white">
-                          Invitás a {brandDisplay.name}
-                        </p>
-                        <p className="mt-1 text-sm text-slate-400">
+                      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-white/10 px-5 py-3.5">
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-sky-400">
+                            Resumen de la propuesta
+                          </p>
+                          <p className="mt-0.5 font-display text-base font-black text-white">
+                            Proponés a {brandDisplay.name}
+                          </p>
+                        </div>
+                        <p className="text-xs text-slate-400">
                           {selectedEvent?.title} · {selectedEvent?.date}
                         </p>
                       </div>
-                      <div className="space-y-3 bg-white p-5">
-                        <SummaryBlock title="Ofrecido por la marca" items={productLines} />
-                        {specialRequest.trim() && (
-                          <SummaryBlock
-                            title="Pedido especial"
-                            items={[]}
-                            note={specialRequest.trim()}
-                          />
-                        )}
-                        <SummaryBlock title="Requerido de vos" items={requirementLabels} />
-                        <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                      <div className="grid gap-3 bg-white p-4 sm:grid-cols-2">
+                        <SummaryBlock
+                          title="Le pedís a la marca"
+                          items={productLines}
+                          note={specialRequest.trim() || null}
+                        />
+                        <SummaryBlock title="Ofrecés a cambio" items={requirementLabels} />
+                        <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-3.5 sm:col-span-2">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-sky-600">
                             Logística
                           </p>
-                          <ul className="mt-2 space-y-1.5 text-sm text-slate-800">
-                            <li>
-                              <span className="text-slate-500">Entrega: </span>
+                          <div className="mt-1.5 grid gap-x-4 gap-y-1 text-[13px] leading-snug text-slate-800 sm:grid-cols-3">
+                            <p>
+                              <span className="text-slate-500">Stock para el: </span>
                               {deliveryDate
                                 ? new Date(`${deliveryDate}T12:00:00`).toLocaleDateString('es-AR', {
-                                    weekday: 'long',
                                     day: 'numeric',
-                                    month: 'long',
+                                    month: 'short',
+                                    year: 'numeric',
                                   })
                                 : '—'}
-                            </li>
-                            <li>
-                              <span className="text-slate-500">Dirección: </span>
+                            </p>
+                            <p>
+                              <span className="text-slate-500">Entrega en: </span>
                               {deliveryAddress || '—'}
-                            </li>
-                            <li>
+                            </p>
+                            <p>
                               <span className="text-slate-500">WhatsApp: </span>
                               {formatWhatsAppDisplay(whatsapp) || '—'}
-                            </li>
-                          </ul>
+                            </p>
+                          </div>
                           {extraMessage.trim() && (
-                            <p className="mt-3 text-sm text-slate-600">{extraMessage.trim()}</p>
+                            <p className="mt-2 text-[13px] leading-snug text-slate-600">
+                              <span className="font-semibold text-slate-500">Nota: </span>
+                              {extraMessage.trim()}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -755,7 +866,7 @@ export default function InvitationWizard({
                     disabled={!canContinueStep2 || busy}
                     onClick={() => goTo(3)}
                   >
-                    Ver resumen
+                    Siguiente
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 )}
@@ -764,11 +875,24 @@ export default function InvitationWizard({
                   <Button
                     type="button"
                     size="default"
+                    className="rounded-full bg-sky-400 px-6 text-slate-900 hover:bg-sky-300"
+                    disabled={!canContinueStep3 || busy}
+                    onClick={() => goTo(4)}
+                  >
+                    Ver resumen
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                )}
+
+                {step === 4 && (
+                  <Button
+                    type="button"
+                    size="default"
                     className="rounded-full bg-sky-400 px-6 font-bold text-slate-900 hover:bg-sky-300"
                     disabled={busy}
                     onClick={handleConfirm}
                   >
-                    {busy ? 'Enviando…' : 'Enviar Invitación'}
+                    {busy ? 'Enviando…' : 'Enviar propuesta'}
                   </Button>
                 )}
               </div>

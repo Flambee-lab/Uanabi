@@ -65,10 +65,31 @@ export const MOCK_BRAND_INVITACIONES = [
     mensaje_respuesta: null,
     created_at: '2026-05-28T09:00:00Z',
   },
+  {
+    id: 'inv-mock-004',
+    evento_id: 'evt-005',
+    evento_titulo: 'After Office — Networking Startups',
+    evento_fecha: '2026-05-22',
+    evento_ubicacion: 'Microcentro, Buenos Aires',
+    marca_nombre: 'VitalSport',
+    host_nombre: 'Comunidad Founders BA',
+    host_comunidad: 'Founders BA — Networking & Tech',
+    evento_audiencia: '90 presenciales / 5k reach',
+    evento_nicho: 'Tecnología',
+    productos_solicitados: ['60× Energética Zero Azúcar'],
+    entregables_ofrecidos: ['Logo en pantalla principal', '2 stories del evento'],
+    fecha_limite_entrega: '2026-05-15',
+    direccion_entrega: 'Av. Corrientes 800 · Microcentro',
+    whatsapp: '11 5555 1234',
+    mensaje_extra: null,
+    estado: 'rechazado',
+    mensaje_respuesta: null,
+    created_at: '2026-05-10T11:00:00Z',
+  },
 ]
 
-// v2: incluye host_nombre, evento_nicho, etc. — invalida caches viejos
-const LOCAL_INVITACIONES_KEY = 'uanabi_brand_invitaciones_local_v2'
+// v3: agrega invitación declinada de ejemplo — invalida caches viejos
+const LOCAL_INVITACIONES_KEY = 'uanabi_brand_invitaciones_local_v3'
 
 export function loadLocalBrandInvitaciones() {
   try {
